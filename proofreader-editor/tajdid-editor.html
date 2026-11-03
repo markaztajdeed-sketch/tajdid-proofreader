@@ -100,9 +100,10 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .para.note { font-size: 15.5px; line-height: 1.95; margin-bottom: 8px; }
 .para.flash { animation: flash 1.2s ease-out; }
 @keyframes flash { from { background: color-mix(in srgb, var(--accent) 18%, transparent); } to { background: transparent; } }
-.para .edit { position: absolute; inset-inline-start: calc(100% + 4px); top: 4px; font-family: var(--ui); font-size: 12px;
-  border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 5px; padding: 1px 6px; line-height: 1.6; opacity: 0; }
-.para:hover .edit, .para .edit:focus-visible { opacity: 1; }
+.para.live { outline: none; background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: inset -2px 0 0 var(--accent); cursor: text; }
+.para:not(.live) { cursor: text; }
+.para .mk { font-family: var(--ui); font-size: 11px; color: var(--accent); background: var(--sunken); border-radius: 4px; padding: 0 3px; user-select: none; }
+.para.live.manual::after { content: none; }
 .para.manual::after { content: "عدّله المدقق"; font-family: var(--ui); font-size: 11px; color: var(--muted); margin-inline-start: 8px; }
 .quran { background: color-mix(in srgb, var(--quran) 45%, transparent); border-radius: 3px; }
 sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-weight: 600; padding: 0 1px; }
@@ -139,9 +140,6 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .pop .pg-sep { border: 0; border-top: 1px dashed var(--line); margin: 4px 0; width: 100%; }
 .sel { outline: 2px solid var(--c, var(--accent)); outline-offset: 1px; border-radius: 3px; }
 .c-punct { --c: var(--punct); } .c-spell { --c: var(--spell); } .c-conv { --c: var(--conv); } .c-style { --c: var(--style); }
-.editbox { width: 100%; min-height: 120px; font-family: var(--text); font-size: 18px; line-height: 1.9; border: 1px solid var(--accent); border-radius: 4px; padding: 8px 10px; background: var(--sunken); resize: vertical; direction: rtl; }
-.editbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--ui); font-size: 12px; color: var(--muted); margin-top: 6px; }
-.editbar .err { color: var(--spell); }
 
 /* side panel */
 .side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
@@ -255,7 +253,6 @@ input[type=file] { display: none; }
   .desk { overflow: visible; }
   .side { border-inline-start: 0; border-top: 1px solid var(--line); }
   .cards { overflow: visible; }
-  .para .edit { position: static; opacity: 1; margin-inline-start: 6px; vertical-align: middle; }
   .page { font-size: 17.5px; padding: 24px 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .para.flash { animation: none; } * { scroll-behavior: auto !important; } }
@@ -1029,17 +1026,12 @@ input[type=file] { display: none; }
     el.className = 'para' + (p.inNotes ? ' note' : '') + (p.manual ? ' manual' : '');
     el.dataset.key = p.key;
     if (st.editing === p.key) {
-      const ta = document.createElement('textarea');
-      ta.className = 'editbox'; ta.id = 'edit-' + p.key.replace(/[^a-z0-9]/gi, '_');
-      ta.value = currentText(p).replace(//g, MK_FN).replace(/￼/g, MK_OB);
-      const bar = document.createElement('div');
-      bar.className = 'editbar';
-      bar.innerHTML = '<button class="btn primary" type="button" data-act="save">حفظ التعديل</button><button class="btn" type="button" data-act="cancel">إلغاء</button><span>التصحيحات المقبولة دخلت في النص. لا تحذف ' + MK_FN + ' لأنها إشارة الهامش.</span><span class="err" role="alert"></span>';
-      el.append(ta, bar);
-      setTimeout(() => { ta.focus(); ta.style.height = Math.max(120, ta.scrollHeight + 4) + 'px'; }, 0);
+      // كتابة حرة: الفقرة نفسها تصير قابلة للتحرير، وإشارة الهامش قطعة واحدة لا تُكتب داخلها
+      el.classList.add('live'); el.contentEditable = 'true'; el.spellcheck = false;
+      el.innerHTML = liveHTML(currentText(p));
       return el;
     }
-    el.innerHTML = paraHTML(p) + `<button class="edit" type="button" data-act="edit" title="تعديل الفقرة يدوياً">تعديل</button>`;
+    el.innerHTML = paraHTML(p);
     return el;
   }
   function renderPage() {
@@ -1206,7 +1198,7 @@ input[type=file] { display: none; }
   }
   $('page').addEventListener('mouseover', ev => {
     const s = ev.target.closest('.page [data-g]');
-    if (s && !st.editing) showPop(s);
+    if (s) showPop(s);
   });
   $('page').addEventListener('mouseout', ev => { if (ev.target.closest('[data-g]') && !pop.contains(ev.relatedTarget)) hidePop(); });
   pop.addEventListener('mouseenter', () => clearTimeout(hideT));
@@ -1229,12 +1221,39 @@ input[type=file] { display: none; }
   $('desk').addEventListener('scroll', () => { if (!pinned) hidePop(true); else { const s = popKey && spanOf(popKey.split(' ')[0]); if (s) placePop(s); } }, { passive: true });
 
   // ---------------- manual edit
-  function saveEdit(el) {
-    const p = st.byKey.get(el.dataset.key), ta = el.querySelector('textarea'), err = el.querySelector('.err');
-    const val = ta.value.replace(/\r?\n+/g, ' ').split(MK_FN).join(FN).split(MK_OB).join(OB);
-    const cur = currentText(p), cnt = (s, c) => s.split(c).length - 1;
-    if (cnt(val, FN) !== cnt(cur, FN) || cnt(val, OB) !== cnt(cur, OB)) { err.textContent = 'أبقِ إشارات ' + MK_FN + ' و' + MK_OB + ' كما هي، فهي مرتبطة بالهوامش في ملف وورد.'; return; }
+  const liveHTML = t => esc(t).split(FN).join('<span class="mk" contenteditable="false" data-mk="fn" title="إشارة الهامش">●</span>').split(OB).join('<span class="mk" contenteditable="false" data-mk="ob" title="عنصر في وورد">▢</span>');
+  function liveText(el) {
+    let out = '';
+    const walk = n => n.childNodes.forEach(c => {
+      if (c.nodeType === 3) out += c.nodeValue;
+      else if (c.dataset && c.dataset.mk) out += c.dataset.mk === 'fn' ? FN : OB;
+      else if (c.nodeName !== 'BR') walk(c);
+    });
+    walk(el);
+    return out.replace(/\r?\n+/g, ' ');
+  }
+  function startEdit(el, x, y) {
+    const key = el.dataset.key;
+    if (st.editing && st.editing !== key) { const cur = document.querySelector('.para.live'); if (cur) commitEdit(cur); }
+    st.editing = key; hidePop(true);
+    const p = st.byKey.get(key); rerenderPara(p);
+    const live = document.querySelector(`.para[data-key="${CSS.escape(key)}"]`);
+    live.focus();
+    const r = x != null && document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null, sel = getSelection();
+    sel.removeAllRanges();
+    if (r && live.contains(r.startContainer)) sel.addRange(r);
+    else { const e = document.createRange(); e.selectNodeContents(live); e.collapse(false); sel.addRange(e); }
+  }
+  function commitEdit(el) {
+    const p = st.byKey.get(el.dataset.key); if (!p || st.editing !== p.key) return;
     st.editing = null;
+    const cur = currentText(p);
+    let val = liveText(el);
+    if (!cur.includes('\u00A0')) val = val.replace(/\u00A0/g, ' ');
+    const cnt = (s, c) => s.split(c).length - 1;
+    if (cnt(val, FN) !== cnt(cur, FN) || cnt(val, OB) !== cnt(cur, OB)) {
+      rerenderPara(p); say('أُلغي التعديل لأنه حذف إشارة هامش أو عنصراً مرتبطاً بملف وورد. أعد التعديل وأبقِ الإشارة ● في مكانها.', true); return;
+    }
     if (val === cur) { rerenderPara(p); return; }
     snapshot();
     p.base = val; p.manual = true;
@@ -1242,6 +1261,28 @@ input[type=file] { display: none; }
     rerenderPara(p); renderCards();
     say('حُفظ التعديل، وأُعيد فحص الفقرة.');
   }
+  // انقر في أي مكان من النص لتكتب مباشرة. النقر على تصحيح معلَّم يعرض قراره كالعادة
+  $('page').addEventListener('mousedown', ev => {
+    if (ev.button !== 0 || ev.target.closest('.para.live')) return;
+    const para = ev.target.closest('.para'); if (!para || ev.target.closest('[data-g]')) return;
+    ev.preventDefault(); startEdit(para, ev.clientX, ev.clientY);
+  });
+  $('page').addEventListener('dblclick', ev => {
+    const para = ev.target.closest('.para:not(.live)'); if (para && ev.target.closest('[data-g]')) startEdit(para, ev.clientX, ev.clientY);
+  });
+  $('page').addEventListener('focusout', ev => {
+    const el = ev.target.closest && ev.target.closest('.para.live');
+    if (el && !(ev.relatedTarget && el.contains(ev.relatedTarget))) commitEdit(el);
+  });
+  $('page').addEventListener('keydown', ev => {
+    const el = ev.target.closest && ev.target.closest('.para.live'); if (!el) return;
+    if (ev.key === 'Enter' || ev.key === 'Escape') { ev.preventDefault(); el.blur(); }
+  });
+  $('page').addEventListener('paste', ev => {
+    if (!ev.target.closest || !ev.target.closest('.para.live')) return;
+    ev.preventDefault();
+    document.execCommand('insertText', false, (ev.clipboardData.getData('text/plain') || '').replace(/\s*\n+\s*/g, ' '));
+  });
 
   // ---------------- export
   let downloads = null;
@@ -1275,14 +1316,6 @@ input[type=file] { display: none; }
 
   // ---------------- events
   $('page').addEventListener('click', ev => {
-    const act = ev.target.closest('[data-act]');
-    const para = ev.target.closest('.para');
-    if (act && para) {
-      const a = act.dataset.act;
-      if (a === 'edit') { if (st.editing) return; st.editing = para.dataset.key; rerenderPara(st.byKey.get(para.dataset.key)); return; }
-      if (a === 'cancel') { st.editing = null; rerenderPara(st.byKey.get(para.dataset.key)); return; }
-      if (a === 'save') { saveEdit(para); return; }
-    }
     const g = ev.target.closest('[data-g]');
     if (g) select(g.dataset.g, 'text');
   });
@@ -1339,7 +1372,7 @@ input[type=file] { display: none; }
   ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
   page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
   document.addEventListener('keydown', e => {
-    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName)) return;
+    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName) || e.target.isContentEditable) return;
     // e.code works with the Arabic keyboard layout too
     if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); undo(); }
     else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); redo(); }
