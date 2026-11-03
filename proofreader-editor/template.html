@@ -202,17 +202,11 @@ input[type=file] { display: none; }
 <div class="app">
   <header class="top">
     <span class="brand">مدقق تجديد</span>
-    <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span></div>
+    <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span>
+      <button class="btn" id="openBtn" type="button" title="أو اسحب الملف إلى الصفحة">فتح ملف وورد…</button>
+      <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
     <div class="ctrls">
-      <label class="field" for="docType">نوع النص
-        <select id="docType"><option value="article">مقال</option><option value="translated">نص مترجم</option><option value="book">كتاب</option></select>
-      </label>
-      <label class="chk" for="optSalam"><input type="checkbox" id="optSalam"> (عليه السلام) ← (ع)</label>
-      <span class="sep"></span>
-      <button class="btn" id="openBtn" type="button">فتح ملف وورد</button>
-      <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
       <button class="btn" id="checkBtn" type="button" title="يعيد تطبيق قواعد الدليل ويحتفظ بقراراتك">فحص النص</button>
-      <button class="btn" id="undoBtn" type="button" disabled>تراجع</button>
       <button class="btn" id="optsBtn" type="button">خيارات التدقيق</button>
       <span class="sep"></span>
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
@@ -284,10 +278,11 @@ input[type=file] { display: none; }
 
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
-  const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], editing: null, warnAt: 0,
+  const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
     off: new Set(store.get('off', [])), noHarakat: false };
   const HARAKA = /[\u064B-\u0652\u0670]/;
-  const opts = () => ({ translated: $('docType').value === 'translated', salam: $('optSalam').checked });
+  // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
+  const opts = () => ({ translated: false, salam: true });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
@@ -301,7 +296,7 @@ input[type=file] { display: none; }
   }
   function load(buf, name, sample) {
     return E.loadDocx(JSZip, buf.slice(0), opts(), xml).then(res => {
-      st.buf = buf; st.name = name; st.sample = sample; st.lexicon = res.lexicon; st.undo = []; st.sel = null; st.editing = null;
+      st.buf = buf; st.name = name; st.sample = sample; st.lexicon = res.lexicon; st.undo = []; st.redo = []; st.sel = null; st.editing = null;
       st.paras = res.paras.map(p => ({ key: p.key, where: p.where, inNotes: p.inNotes, orig: p.text, base: p.text, manual: false, groups: [], quran: [], warnings: [] }));
       st.byKey = new Map(st.paras.map(p => [p.key, p]));
       st.paras.forEach(p => scan(p));
@@ -312,19 +307,22 @@ input[type=file] { display: none; }
   const allGroups = () => st.paras.flatMap(p => p.groups.map(g => [p, g]));
   const findG = id => { for (const p of st.paras) for (const g of p.groups) if (g.id === id) return [p, g]; return [null, null]; };
 
+  const state = () => JSON.stringify(st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, groups: p.groups, quran: p.quran, warnings: p.warnings })));
   function snapshot() {
-    st.undo.push(JSON.stringify(st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, groups: p.groups, quran: p.quran, warnings: p.warnings }))));
+    st.undo.push(state());
     if (st.undo.length > 60) st.undo.shift();
-    $('undoBtn').disabled = false;
+    st.redo = [];
   }
-  function undo() {
-    const s = st.undo.pop(); if (!s) return;
+  function restore(from, to, msg) {
+    const s = from.pop(); if (!s) { say(from === st.undo ? 'لا يوجد ما يُتراجع عنه.' : 'لا يوجد ما يُعاد.'); return; }
+    to.push(state());
     JSON.parse(s).forEach(o => Object.assign(st.byKey.get(o.key), o));
-    st.editing = null;
+    st.editing = null; hidePop(true);
     renderAll();
-    $('undoBtn').disabled = !st.undo.length;
-    say('تم التراجع عن آخر خطوة.');
+    say(msg);
   }
+  const undo = () => restore(st.undo, st.redo, 'تم التراجع عن آخر خطوة (Ctrl+Y للإعادة).');
+  const redo = () => restore(st.redo, st.undo, 'أُعيدت الخطوة.');
 
   // ---------------- text rendering
   function paraHTML(p) {
@@ -638,9 +636,6 @@ input[type=file] { display: none; }
   $('showPending').addEventListener('click', () => { st.show = 'pending'; $('showPending').setAttribute('aria-pressed', 'true'); $('showAll').setAttribute('aria-pressed', 'false'); renderCards(); });
   $('showAll').addEventListener('click', () => { st.show = 'all'; $('showAll').setAttribute('aria-pressed', 'true'); $('showPending').setAttribute('aria-pressed', 'false'); renderCards(); });
   $('checkBtn').addEventListener('click', recheck);
-  $('docType').addEventListener('change', recheck);
-  $('optSalam').addEventListener('change', recheck);
-  $('undoBtn').addEventListener('click', undo);
   $('expTracked').addEventListener('click', () => exportDoc(false));
   $('expClean').addEventListener('click', () => exportDoc(true));
   $('warnBtn').addEventListener('click', () => {
@@ -661,7 +656,12 @@ input[type=file] { display: none; }
   ['dragenter', 'dragover'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.add('drag'); }));
   ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
   page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
-  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !/TEXTAREA|INPUT/.test(e.target.tagName)) { e.preventDefault(); undo(); } });
+  document.addEventListener('keydown', e => {
+    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName)) return;
+    // e.code works with the Arabic keyboard layout too
+    if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); undo(); }
+    else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); redo(); }
+  });
 
   // ---------------- show/hide tashkeel
   $('harakatBtn').addEventListener('click', () => {
