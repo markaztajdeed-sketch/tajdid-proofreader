@@ -8,20 +8,22 @@
 :root {
   /* ألوان واجهة المركز (tajdid-app): كحلي #0E2A47، أزرق #1F6FB2، ذهبي #D4AF37 */
   --bg: #F2F5F7; --surface: #FFFFFF; --sunken: #EEF2F6; --ink: #192A3D; --muted: #4F5F72; --line: #E1E8ED;
-  --accent: #1F6FB2; --accent-ink: #FFFFFF; --brand: #0E2A47; --gold: #D4AF37;
+  --accent: #1F6FB2; --accent-ink: #FFFFFF; --primary: #1F6FB2; --brand: #0E2A47; --gold: #D4AF37; --nav-act: #E6F0FA;
   --punct: #2F5FB3; --spell: #B03345; --conv: #8A5F0E; --style: #6A4C9E;
   --good: #2E7D4F; --quran: #DCE6F0;
   --ui: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
   --text: "Noto Naskh Arabic", "Traditional Arabic", "Times New Roman", serif;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0B1726; --surface: #11213A; --sunken: #172A45; --ink: #E6EDF5; --muted: #A9BBD0; --line: #22385A;
-  --accent: #5AA7E6; --accent-ink: #0B1726; --brand: #A9D2F5; --gold: #E0C05A;
-  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #1E3556; color-scheme: dark } }
+  /* الوضع الغامق على طريقة VS Code */
+  --bg: #1E1E1E; --surface: #252526; --sunken: #2D2D2D; --ink: #D4D4D4; --muted: #9D9D9D; --line: #3C3C3C;
+  --accent: #3794FF; --accent-ink: #FFFFFF; --primary: #0E639C; --brand: #CCCCCC; --gold: #D7BA7D; --nav-act: #37373D;
+  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #3A3D41; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0B1726; --surface: #11213A; --sunken: #172A45; --ink: #E6EDF5; --muted: #A9BBD0; --line: #22385A;
-  --accent: #5AA7E6; --accent-ink: #0B1726; --brand: #A9D2F5; --gold: #E0C05A;
-  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #1E3556; color-scheme: dark }
+  /* الوضع الغامق على طريقة VS Code */
+  --bg: #1E1E1E; --surface: #252526; --sunken: #2D2D2D; --ink: #D4D4D4; --muted: #9D9D9D; --line: #3C3C3C;
+  --accent: #3794FF; --accent-ink: #FFFFFF; --primary: #0E639C; --brand: #CCCCCC; --gold: #D7BA7D; --nav-act: #37373D;
+  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #3A3D41; color-scheme: dark }
 
 html, body { height: 100%; }
 [hidden] { display: none !important; }
@@ -36,7 +38,11 @@ button { cursor: pointer; }
 .top { background: var(--surface); border-top: 3px solid var(--gold); border-bottom: 1px solid var(--line); padding-block: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.brand { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; }
+.brand { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+.brand img { width: 32px; height: 32px; display: block; }
+.navbtn { border: 0; background: none; color: var(--muted); padding: 6px; border-radius: 6px; display: inline-grid; place-items: center; }
+.navbtn:hover { background: var(--sunken); color: var(--ink); }
+.navbtn svg, .nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .doc { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 220px; }
 .doc-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .tag { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--sunken); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
@@ -47,12 +53,23 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 .btn:hover { background: var(--sunken); }
 .btn[disabled] { opacity: .45; cursor: default; }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
 .btn.primary:hover { filter: brightness(1.08); }
 .sep { width: 1px; align-self: stretch; background: var(--line); }
 
 /* main */
-.main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; }
+.main { min-height: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr) 320px; }
+.app.nav-off .main { grid-template-columns: minmax(0, 1fr) 320px; }
+.app.nav-off .nav { display: none; }
+/* القائمة الجانبية (أقسام الأداة) */
+.nav { min-height: 0; overflow: auto; background: var(--surface); border-inline-end: 1px solid var(--line); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: 14px; }
+.nav a:hover { background: var(--sunken); }
+.nav a[aria-current="page"] { background: var(--nav-act); color: var(--accent); font-weight: 600; }
+.nav a.soon { color: var(--muted); cursor: default; }
+.nav a.soon:hover { background: none; }
+.nav a .soon-tag { margin-inline-start: auto; font-size: 10.5px; border: 1px solid var(--line); border-radius: 99px; padding: 0 6px; }
+.nav .nav-sep { height: 1px; background: var(--line); margin: 8px 4px; }
 .desk { min-height: 0; overflow: auto; padding-block: 24px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .page { max-width: 760px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
@@ -198,7 +215,8 @@ input[type=file] { display: none; }
 
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
-  .main { grid-template-columns: minmax(0, 1fr); }
+  .main, .app.nav-off .main { grid-template-columns: minmax(0, 1fr); }
+  .nav { display: none; }
   .desk { overflow: visible; }
   .side { border-inline-start: 0; border-top: 1px solid var(--line); }
   .cards { overflow: visible; }
@@ -210,7 +228,8 @@ input[type=file] { display: none; }
 
 <div class="app">
   <header class="top">
-    <span class="brand">مدقق تجديد</span>
+    <button class="navbtn" id="navBtn" type="button" aria-label="إظهار القائمة أو إخفاؤها" aria-expanded="true" title="القائمة"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <span class="brand"><img src="data:image/png;base64,/*__LOGO__*/" alt="مركز تجديد">مدقق تجديد</span>
     <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span>
       <button class="btn" id="openBtn" type="button" title="أو اسحب الملف إلى الصفحة">فتح ملف وورد…</button>
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
@@ -228,6 +247,14 @@ input[type=file] { display: none; }
   </header>
 
   <div class="main">
+    <nav class="nav" id="nav" aria-label="أقسام الأداة">
+      <a href="#" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>المحرر</a>
+      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>المستندات<span class="soon-tag">قريباً</span></a>
+      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>دليل التدقيق<span class="soon-tag">قريباً</span></a>
+      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg>القاموس<span class="soon-tag">قريباً</span></a>
+      <div class="nav-sep"></div>
+      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>الحساب<span class="soon-tag">قريباً</span></a>
+    </nav>
     <main class="desk" id="desk">
       <article class="page" id="page" aria-label="نص المستند"></article>
     </main>
@@ -748,6 +775,11 @@ input[type=file] { display: none; }
     $('themeBtn').textContent = isDark() ? 'الوضع النهاري' : 'الوضع الليلي';
   }
   applyTheme(store.get('theme', null));
+  // القائمة الجانبية: تظهر وتختفي، ويُحفظ اختيار المدقق
+  const setNav = on => { document.querySelector('.app').classList.toggle('nav-off', !on); $('navBtn').setAttribute('aria-expanded', String(on)); };
+  setNav(store.get('nav', true));
+  $('navBtn').addEventListener('click', () => { const on = document.querySelector('.app').classList.contains('nav-off'); store.set('nav', on); setNav(on); });
+  $('nav').addEventListener('click', ev => { const a = ev.target.closest('a'); if (a) ev.preventDefault(); });
   $('themeBtn').addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
 
   // ---------------- checking options
