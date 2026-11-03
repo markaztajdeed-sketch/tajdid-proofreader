@@ -261,8 +261,12 @@ input[type=file] { display: none; }
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
   const WORDS = [
     ['أفريقي', 'إفريقي'], ['إيديولوج', 'أيديولوج'], ['إنثروبولوج', 'أنثروبولوج'], ['أثنولوج', 'إثنولوج'],
-    ['أبستمولوج', 'إبستمولوج'], ['أنترنت', 'إنترنت'], ['ليبيرالي', 'ليبرالي']
+    ['أبستمولوج', 'إبستمولوج'], ['أنترنت', 'إنترنت'], ['ليبيرالي', 'ليبرالي'], ['مسئول', 'مسؤول']
   ];
+  // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
+  const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
+  // words that legitimately end in ى and also exist with ي: never switch them on document evidence
+  const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
 
   const RULES = [
     { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
@@ -289,6 +293,7 @@ input[type=file] { display: none; }
     { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين.',
       find: text => {
         const out = [], rx = /(?<=\s)-([ \u00A0]+)([^\-\n]{2,80}?)([ \u00A0]+)-(?=\s)/g;
+        if ((text.match(/\s[-–]\s/g) || []).length >= 3) return out;   // a list such as keywords, not a parenthetical
         let m;
         while ((m = rx.exec(text))) {
           const a = m.index + 1, b = a + m[1].length + m[2].length;
@@ -309,6 +314,7 @@ input[type=file] { display: none; }
         for (let i = 0; i < text.length - 1; i++) {
           if (text[i] !== '.' || text[i - 1] === '.') continue;
           const c = text[i + 1];
+          if (/[A-Za-z]/.test(text[i - 1] || '') || /[A-Za-z]/.test(text.slice(Math.max(0, i - 3), i))) continue;   // English citation style keeps ." inside
           if (c === ')' || c === '»' || c === '”' || (c === '"' && closers.has(i + 1))) {
             out.push({ start: i, end: i + 1, repl: '' }, { start: i + 2, end: i + 2, repl: '.' });
           }
@@ -395,10 +401,11 @@ input[type=file] { display: none; }
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=\\d)'), () => 'ص') },
     { id: 'abbr', no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=\\d)'), m => m[1]) },
-    { id: 'ibid', no: 29, name: '(المصدر نفسه)', scope: 'notes', why: 'تُكتب (المصدر نفسه) متبوعة بفاصلة ثم رقم الصفحة.',
+    { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
-        ...simple(/نفس المصدر/g, () => 'المصدر نفسه')(text),
-        ...simple(/(?<=المصدر نفسه|نفس المصدر)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*\d)/g, () => '، ')(text)
+        ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه/g, () => 'المصدر نفسه')(text),
+        ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
+        ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*\d)/g, () => '، ')(text)
       ] },
     { id: 'fn-space', no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
@@ -408,6 +415,59 @@ input[type=file] { display: none; }
         while ((m = rx.exec(text))) out.push({ group: [{ start: m.index, end: m.index + 1, repl: '' }, { start: m.index + m[0].length, end: m.index + m[0].length, repl: '.' }] });
         return out;
       } },
+    { id: 'ya-dots', no: 0, label: 'الياء المنقوطة', name: 'الياء في آخر الكلمة', word: true, why: 'تُكتب الياء منقوطة (في، التي، الأخلاقي)، ولا تُكتب ألفاً مقصورة إلا في الكلمات التي آخرها ألف.',
+      find: (text, ctx) => {
+        const out = [];
+        const rx = re('(?<![{LH}])([وفبلك]?)([{L}]+ى)(?![{LH}])', 'g');
+        let m;
+        while ((m = rx.exec(text))) {
+          const w = m[2], s = m.index + m[1].length;
+          let fix = YA_FIXED.get(w);
+          if (!fix && ctx.lexicon && w.length >= 5 && !YA_STOP.has(w)) {
+            const alt = w.slice(0, -1) + 'ي';
+            if ((ctx.lexicon.get(alt) || 0) >= 2 && (ctx.lexicon.get(alt) || 0) >= (ctx.lexicon.get(w) || 0)) fix = alt;
+          }
+          if (fix) out.push({ start: s, end: s + w.length, repl: fix });
+        }
+        return out;
+      } },
+    { id: 'inna', no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
+      find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
+        m => m[1] + 'إنّ' + (m[2] || '')) },
+    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
+      find: text => {
+        const out = [];
+        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(text))) { const p = posOf(m); out.push({ start: p, end: p, repl: '\u0651' }); } };
+        // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
+        add(re('(?<![{LH}])([وفلب]?(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length);
+        // أنّ/إنّ/لكنّ/كأنّ before a definite noun
+        add(re('(?<![{LH}])([وفلب]?(?:أن|إن|لكن|كأن))(?=[ \u00A0]+ال)', 'g'), m => m.index + m[0].length);
+        // كلّ (with prefixes and pronouns)
+        add(re('(?<![{LH}])([وفبلك]?كل)(?=(?:ه|ها|هم|هما|نا|كم)?(?![{LH}]))', 'g'), m => m.index + m[0].length);
+        // إلّا
+        add(re('(?<![{LH}])([وف]?إل)(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length);
+        // ممّا، عمّا، أمّا، إمّا، ثمّ
+        add(re('(?<![{LH}])([وف]?(?:مم|عم|أم|إم))(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length);
+        add(re('(?<![{LH}])([وف]?ثم)(?![{LH}])', 'g'), m => m.index + m[0].length);
+        return out;
+      } },
+    { id: 'quote-type', no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة توضعان بين قوسين ( )، والاقتباس الطويل بين علامتي تنصيص « ».',
+      find: (text, ctx) => {
+        const out = [];
+        const pairs = [...ctx.straightPairs];
+        for (let i = 0; i < text.length; i++) if (text[i] === '“') { const j = text.indexOf('”', i + 1); if (j > i) pairs.push([i, j]); }
+        for (const [a, b] of pairs) {
+          const inner = text.slice(a + 1, b).trim();
+          if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
+          if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner)) continue;
+          const words = inner.split(/\s+/).length;
+          const [o, c] = words <= 8 ? ['(', ')'] : ['«', '»'];
+          out.push({ group: [{ start: a, end: a + 1, repl: o }, { start: b, end: b + 1, repl: c }] });
+        }
+        return out;
+      } },
+    { id: 'digits', no: 0, label: 'أعراف المركز', name: 'الأرقام', why: 'تُكتب الأرقام بالصيغة المعتمدة في إصدارات المركز: 1، 2، 3.',
+      find: simple(/[\u0660-\u0669\u06F0-\u06F9]+/g, m => m[0].replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x660)).replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x6F0))) },
     { id: 'words', no: 0, name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
@@ -419,8 +479,8 @@ input[type=file] { display: none; }
   ];
 
   const CAT = { punct: ['sp-before', 'sp-after', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'dot-out', 'aw-quote', 'fn-space'],
-    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words'],
-    conv: ['year-paren', 'months', 'salawat', 'salam', 'page', 'abbr', 'ibid'] };
+    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
+    conv: ['year-paren', 'months', 'salawat', 'salam', 'page', 'abbr', 'ibid', 'digits', 'quote-type'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -495,7 +555,7 @@ input[type=file] { display: none; }
     const pr = pairRanges(text);
     const warnings = [];
     if (pr.unbalanced.length) warnings.push({ where: ctx.where, kind: 'unbalanced', marks: [...new Set(pr.unbalanced)].join(' '), snippet: snippet(text, 0, 0) });
-    const rctx = { straightPairs: pr.straight };
+    const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon };
     const accepted = [], groups = [];
     const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
     for (const rule of RULES) {
@@ -516,7 +576,7 @@ input[type=file] { display: none; }
           if (busy(e.start, e.end)) ok = false;
         }
         if (!ok) continue;
-        const ruleTag = { id: rule.id, no: rule.no, name: rule.name, why: rule.why, cat: rule.cat };
+        const ruleTag = { id: rule.id, no: rule.no, label: rule.label, name: rule.name, why: rule.why, cat: rule.cat };
         group.forEach(e => accepted.push(Object.assign(e, { rule: ruleTag })));
         const lo = Math.min(...group.map(e => e.start)), hi = Math.max(...group.map(e => e.end));
         const after = applyEdits(text, group);
@@ -582,15 +642,24 @@ input[type=file] { display: none; }
   // Read a docx for the editor: every Arabic paragraph with its rule groups
   async function loadDocx(JSZip, buf, opts, xml) {
     const zip = await JSZip.loadAsync(buf);
-    const paras = [];
+    const raw = [];
     await walk(zip, xml, (p, key, where, inNotes) => {
       const rp = readParagraph(p);
-      if (!rp) return;
-      const ctx = { opts, where, inNotes };
-      const r = findGroups(rp.text, ctx);
-      paras.push({ key, where, inNotes, text: rp.text, groups: r.groups, warnings: r.warnings, quran: r.quran });
+      if (rp) raw.push({ key, where, inNotes, text: rp.text });
     });
-    return { paras };
+    const lexicon = buildLexicon(raw.map(r => r.text));
+    const paras = raw.map(r => {
+      const g = findGroups(r.text, { opts, where: r.where, inNotes: r.inNotes, lexicon });
+      return Object.assign(r, { groups: g.groups, warnings: g.warnings, quran: g.quran });
+    });
+    return { paras, lexicon };
+  }
+
+  // Word counts for the whole document (harakat removed), used by rules that look for the document's own spelling
+  function buildLexicon(texts) {
+    const lex = new Map();
+    for (const t of texts) for (const w of t.replace(/[\u064B-\u065F\u0670\u0640]/g, '').split(/[^\u0621-\u064A]+/)) if (w) lex.set(w, (lex.get(w) || 0) + 1);
+    return lex;
   }
 
   // Write the editor's decisions back: decide(key, text) -> edits on the original text (or null for none)
@@ -638,7 +707,7 @@ input[type=file] { display: none; }
     const mark = (kind, rule) => {
       const m = el(kind);
       m.setAttributeNS(W, 'w:id', String(ctx.nextId++));
-      m.setAttributeNS(W, 'w:author', rule.author || ('قاعدة ' + (rule.no || 'المعجم') + ': ' + rule.name));
+      m.setAttributeNS(W, 'w:author', rule.author || ((rule.no ? 'قاعدة ' + rule.no : rule.label || 'قائمة الكلمات') + ': ' + rule.name));
       m.setAttributeNS(W, 'w:date', ctx.date);
       return m;
     };
@@ -715,7 +784,7 @@ input[type=file] { display: none; }
     return { data: out, changes: ctx.changes, warnings: ctx.warnings, paragraphs };
   }
 
-  const api = { processDocx, loadDocx, exportDocx, findGroups, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
+  const api = { processDocx, loadDocx, exportDocx, findGroups, buildLexicon, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.TajdidEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -741,7 +810,7 @@ input[type=file] { display: none; }
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
   function scan(para, keep) {
-    const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes });
+    const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
     para.groups = r.groups.map(g => {
       const old = keep && keep.get(sig(g));
       return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
@@ -750,7 +819,7 @@ input[type=file] { display: none; }
   }
   function load(buf, name, sample) {
     return E.loadDocx(JSZip, buf.slice(0), opts(), xml).then(res => {
-      st.buf = buf; st.name = name; st.sample = sample; st.undo = []; st.sel = null; st.editing = null;
+      st.buf = buf; st.name = name; st.sample = sample; st.lexicon = res.lexicon; st.undo = []; st.sel = null; st.editing = null;
       st.paras = res.paras.map(p => ({ key: p.key, where: p.where, inNotes: p.inNotes, orig: p.text, base: p.text, manual: false, groups: [], quran: [], warnings: [] }));
       st.byKey = new Map(st.paras.map(p => [p.key, p]));
       st.paras.forEach(p => scan(p));
@@ -850,7 +919,7 @@ input[type=file] { display: none; }
   }
   function cardHTML(p, g) {
     const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
-    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
     let foot;
     if (g.status === 'pending') foot = `<div class="acts"><button class="btn ok" type="button" data-act="accept">قبول</button><button class="btn no" type="button" data-act="reject">رفض</button></div>`;
     else {
@@ -930,7 +999,7 @@ input[type=file] { display: none; }
   const pop = $('pop');
   let popG = null, hideT = null, pinned = false;
   function popHTML(p, g) {
-    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
     const d = g.before.mid, r = g.after.mid;
     const line = g.edits.length > 1 || (d && r) ? `<del>${vis(d)}</del><span class="arr">←</span><ins>${vis(r)}</ins>`
       : d ? `<span class="arr">حذف</span><del>${vis(d)}</del>` : `<span class="arr">إضافة</span><ins>${vis(r)}</ins>`;

@@ -252,7 +252,7 @@ input[type=file] { display: none; }
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
   function scan(para, keep) {
-    const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes });
+    const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
     para.groups = r.groups.map(g => {
       const old = keep && keep.get(sig(g));
       return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
@@ -261,7 +261,7 @@ input[type=file] { display: none; }
   }
   function load(buf, name, sample) {
     return E.loadDocx(JSZip, buf.slice(0), opts(), xml).then(res => {
-      st.buf = buf; st.name = name; st.sample = sample; st.undo = []; st.sel = null; st.editing = null;
+      st.buf = buf; st.name = name; st.sample = sample; st.lexicon = res.lexicon; st.undo = []; st.sel = null; st.editing = null;
       st.paras = res.paras.map(p => ({ key: p.key, where: p.where, inNotes: p.inNotes, orig: p.text, base: p.text, manual: false, groups: [], quran: [], warnings: [] }));
       st.byKey = new Map(st.paras.map(p => [p.key, p]));
       st.paras.forEach(p => scan(p));
@@ -361,7 +361,7 @@ input[type=file] { display: none; }
   }
   function cardHTML(p, g) {
     const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
-    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
     let foot;
     if (g.status === 'pending') foot = `<div class="acts"><button class="btn ok" type="button" data-act="accept">قبول</button><button class="btn no" type="button" data-act="reject">رفض</button></div>`;
     else {
@@ -441,7 +441,7 @@ input[type=file] { display: none; }
   const pop = $('pop');
   let popG = null, hideT = null, pinned = false;
   function popHTML(p, g) {
-    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
     const d = g.before.mid, r = g.after.mid;
     const line = g.edits.length > 1 || (d && r) ? `<del>${vis(d)}</del><span class="arr">←</span><ins>${vis(r)}</ins>`
       : d ? `<span class="arr">حذف</span><del>${vis(d)}</del>` : `<span class="arr">إضافة</span><ins>${vis(r)}</ins>`;
