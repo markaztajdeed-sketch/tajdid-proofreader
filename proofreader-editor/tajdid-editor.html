@@ -100,11 +100,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .para.note { font-size: 15.5px; line-height: 1.95; margin-bottom: 8px; }
 .para.flash { animation: flash 1.2s ease-out; }
 @keyframes flash { from { background: color-mix(in srgb, var(--accent) 18%, transparent); } to { background: transparent; } }
-.para.live { outline: none; background: color-mix(in srgb, var(--accent) 6%, transparent); box-shadow: inset -2px 0 0 var(--accent); cursor: text; }
-.para:not(.live) { cursor: text; }
-.para .mk { font-family: var(--ui); font-size: 11px; color: var(--accent); background: var(--sunken); border-radius: 4px; padding: 0 3px; user-select: none; }
-.para.live.manual::after { content: none; }
-.para.manual::after { content: "عدّله المدقق"; font-family: var(--ui); font-size: 11px; color: var(--muted); margin-inline-start: 8px; }
+.page[contenteditable=true] { outline: none; cursor: text; caret-color: var(--accent); }
 .quran { background: color-mix(in srgb, var(--quran) 45%, transparent); border-radius: 3px; }
 sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-weight: 600; padding: 0 1px; }
 .ob { font-family: var(--ui); font-size: 11px; color: var(--muted); }
@@ -904,7 +900,7 @@ input[type=file] { display: none; }
   const MK_FN = '⟦هامش⟧', MK_OB = '⟦عنصر⟧';
   const $ = id => document.getElementById(id);
   const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  const showChars = s => esc(s).replace(//g, '<sup class="fn">●</sup>').replace(/￼/g, '<span class="ob">▢</span>');
+  const showChars = s => esc(s).replace(//g, '<sup class="fn" contenteditable="false">●</sup>').replace(/￼/g, '<span class="ob" contenteditable="false">▢</span>');
   const vis = s => /^[  ]+$/.test(s) ? s.replace(/./g, '␣') : showChars(s);
 
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -982,11 +978,12 @@ input[type=file] { display: none; }
     const pend = groups.filter(g => g.status === 'pending'), acc = groups.filter(g => g.status === 'accepted');
     const main = pend[0] || acc[0] || groups[0];
     const cls = 'c-' + (main.rule.cat || 'punct') + (groups.some(g => g.id === st.sel) ? ' sel' : '');
-    const attrs = `data-g="${main.id}" data-gs="${ids}"`;
+    const attrs0 = `data-g="${main.id}" data-gs="${ids}"`;
     const S = t.slice(s.a, s.b);
     const sub = statuses => E.applyEdits(S, s.list.filter(x => statuses.includes(x.g.status)).map(x => ({ start: x.e.start - s.a, end: x.e.end - s.a, repl: x.e.repl })));
     if (s.word) {
       const old = sub(['accepted']), neu = sub(['accepted', 'pending']);
+      const attrs = attrs0 + ` data-src="${esc(old)}"`;
       if (pend.length) {
         if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${showChars(neu)}</span>`;
         return `<span class="chg wd ${cls}" ${attrs}>${old ? '<del>' + showChars(old) + '</del>' : ''}${neu ? '<ins>' + showChars(neu) + '</ins>' : ''}</span>`;
@@ -996,7 +993,7 @@ input[type=file] { display: none; }
     }
     // punctuation and spacing between words: show exactly what changes
     return s.list.map(({ e, g }) => {
-      const del = t.slice(e.start, e.end), c = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : ''), at = `data-g="${g.id}" data-gs="${g.id}"`;
+      const del = t.slice(e.start, e.end), c = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : ''), at = `data-g="${g.id}" data-gs="${g.id}" data-src="${esc(g.status === 'accepted' ? e.repl : del)}"`;
       if (g.status === 'accepted') {
         if (st.hideAcc) return e.repl ? `<span class="plain" ${at}>${showChars(e.repl)}</span>` : '';
         return e.repl ? `<span class="done ${c}" ${at}>${vis(e.repl)}</span>` : `<span class="done gap ${c}" ${at}></span>`;
@@ -1025,23 +1022,17 @@ input[type=file] { display: none; }
     const el = document.createElement('p');
     el.className = 'para' + (p.inNotes ? ' note' : '') + (p.manual ? ' manual' : '');
     el.dataset.key = p.key;
-    if (st.editing === p.key) {
-      // كتابة حرة: الفقرة نفسها تصير قابلة للتحرير، وإشارة الهامش قطعة واحدة لا تُكتب داخلها
-      el.classList.add('live'); el.contentEditable = 'true'; el.spellcheck = false;
-      el.innerHTML = liveHTML(currentText(p));
-      return el;
-    }
     el.innerHTML = paraHTML(p);
     return el;
   }
   function renderPage() {
     const page = $('page');
-    page.textContent = '';
+    page.textContent = ''; setEditable();
     const body = st.paras.filter(p => !p.inNotes), notes = st.paras.filter(p => p.inNotes);
     if (!st.paras.length) { page.innerHTML = '<p class="empty">افتح ملف وورد لتبدأ، أو اسحبه إلى هنا.</p>'; return; }
     body.forEach(p => page.appendChild(paraEl(p)));
     if (notes.length) {
-      const h = document.createElement('div'); h.className = 'notes-h'; h.textContent = 'الهوامش'; page.appendChild(h);
+      const h = document.createElement('div'); h.className = 'notes-h'; h.contentEditable = 'false'; h.textContent = 'الهوامش'; page.appendChild(h);
       notes.forEach(p => page.appendChild(paraEl(p)));
     }
   }
@@ -1221,68 +1212,120 @@ input[type=file] { display: none; }
   $('desk').addEventListener('scroll', () => { if (!pinned) hidePop(true); else { const s = popKey && spanOf(popKey.split(' ')[0]); if (s) placePop(s); } }, { passive: true });
 
   // ---------------- manual edit
-  const liveHTML = t => esc(t).split(FN).join('<span class="mk" contenteditable="false" data-mk="fn" title="إشارة الهامش">●</span>').split(OB).join('<span class="mk" contenteditable="false" data-mk="ob" title="عنصر في وورد">▢</span>');
-  function liveText(el) {
+  // ---------------- كتابة حرة في الصفحة كلها، كما في وورد
+  // النص الحالي للفقرة يُستخرج من الصفحة: النص العادي كما هو، وكل تصحيح معلَّم يُقرأ من data-src (النص قبل التصحيحات المعلّقة)
+  function domText(node) {
     let out = '';
     const walk = n => n.childNodes.forEach(c => {
       if (c.nodeType === 3) out += c.nodeValue;
-      else if (c.dataset && c.dataset.mk) out += c.dataset.mk === 'fn' ? FN : OB;
+      else if (c.nodeType !== 1) return;
+      else if (c.dataset.src !== undefined) out += c.dataset.src;
+      else if (c.matches('sup.fn')) out += FN;
+      else if (c.matches('span.ob')) out += OB;
       else if (c.nodeName !== 'BR') walk(c);
     });
-    walk(el);
+    walk(node);
     return out.replace(/\r?\n+/g, ' ');
   }
-  function startEdit(el, x, y) {
-    const key = el.dataset.key;
-    if (st.editing && st.editing !== key) { const cur = document.querySelector('.para.live'); if (cur) commitEdit(cur); }
-    st.editing = key; hidePop(true);
-    const p = st.byKey.get(key); rerenderPara(p);
-    const live = document.querySelector(`.para[data-key="${CSS.escape(key)}"]`);
-    live.focus();
-    const r = x != null && document.caretRangeFromPoint ? document.caretRangeFromPoint(x, y) : null, sel = getSelection();
-    sel.removeAllRanges();
-    if (r && live.contains(r.startContainer)) sel.addRange(r);
-    else { const e = document.createRange(); e.selectNodeContents(live); e.collapse(false); sel.addRange(e); }
-  }
-  function commitEdit(el) {
-    const p = st.byKey.get(el.dataset.key); if (!p || st.editing !== p.key) return;
-    st.editing = null;
-    const cur = currentText(p);
-    let val = liveText(el);
-    if (!cur.includes('\u00A0')) val = val.replace(/\u00A0/g, ' ');
-    const cnt = (s, c) => s.split(c).length - 1;
-    if (cnt(val, FN) !== cnt(cur, FN) || cnt(val, OB) !== cnt(cur, OB)) {
-      rerenderPara(p); say('أُلغي التعديل لأنه حذف إشارة هامش أو عنصراً مرتبطاً بملف وورد. أعد التعديل وأبقِ الإشارة ● في مكانها.', true); return;
+  const paraOf = n => { const e = n && (n.nodeType === 1 ? n : n.parentElement); return e && e.closest('.page .para'); };
+  function offsetIn(para, node, off) {
+    // المؤشر داخل كلمة معلَّمة: موضعه داخل نصها الأصلي (المقترح المعروض لا يُحسب)
+    const host = (node.nodeType === 1 ? node : node.parentElement).closest('[data-src]');
+    if (host && para.contains(host)) {
+      const r0 = document.createRange(); r0.selectNodeContents(host); r0.setEnd(node, off);
+      const f0 = r0.cloneContents(); f0.querySelectorAll('ins').forEach(x => x.remove());
+      return offsetIn(para, host.parentNode, [...host.parentNode.childNodes].indexOf(host)) + Math.min(f0.textContent.length, host.dataset.src.length);
     }
-    if (val === cur) { rerenderPara(p); return; }
-    snapshot();
-    p.base = val; p.manual = true;
-    scan(p);
-    rerenderPara(p); renderCards();
-    say('حُفظ التعديل، وأُعيد فحص الفقرة.');
+    const r = document.createRange(); r.selectNodeContents(para); r.setEnd(node, off);
+    const f = document.createElement('div'); f.appendChild(r.cloneContents());
+    return domText(f).length;
   }
-  // انقر في أي مكان من النص لتكتب مباشرة. النقر على تصحيح معلَّم يعرض قراره كالعادة
-  $('page').addEventListener('mousedown', ev => {
-    if (ev.button !== 0 || ev.target.closest('.para.live')) return;
-    const para = ev.target.closest('.para'); if (!para || ev.target.closest('[data-g]')) return;
-    ev.preventDefault(); startEdit(para, ev.clientX, ev.clientY);
+  function pointAt(para, off) {
+    let left = off, res = null;
+    const walk = n => { for (const c of n.childNodes) {
+      if (res) return;
+      if (c.nodeType === 3) { if (left <= c.nodeValue.length) { res = [c, left]; return; } left -= c.nodeValue.length; }
+      else if (c.nodeType === 1) {
+        const atom = c.dataset.src !== undefined ? c.dataset.src.length : c.matches('sup.fn, span.ob') ? 1 : -1;
+        if (atom >= 0) { if (left <= atom) { const i = [...c.parentNode.childNodes].indexOf(c); res = [c.parentNode, left === 0 ? i : i + 1]; return; } left -= atom; }
+        else walk(c);
+      } } };
+    walk(para);
+    return res || [para, para.childNodes.length];
+  }
+  function setSel(para, a, b) {
+    const [n1, o1] = pointAt(para, a), [n2, o2] = pointAt(para, b == null ? a : b);
+    const r = document.createRange(); r.setStart(n1, o1); r.setEnd(n2, o2);
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
+  const dirty = new Set(); let idleT = null;
+  function commitDirty() {
+    clearTimeout(idleT);
+    if (!dirty.size) return;
+    const sel = getSelection(), here = sel.rangeCount ? paraOf(sel.anchorNode) : null;
+    let caret = null;
+    if (here && dirty.has(here.dataset.key)) caret = [offsetIn(here, sel.anchorNode, sel.anchorOffset), offsetIn(here, sel.focusNode, sel.focusOffset)];
+    let snap = false, bad = false;
+    const keys = [...dirty]; dirty.clear();
+    for (const key of keys) {
+      const p = st.byKey.get(key), el = document.querySelector(`.page .para[data-key="${CSS.escape(key)}"]`);
+      if (!p || !el) continue;
+      const cur = currentText(p);
+      let val = domText(el);
+      if (!cur.includes(' ')) val = val.replace(/ /g, ' ');
+      const cnt = (x, c) => x.split(c).length - 1;
+      if (cnt(val, FN) !== cnt(cur, FN) || cnt(val, OB) !== cnt(cur, OB)) { bad = true; rerenderPara(p); continue; }
+      if (val === cur) continue;
+      if (!snap) { snapshot(); snap = true; }
+      // القرارات المرفوضة تبقى مرفوضة بعد إعادة الفحص
+      const tsig = g => g.rule.id + '|' + g.before.mid + '|' + g.after.mid;
+      const rej = new Map(p.groups.filter(g => g.status === 'rejected').map(g => [tsig(g), g]));
+      p.base = val; p.manual = true;
+      scan(p);
+      p.groups.forEach(g => { const o = rej.get(tsig(g)); if (o) { g.status = 'rejected'; g.reason = o.reason; } });
+      rerenderPara(p);
+    }
+    if (caret && here) { const el = document.querySelector(`.page .para[data-key="${CSS.escape(here.dataset.key)}"]`); if (el) setSel(el, caret[0], caret[1]); }
+    if (snap) renderCards();
+    if (bad) say('لا يمكن حذف إشارة الهامش ● أو عنصر وورد ▢ من النص، فأُعيدت الفقرة كما كانت.', true);
+  }
+  // قبل الكتابة داخل كلمة معلَّمة: تتحول الكلمة إلى نص عادي ثم تُكتب فيها كأي كلمة
+  $('page').addEventListener('beforeinput', ev => {
+    const sel = getSelection(); if (!sel.rangeCount) return;
+    const r = sel.getRangeAt(0), pa = paraOf(r.startContainer), pb = paraOf(r.endContainer);
+    const t = ev.inputType;
+    if (t === 'insertParagraph' || t === 'insertLineBreak') { ev.preventDefault(); say('كل فقرة في الصفحة تقابل فقرة في ملف وورد، لذلك لا يقسم Enter الفقرة.'); return; }
+    if (t === 'historyUndo' || t === 'historyRedo' || t.startsWith('format')) { ev.preventDefault(); return; }
+    if (!pa || pa !== pb) { ev.preventDefault(); if (pa !== pb) say('حدّد نصاً داخل فقرة واحدة لتعدّله.'); return; }
+    const a = offsetIn(pa, r.startContainer, r.startOffset), b = offsetIn(pa, r.endContainer, r.endOffset), len = domText(pa).length;
+    if (r.collapsed && ((t.startsWith('deleteContentBackward') || t === 'deleteWordBackward') && a === 0 || (t.startsWith('deleteContentForward') || t === 'deleteWordForward') && a === len)) { ev.preventDefault(); return; }
+    const marks = [...pa.querySelectorAll('[data-src]')].filter(m => r.collapsed ? m.contains(r.startContainer) : r.intersectsNode(m));
+    if (!marks.length) return;
+    marks.forEach(m => m.replaceWith(document.createTextNode(m.dataset.src)));
+    pa.normalize();
+    setSel(pa, a, b);
+    ev.preventDefault();
+    if (t === 'insertText' || t === 'insertReplacementText') document.execCommand('insertText', false, ev.data || (ev.dataTransfer && ev.dataTransfer.getData('text/plain')) || '');
+    else if (t.startsWith('delete')) document.execCommand(t.includes('Forward') ? 'forwardDelete' : 'delete');
   });
-  $('page').addEventListener('dblclick', ev => {
-    const para = ev.target.closest('.para:not(.live)'); if (para && ev.target.closest('[data-g]')) startEdit(para, ev.clientX, ev.clientY);
+  $('page').addEventListener('input', () => {
+    const sel = getSelection(), pa = sel.rangeCount && paraOf(sel.anchorNode);
+    if (!pa) return;
+    dirty.add(pa.dataset.key);
+    clearTimeout(idleT); idleT = setTimeout(commitDirty, 1500);
   });
-  $('page').addEventListener('focusout', ev => {
-    const el = ev.target.closest && ev.target.closest('.para.live');
-    if (el && !(ev.relatedTarget && el.contains(ev.relatedTarget))) commitEdit(el);
+  document.addEventListener('selectionchange', () => {
+    if (!dirty.size) return;
+    const sel = getSelection(), pa = sel.rangeCount && paraOf(sel.anchorNode);
+    if (!pa || !dirty.has(pa.dataset.key)) commitDirty();
   });
-  $('page').addEventListener('keydown', ev => {
-    const el = ev.target.closest && ev.target.closest('.para.live'); if (!el) return;
-    if (ev.key === 'Enter' || ev.key === 'Escape') { ev.preventDefault(); el.blur(); }
-  });
+  $('page').addEventListener('focusout', () => setTimeout(() => { if (!$('page').contains(document.activeElement)) commitDirty(); }, 0));
   $('page').addEventListener('paste', ev => {
-    if (!ev.target.closest || !ev.target.closest('.para.live')) return;
     ev.preventDefault();
     document.execCommand('insertText', false, (ev.clipboardData.getData('text/plain') || '').replace(/\s*\n+\s*/g, ' '));
   });
+  $('page').addEventListener('drop', ev => ev.preventDefault());
+  function setEditable() { $('page').contentEditable = st.paras.length && !st.noHarakat ? 'true' : 'false'; $('page').spellcheck = false; }
 
   // ---------------- export
   let downloads = null;
@@ -1372,7 +1415,8 @@ input[type=file] { display: none; }
   ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
   page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
   document.addEventListener('keydown', e => {
-    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName) || e.target.isContentEditable) return;
+    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName)) return;
+    if (e.code === 'KeyZ' || e.code === 'KeyY') commitDirty();
     // e.code works with the Arabic keyboard layout too
     if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); undo(); }
     else if (e.code === 'KeyY' || (e.code === 'KeyZ' && e.shiftKey)) { e.preventDefault(); redo(); }
