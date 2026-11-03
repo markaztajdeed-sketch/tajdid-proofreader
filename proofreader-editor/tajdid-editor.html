@@ -160,6 +160,32 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .legend span { display: inline-flex; align-items: center; gap: 4px; }
 .legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 input[type=file] { display: none; }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+/* checking options dialog */
+.opts { width: min(980px, calc(100vw - 48px)); max-height: calc(100vh - 64px); border: 1px solid var(--line); border-radius: 10px; padding: 0;
+  background: var(--surface); color: var(--ink); direction: rtl; font-family: var(--ui); box-shadow: 0 16px 48px rgba(0,0,0,.25); }
+.opts::backdrop { background: rgba(10,14,13,.45); }
+.opts-h { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; gap: 12px; z-index: 1; }
+.opts-h h2 { margin: 0; font-size: 16px; flex: 1; }
+.opts-h small { color: var(--muted); }
+.opts-b { padding: 6px 20px 20px; }
+.opts-b h3 { font-size: 13.5px; margin: 18px 0 6px; display: flex; align-items: center; gap: 8px; }
+.opts-b h3 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+.otable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.otable th { text-align: start; font-weight: 600; color: var(--muted); font-size: 12px; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.otable td { padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.7; }
+.otable tr.off td:not(:last-child) { opacity: .45; }
+.otable .rn { font-weight: 600; }
+.otable .ex { font-family: var(--text); font-size: 15px; white-space: nowrap; }
+.otable .ex del { color: var(--spell); text-decoration: line-through; }
+.otable .ex ins { color: var(--good); text-decoration: none; font-weight: 700; }
+.otable .ex .arr { font-family: var(--ui); color: var(--muted); margin: 0 6px; font-size: 12px; }
+.otable td.sw { width: 64px; text-align: center; }
+.switch { appearance: none; width: 36px; height: 20px; border-radius: 99px; background: var(--line); position: relative; cursor: pointer; transition: background .15s; margin: 4px 0 0; }
+.switch::after { content: ""; position: absolute; top: 2px; inset-inline-start: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: inset-inline-start .15s; }
+.switch:checked { background: var(--accent); }
+.switch:checked::after { inset-inline-start: 18px; }
 
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
@@ -187,6 +213,10 @@ input[type=file] { display: none; }
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
       <button class="btn" id="checkBtn" type="button" title="يعيد تطبيق قواعد الدليل ويحتفظ بقراراتك">فحص النص</button>
       <button class="btn" id="undoBtn" type="button" disabled>تراجع</button>
+      <button class="btn" id="optsBtn" type="button">خيارات التدقيق</button>
+      <span class="sep"></span>
+      <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
+      <button class="btn" id="themeBtn" type="button"></button>
       <span class="sep"></span>
       <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
       <button class="btn" id="expClean" type="button">نسخة نظيفة</button>
@@ -214,11 +244,17 @@ input[type=file] { display: none; }
   </div>
 
   <div class="pop" id="pop" hidden></div>
+  <dialog class="opts" id="optsDlg" aria-labelledby="optsTitle">
+    <div class="opts-h"><h2 id="optsTitle">خيارات التدقيق</h2><small id="optsCount"></small><button class="btn" type="button" id="optsAllOn">تشغيل الكل</button><button class="btn primary" type="button" id="optsClose">تم</button></div>
+    <div class="opts-b" id="optsBody"></div>
+  </dialog>
   <footer class="bar">
     <span>باقٍ <b id="nPending">0</b></span>
     <span>مقبول <b id="nAcc">0</b></span>
     <span>مرفوض <b id="nRej">0</b></span>
     <span><b id="nWords">0</b> كلمة</span>
+    <span><b id="nChars">0</b> حرف</span>
+    <span>قراءة نحو <b id="nRead">0</b> دقيقة</span>
     <button class="warn" type="button" id="warnBtn" hidden></button>
     <span class="legend">
       <span class="c-punct"><i></i>ترقيم ومسافات</span><span class="c-spell"><i></i>إملاء ورسم</span><span class="c-conv"><i></i>أعراف المركز</span>
@@ -804,14 +840,18 @@ input[type=file] { display: none; }
   const showChars = s => esc(s).replace(//g, '<sup class="fn">●</sup>').replace(/￼/g, '<span class="ob">▢</span>');
   const vis = s => /^[  ]+$/.test(s) ? s.replace(/./g, '␣') : showChars(s);
 
-  const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], editing: null, warnAt: 0 };
+  const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
+  const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], editing: null, warnAt: 0,
+    off: new Set(store.get('off', [])), noHarakat: false };
+  const HARAKA = /[\u064B-\u0652\u0670]/;
   const opts = () => ({ translated: $('docType').value === 'translated', salam: $('optSalam').checked });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
   function scan(para, keep) {
     const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
-    para.groups = r.groups.map(g => {
+    para.groups = r.groups.filter(g => !st.off.has(g.rule.id)).map(g => {
       const old = keep && keep.get(sig(g));
       return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
     });
@@ -862,7 +902,8 @@ input[type=file] { display: none; }
       if (k < list.length && list[k].e.start === i) { if (inQ) { h += '</span>'; inQ = false; } h += piece(list[k]); i = list[k++].e.end; continue; }
       const nq = q(i);
       if (nq !== inQ) { h += nq ? '<span class="quran" title="نص قرآني محمي">' : '</span>'; inQ = nq; }
-      h += showChars(t[i]); i++;
+      if (!(st.noHarakat && !inQ && HARAKA.test(t[i]))) h += showChars(t[i]);
+      i++;
     }
     if (inQ) h += '</span>';
     return h;
@@ -947,7 +988,12 @@ input[type=file] { display: none; }
   function renderBar() {
     const { s } = counts();
     $('nPending').textContent = s.pending; $('nAcc').textContent = s.accepted; $('nRej').textContent = s.rejected;
-    $('nWords').textContent = st.paras.reduce((n, p) => n + (currentText(p).match(/[^\s￼]+/g) || []).length, 0).toLocaleString('ar');
+    let words = 0, chars = 0;
+    const WRX = new RegExp('[^\\s' + FN + OB + ']+', 'g'), CRX = new RegExp('[\\s' + FN + OB + '\\u064B-\\u0652\\u0670\\u0640]', 'g');
+    st.paras.forEach(p => { const t = currentText(p); words += (t.match(WRX) || []).length; chars += t.replace(CRX, '').length; });
+    $('nWords').textContent = words.toLocaleString('ar');
+    $('nChars').textContent = chars.toLocaleString('ar');
+    $('nRead').textContent = Math.max(1, Math.round(words / 180)).toLocaleString('ar');
     const w = st.paras.filter(p => p.warnings.length);
     $('warnBtn').hidden = !w.length;
     $('warnBtn').textContent = w.length === 1 ? '⚠ فقرة فيها قوس أو علامة تنصيص غير مغلقة' : `⚠ ${w.length} فقرات فيها أقواس أو علامات تنصيص غير مغلقة`;
@@ -1174,6 +1220,74 @@ input[type=file] { display: none; }
   ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
   page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
   document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !/TEXTAREA|INPUT/.test(e.target.tagName)) { e.preventDefault(); undo(); } });
+
+  // ---------------- show/hide tashkeel
+  $('harakatBtn').addEventListener('click', () => {
+    st.noHarakat = !st.noHarakat;
+    $('harakatBtn').setAttribute('aria-pressed', String(st.noHarakat));
+    $('harakatBtn').textContent = st.noHarakat ? 'إظهار التشكيل' : 'إخفاء التشكيل';
+    renderPage();
+    say(st.noHarakat ? 'أُخفي التشكيل من العرض فقط، وبقي في الملف. يبقى ظاهراً داخل التصحيحات والآيات.' : '');
+  });
+
+  // ---------------- light / dark
+  const root = document.documentElement;
+  const sysDark = () => !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : sysDark();
+  function applyTheme(t) {
+    if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
+    $('themeBtn').textContent = isDark() ? 'الوضع النهاري' : 'الوضع الليلي';
+  }
+  applyTheme(store.get('theme', null));
+  $('themeBtn').addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
+
+  // ---------------- checking options
+  const EX = {
+    'sp-before': ['قال الكاتب ، ثم سكت .', 'قال الكاتب، ثم سكت.'], 'sp-after': ['قال الكاتب،ثم سكت.', 'قال الكاتب، ثم سكت.'],
+    'br-inner': ['كتاب ( الأخلاق )', 'كتاب (الأخلاق)'], 'dash-pair': ['وهذا - كما قلنا - صحيح', 'وهذا -كما قلنا- صحيح'],
+    'dash-num': ['الصفحات 10 - 20', 'الصفحات 10-20'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
+    'dot-out': ['(الأخلاق أساس.)', '(الأخلاق أساس).'], 'aw-quote': ['الدولة "أو (المتحدة)"', 'الدولة أو (المتحدة)'],
+    'fn-space': ['نهاية الجملة.¹', 'نهاية الجملة¹.'], 'year-paren': ['في عام (1950)', 'في عام 1950'],
+    'ma-la': ['مازال، لابد', 'ما زال، لا بد'], 'ma-shadda': ['شخصاً مّا', 'شخصاً ما'], 'sun-shadda': ['الشّمس والنّور', 'الشمس والنور'],
+    'nisba-shadda': ['الأخلاقيّة', 'الأخلاقية'], 'tanween': ['واضحًا جدًا', 'واضحاً جداً'], 'months': ['3 مارس', '3 آذار/ مارس'],
+    'salawat': ['النبي صلى الله عليه وآله وسلم', 'النبي (ص)'], 'salam': ['الإمام علي عليه السلام', 'الإمام علي (ع)'],
+    'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
+    'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
+    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت"', 'قال (الضمير صوت)'],
+    'digits': ['عام ١٩٥٠', 'عام 1950'], 'words': ['المسئول', 'المسؤول']
+  };
+  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
+  const optCount = () => { const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length; $('optsCount').textContent = `${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة`; };
+  function renderOpts() {
+    const rules = optRules();
+    $('optsBody').innerHTML = ['punct', 'spell', 'conv'].map(cat => {
+      const rows = rules.filter(r => r.cat === cat).map(r => {
+        const on = !st.off.has(r.id), ex = EX[r.id];
+        const rno = r.no ? 'القاعدة ' + r.no : (r.label || 'قائمة الكلمات');
+        return `<tr class="${on ? '' : 'off'}"><td><div class="rn">${esc(r.name)}</div><span class="rno">${rno}</span>${r.scope === 'notes' ? ' <span class="tag">في الهوامش</span>' : ''}</td>
+          <td>${esc(r.why)}</td><td class="ex">${ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''}</td>
+          <td class="sw"><input type="checkbox" class="switch" data-rule="${r.id}" ${on ? 'checked' : ''} aria-label="تشغيل ${esc(r.name)}"></td></tr>`;
+      }).join('');
+      return `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th></tr></thead><tbody>${rows}</tbody></table>`;
+    }).join('');
+    optCount();
+  }
+  let optsDirty = false;
+  $('optsBtn').addEventListener('click', () => { renderOpts(); optsDirty = false; hidePop(true); $('optsDlg').showModal(); });
+  $('optsBody').addEventListener('change', ev => {
+    const id = ev.target.dataset.rule; if (!id) return;
+    if (ev.target.checked) st.off.delete(id); else st.off.add(id);
+    store.set('off', [...st.off]); optsDirty = true;
+    ev.target.closest('tr').classList.toggle('off', !ev.target.checked);
+    optCount();
+  });
+  $('optsAllOn').addEventListener('click', () => { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderOpts(); });
+  $('optsClose').addEventListener('click', () => $('optsDlg').close());
+  $('optsDlg').addEventListener('close', () => {
+    if (!optsDirty) return;
+    recheck();
+    say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.');
+  });
 
   // sample on open
   const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
