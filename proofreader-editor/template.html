@@ -23,6 +23,8 @@
   --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #1F2A27; color-scheme: dark }
 
 html, body { height: 100%; }
+[hidden] { display: none !important; }
+.pop, .pop *, .reason { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 14px; }
 .app { height: 100%; display: grid; grid-template-rows: auto 1fr auto; direction: rtl; }
 button, select, input, textarea { font: inherit; color: inherit; }
@@ -49,7 +51,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .sep { width: 1px; align-self: stretch; background: var(--line); }
 
 /* main */
-.main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
+.main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; }
 .desk { min-height: 0; overflow: auto; padding-block: 24px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .page { max-width: 760px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
@@ -69,7 +71,21 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-weight: 600; padding: 0 1px; }
 .ob { font-family: var(--ui); font-size: 11px; color: var(--muted); }
 
-.chg { cursor: pointer; border-radius: 3px; padding: 0 1px; }
+.chg { cursor: pointer; border-radius: 3px; padding: 2px 2px; margin: 0 -1px; }
+.chg.only-del del { display: inline-block; min-width: 10px; text-align: center; }
+.page[class*="focus-"] .chg, .page[class*="focus-"] .done { opacity: .28; }
+.page.focus-punct .c-punct, .page.focus-spell .c-spell, .page.focus-conv .c-conv { opacity: 1 !important; }
+.chg.hot { background: color-mix(in srgb, var(--c) 10%, transparent); outline: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+/* popup on an error */
+.pop { position: fixed; z-index: 30; width: 300px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.16); padding: 10px 12px; display: grid; gap: 7px; direction: rtl; font-family: var(--ui); }
+.pop .card-h .name { font-size: 13.5px; }
+.pop .chgline { font-family: var(--text); font-size: 17px; line-height: 1.6; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pop .chgline del { color: var(--spell); }
+.pop .chgline ins { color: var(--good); text-decoration: none; font-weight: 700; }
+.pop .chgline .arr { font-family: var(--ui); color: var(--muted); font-size: 13px; }
+.pop .why { font-size: 12.5px; }
+.pop .acts .btn { flex: 1; justify-content: center; }
 .chg del { color: var(--c); text-decoration: line-through; text-decoration-thickness: 1.5px; opacity: .8; }
 .chg ins { color: var(--c); text-decoration: none; background: color-mix(in srgb, var(--c) 14%, transparent); border-bottom: 2px solid var(--c); border-radius: 2px; padding: 0 1px; }
 .chg.only-del del { background: color-mix(in srgb, var(--c) 12%, transparent); }
@@ -88,7 +104,14 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .side-title h2 { margin: 0; font-size: 15px; }
 .side-title small { color: var(--muted); font-variant-numeric: tabular-nums; }
-.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.sum { display: grid; gap: 2px; }
+.sum-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; }
+.sum-row .pick { flex: 1; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 0; text-align: start; }
+.sum-row .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
+.sum-row b { font-variant-numeric: tabular-nums; font-weight: 600; margin-inline-start: auto; }
+.sum-row.on { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
+.sum-row.off { opacity: .55; }
+.sum-row .link { font-size: 12px; }
 .cat { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 3px 10px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; }
 .cat .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted)); }
 .cat b { font-weight: 600; font-variant-numeric: tabular-nums; }
@@ -177,19 +200,20 @@ input[type=file] { display: none; }
     <aside class="side" aria-label="التصحيحات">
       <div class="side-head">
         <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small></div>
-        <div class="cats" id="cats"></div>
-        <div class="side-tools">
+        <div class="sum" id="cats"></div>
+        <button class="link" type="button" id="listToggle" aria-expanded="false">عرض قائمة التصحيحات</button>
+        <div class="side-tools" id="listTools" hidden>
           <div class="seg" role="group" aria-label="عرض">
             <button type="button" id="showPending" aria-pressed="true">بانتظار القرار</button>
             <button type="button" id="showAll" aria-pressed="false">الكل</button>
           </div>
-          <button class="link" type="button" id="acceptCat">قبول الكل</button>
         </div>
       </div>
-      <div class="cards" id="cards"></div>
+      <div class="cards" id="cards" hidden></div>
     </aside>
   </div>
 
+  <div class="pop" id="pop" hidden></div>
   <footer class="bar">
     <span>باقٍ <b id="nPending">0</b></span>
     <span>مقبول <b id="nAcc">0</b></span>
@@ -329,9 +353,11 @@ input[type=file] { display: none; }
   function renderCats() {
     const { c } = counts();
     $('cats').innerHTML = ['all', 'punct', 'spell', 'conv', 'style'].map(k => {
-      const off = k === 'style';
-      return `<button type="button" class="cat c-${k}" data-cat="${k}" aria-pressed="${st.cat === k}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''}>${k === 'all' ? '' : '<span class="dot"></span>'}${k === 'all' ? 'الكل' : CATS[k]} <b>${off ? 'لاحقاً' : c[k]}</b></button>`;
+      const off = k === 'style', on = st.cat === k;
+      const acc = !off && c[k] ? `<button type="button" class="link" data-accept="${k}">قبول الكل</button>` : '';
+      return `<div class="sum-row c-${k}${on ? ' on' : ''}${off ? ' off' : ''}"><button type="button" class="pick" data-cat="${k}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''} aria-pressed="${on}">${k === 'all' ? '<span class="dot" style="background:var(--ink)"></span>' : '<span class="dot"></span>'}${k === 'all' ? 'كل التصحيحات' : CATS[k]}<b>${off ? 'لاحقاً' : c[k]}</b></button>${acc}</div>`;
     }).join('');
+    $('page').className = 'page' + (st.cat !== 'all' ? ' focus-' + st.cat : '');
   }
   function cardHTML(p, g) {
     const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
@@ -357,9 +383,6 @@ input[type=file] { display: none; }
     $('sideCount').textContent = `${s.pending} من ${s.pending + s.accepted + s.rejected} بانتظار القرار`;
     $('cards').innerHTML = list.length ? list.map(([p, g]) => cardHTML(p, g)).join('')
       : `<div class="empty">${s.pending + s.accepted + s.rejected ? 'لا تصحيحات بانتظار القرار هنا. يمكنك تصدير الملف الآن.' : 'لم تجد قواعد الدليل ما يُصحَّح في هذا النص.'}</div>`;
-    const pend = list.filter(([, g]) => g.status === 'pending').length;
-    $('acceptCat').disabled = !pend;
-    $('acceptCat').textContent = st.cat === 'all' ? `قبول الكل (${pend})` : `قبول كل «${CATS[st.cat]}» (${pend})`;
     renderCats();
     renderBar();
   }
@@ -386,19 +409,20 @@ input[type=file] { display: none; }
     if (from !== 'text' && span) span.scrollIntoView({ block: 'center', behavior: 'smooth' });
     if (from !== 'card' && card) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
-  function decide(id, status) {
+  function decide(id, status, quiet) {
     const [p, g] = findG(id); if (!g) return;
     snapshot();
     const order = visibleGroups().map(([, x]) => x.id), at = order.indexOf(id);
     g.status = status; if (status !== 'rejected') g.reason = '';
     rerenderPara(p); renderCards();
+    if (quiet) return;
     if (status === 'pending') { select(id); return; }
     const next = visibleGroups().map(([, x]) => x).find((x, i, arr) => x.status === 'pending' && order.indexOf(x.id) > at) || visibleGroups().map(([, x]) => x).find(x => x.status === 'pending');
     if (status === 'rejected') { select(id, 'card'); const r = $('reason-' + id); if (r) r.focus({ preventScroll: true }); }
     else if (next) select(next.id); else st.sel = null;
   }
-  function acceptVisible() {
-    const list = visibleGroups().filter(([, g]) => g.status === 'pending');
+  function acceptCat(cat) {
+    const list = allGroups().filter(([, g]) => g.status === 'pending' && (cat === 'all' || g.rule.cat === cat));
     if (!list.length) return;
     snapshot();
     list.forEach(([, g]) => { g.status = 'accepted'; });
@@ -412,6 +436,71 @@ input[type=file] { display: none; }
     st.sel = null; renderAll();
     say('أُعيد الفحص، وبقيت قراراتك السابقة كما هي.');
   }
+
+  // ---------------- popup on an error in the text
+  const pop = $('pop');
+  let popG = null, hideT = null, pinned = false;
+  function popHTML(p, g) {
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    const d = g.before.mid, r = g.after.mid;
+    const line = g.edits.length > 1 || (d && r) ? `<del>${vis(d)}</del><span class="arr">←</span><ins>${vis(r)}</ins>`
+      : d ? `<span class="arr">حذف</span><del>${vis(d)}</del>` : `<span class="arr">إضافة</span><ins>${vis(r)}</ins>`;
+    let foot;
+    if (g.status === 'pending') foot = `<div class="acts"><button class="btn ok" type="button" data-act="accept">قبول</button><button class="btn no" type="button" data-act="reject">رفض</button></div>`;
+    else {
+      foot = `<div class="acts"><span class="state ${g.status === 'accepted' ? 'ok' : 'no'}">${g.status === 'accepted' ? '✓ مقبول' : '✕ مرفوض'}</span><button class="link" type="button" data-act="reset">تغيير القرار</button></div>`;
+      if (g.status === 'rejected') foot += `<input class="reason" id="pop-reason" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
+    }
+    return `<div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
+      <div class="chgline">${line}</div><p class="why">${esc(g.rule.why)}</p>${foot}`;
+  }
+  function placePop(anchor) {
+    const r = anchor.getBoundingClientRect(), W = 300, gap = 8;
+    pop.hidden = false;
+    const h = pop.offsetHeight;
+    let left = r.left + r.width / 2 - W / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - W - 8));
+    let top = r.top - h - gap;
+    if (top < 8) top = r.bottom + gap;
+    pop.style.left = left + 'px'; pop.style.top = top + 'px';
+  }
+  function showPop(id, anchor) {
+    clearTimeout(hideT);
+    const [p, g] = findG(id); if (!g) return;
+    if (popG !== id) pinned = false;
+    if (popG === id && !pop.hidden && pop.dataset.state === g.status) return;
+    const same = popG === id && !pop.hidden;
+    popG = id; pop.dataset.state = g.status;
+    document.querySelectorAll('.hot').forEach(e => e.classList.remove('hot'));
+    document.querySelectorAll(`.page [data-g="${id}"]`).forEach(e => e.classList.add('hot'));
+    pop.innerHTML = popHTML(p, g);
+    if (!same) placePop(anchor);
+  }
+  function hidePop(now) {
+    clearTimeout(hideT);
+    const go = () => { if (pinned) return; pop.hidden = true; popG = null; document.querySelectorAll('.hot').forEach(e => e.classList.remove('hot')); };
+    if (now) go(); else hideT = setTimeout(go, 280);
+  }
+  $('page').addEventListener('mouseover', ev => {
+    const s = ev.target.closest('.page [data-g]');
+    if (s && !st.editing) { if (popG !== s.dataset.g) pinned = false; showPop(s.dataset.g, s); }
+  });
+  $('page').addEventListener('mouseout', ev => { if (ev.target.closest('[data-g]') && !pop.contains(ev.relatedTarget)) hidePop(); });
+  pop.addEventListener('mouseenter', () => clearTimeout(hideT));
+  pop.addEventListener('mouseleave', () => { pinned = false; hidePop(); });
+  pop.addEventListener('click', ev => {
+    const a = ev.target.closest('[data-act]'); if (!a || !popG) return;
+    const id = popG, act = a.dataset.act;
+    if (act === 'reason') return;
+    decide(id, act === 'accept' ? 'accepted' : act === 'reject' ? 'rejected' : 'pending', true);
+    const s = document.querySelector(`.page [data-g="${id}"]`);
+    if (s && act !== 'accept') { pinned = act === 'reject'; showPop(id, s); if (act === 'reject') $('pop-reason').focus(); }
+    else { pinned = false; hidePop(true); }
+  });
+  document.addEventListener('mousedown', ev => { if (!pop.hidden && !pop.contains(ev.target)) { pinned = false; hidePop(true); } });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !pop.hidden) { pinned = false; hidePop(true); } });
+  pop.addEventListener('input', ev => { if (ev.target.id === 'pop-reason') { const [, g] = findG(popG); if (g) g.reason = ev.target.value; } });
+  $('desk').addEventListener('scroll', () => { if (!pinned) hidePop(true); else { const s = document.querySelector(`.page [data-g="${popG}"]`); if (s) placePop(s); } }, { passive: true });
 
   // ---------------- manual edit
   function saveEdit(el) {
@@ -489,10 +578,19 @@ input[type=file] { display: none; }
     if (ev.target.dataset.act !== 'reason') return;
     const [, g] = findG(ev.target.closest('.card').dataset.g); if (g) g.reason = ev.target.value;
   });
-  $('cats').addEventListener('click', ev => { const b = ev.target.closest('[data-cat]'); if (!b || b.disabled) return; st.cat = b.dataset.cat; renderCards(); });
+  $('cats').addEventListener('click', ev => {
+    const acc = ev.target.closest('[data-accept]'); if (acc) return acceptCat(acc.dataset.accept);
+    const b = ev.target.closest('[data-cat]'); if (!b || b.disabled) return;
+    st.cat = st.cat === b.dataset.cat ? 'all' : b.dataset.cat; renderCards();
+  });
+  $('listToggle').addEventListener('click', () => {
+    const open = $('cards').hidden;
+    $('cards').hidden = !open; $('listTools').hidden = !open;
+    $('listToggle').setAttribute('aria-expanded', String(open));
+    $('listToggle').textContent = open ? 'إخفاء قائمة التصحيحات' : 'عرض قائمة التصحيحات';
+  });
   $('showPending').addEventListener('click', () => { st.show = 'pending'; $('showPending').setAttribute('aria-pressed', 'true'); $('showAll').setAttribute('aria-pressed', 'false'); renderCards(); });
   $('showAll').addEventListener('click', () => { st.show = 'all'; $('showAll').setAttribute('aria-pressed', 'true'); $('showPending').setAttribute('aria-pressed', 'false'); renderCards(); });
-  $('acceptCat').addEventListener('click', acceptVisible);
   $('checkBtn').addEventListener('click', recheck);
   $('docType').addEventListener('change', recheck);
   $('optSalam').addEventListener('change', recheck);

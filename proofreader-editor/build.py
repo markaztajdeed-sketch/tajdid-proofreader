@@ -1,4 +1,9 @@
-t=open('template.html').read()
-t=t.replace('/*__ENGINE__*/',open('engine.js').read()).replace("'/*__SAMPLE__*/'","'"+open('../proto/sample.b64').read().strip()+"'")
-open('tajdid-editor.html','w').write(t)
-open('preview.html','w').write('<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>'+t+'</body></html>')
+# Builds tajdid-editor.html from template.html + engine.js + the sample article.
+# Run from this folder: python build.py
+import base64, os
+here = os.path.dirname(os.path.abspath(__file__))
+p = lambda *a: os.path.join(here, *a)
+t = open(p('template.html'), encoding='utf-8').read()
+sample = base64.b64encode(open(p('..', 'proofreader-prototype', 'sample.docx'), 'rb').read()).decode()
+t = t.replace('/*__ENGINE__*/', open(p('engine.js'), encoding='utf-8').read()).replace("'/*__SAMPLE__*/'", "'" + sample + "'")
+open(p('tajdid-editor.html'), 'w', encoding='utf-8').write(t)
