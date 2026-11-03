@@ -66,8 +66,13 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .nav-toggle { position: absolute; top: 46px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .nav-toggle:hover { color: var(--ink); }
-.nav-toggle svg { width: 16px; height: 16px; }
-.shell.nav-open .nav-toggle svg { transform: scaleX(-1); }
+.nav-toggle svg { width: 16px; height: 16px; transform: scaleX(-1); }
+.shell.nav-open .nav-toggle svg { transform: none; }
+/* مطوية: مربع صغير حول الأيقونة فقط */
+.shell:not(.nav-open) .nav { align-items: center; }
+.shell:not(.nav-open) .nav-item { width: 40px; height: 40px; padding: 0; justify-content: center; gap: 0; }
+.shell:not(.nav-open) .nav-item .lbl, .shell:not(.nav-open) .nav-logo .lbl { display: none; }
+.shell:not(.nav-open) .nav-logo { padding: 0 0 18px; }
 .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 11px; border-radius: 8px; border: 0; background: none; width: 100%;
   color: var(--muted); text-decoration: none; font-size: 14px; white-space: nowrap; overflow: hidden; text-align: start; }
 .nav-item:hover { background: var(--sunken); color: var(--ink); }
