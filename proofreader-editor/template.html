@@ -67,7 +67,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 5px; padding: 1px 6px; line-height: 1.6; opacity: 0; }
 .para:hover .edit, .para .edit:focus-visible { opacity: 1; }
 .para.manual::after { content: "عدّله المدقق"; font-family: var(--ui); font-size: 11px; color: var(--muted); margin-inline-start: 8px; }
-.quran { background: var(--quran); border-radius: 3px; box-shadow: 0 0 0 2px var(--quran); }
+.quran { background: color-mix(in srgb, var(--quran) 45%, transparent); border-radius: 3px; }
 sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-weight: 600; padding: 0 1px; }
 .ob { font-family: var(--ui); font-size: 11px; color: var(--muted); }
 
