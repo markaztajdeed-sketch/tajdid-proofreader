@@ -63,7 +63,8 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .shell > .app { flex: 1; min-width: 0; }
 .nav { position: relative; flex: none; width: 64px; height: 100%; background: var(--surface); border-inline-end: 1px solid var(--line);
   display: flex; flex-direction: column; padding: 14px 10px; gap: 4px; transition: width .18s; z-index: 5; box-sizing: border-box; overflow: visible; }
-.shell.nav-open .nav { width: 220px; }
+.shell.nav-open .nav { width: 230px; }
+.nav *, .side * { box-sizing: border-box; }
 .nav-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 18px; color: var(--brand); font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; }
 .nav-logo img { width: 32px; height: 32px; flex: none; }
 .nav-toggle { position: absolute; top: 46px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
@@ -76,7 +77,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .shell:not(.nav-open) .nav-item { width: 40px; height: 40px; padding: 0; justify-content: center; gap: 0; }
 .shell:not(.nav-open) .nav-item .lbl, .shell:not(.nav-open) .nav-logo .lbl { display: none; }
 .shell:not(.nav-open) .nav-logo { padding: 0 0 18px; }
-.nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 11px; border-radius: 8px; border: 0; background: none; width: 100%;
+.nav-item { box-sizing: border-box; display: flex; align-items: center; gap: 12px; padding: 10px 11px; border-radius: 8px; border: 0; background: none; width: 100%;
   color: var(--muted); text-decoration: none; font-size: 14px; white-space: nowrap; overflow: hidden; text-align: start; }
 .nav-item:hover { background: var(--sunken); color: var(--ink); }
 .nav-item[aria-current="page"] { background: var(--nav-act); color: var(--accent); font-weight: 600; }
