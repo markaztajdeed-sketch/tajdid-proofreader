@@ -143,19 +143,21 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
 /* قائمة التصحيحات تنطوي إلى شريط ضيق فيه الأعداد فقط */
 .main.side-closed { grid-template-columns: minmax(0, 1fr) 64px; }
-.side-toggle { position: absolute; top: 46px; inset-inline-start: -15px; width: 30px; height: 30px; border-radius: 50%; z-index: 4;
-  border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-.side-toggle:hover { color: var(--ink); }
+.side-toggle { flex: none; width: 28px; height: 28px; border-radius: 6px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; padding: 0; }
+.side-toggle:hover { background: var(--surface); color: var(--ink); }
 .side-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }
 .side-closed .side-toggle svg { transform: none; }
-.side-closed .side-head { padding: 64px 10px 10px; border-bottom: 0; }
-.side-closed .side-title, .side-closed #listToggle, .side-closed #listTools, .side-closed .cards, .side-closed .sum-row .link, .side-closed .sum-row .nm { display: none !important; }
+.side-closed .side-head { padding: 14px 10px 10px; border-bottom: 0; }
+.side-closed .side-title { justify-content: center; }
+.side-closed .side-title h2, .side-closed .side-title small { display: none; }
+.side-closed #listToggle, .side-closed #listTools, .side-closed .cards, .side-closed .sum-row .link, .side-closed .sum-row .nm { display: none !important; }
 .side-closed .sum { justify-items: center; gap: 6px; }
 .side-closed .sum-row { width: 44px; height: 44px; padding: 0; justify-content: center; }
 .side-closed .sum-row .pick { flex: none; flex-direction: column; gap: 3px; align-items: center; }
 .side-closed .sum-row b { margin: 0; font-size: 12.5px; }
 .side-head { padding: 14px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
-.side-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.side-title { display: flex; align-items: center; gap: 8px; }
+.side-title small { margin-inline-start: auto; }
 .side-title h2 { margin: 0; font-size: 15px; }
 .side-title small { color: var(--muted); font-variant-numeric: tabular-nums; }
 .sum { display: grid; gap: 2px; }
@@ -287,9 +289,8 @@ input[type=file] { display: none; }
       <article class="page" id="page" aria-label="نص المستند"></article>
     </main>
     <aside class="side" aria-label="التصحيحات">
-      <button class="side-toggle" id="sideBtn" type="button" aria-label="توسيع قائمة التصحيحات أو طيّها" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="side-head">
-        <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small></div>
+        <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small><button class="side-toggle" id="sideBtn" type="button" aria-label="توسيع قائمة التصحيحات أو طيّها" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
         <div class="sum" id="cats"></div>
         <button class="link" type="button" id="listToggle" aria-expanded="false">عرض قائمة التصحيحات</button>
         <div class="side-tools" id="listTools" hidden>
