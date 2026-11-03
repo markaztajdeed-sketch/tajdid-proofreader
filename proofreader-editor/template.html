@@ -38,11 +38,7 @@ button { cursor: pointer; }
 .top { background: var(--surface); border-top: 3px solid var(--gold); border-bottom: 1px solid var(--line); padding-block: 10px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
   display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
-.brand { font-weight: 700; font-size: 15px; color: var(--brand); white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
-.brand img { width: 32px; height: 32px; display: block; }
-.navbtn { border: 0; background: none; color: var(--muted); padding: 6px; border-radius: 6px; display: inline-grid; place-items: center; }
-.navbtn:hover { background: var(--sunken); color: var(--ink); }
-.navbtn svg, .nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.nav svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 .doc { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 220px; }
 .doc-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
 .tag { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--sunken); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
@@ -58,18 +54,32 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .sep { width: 1px; align-self: stretch; background: var(--line); }
 
 /* main */
-.main { min-height: 0; display: grid; grid-template-columns: 210px minmax(0, 1fr) 320px; }
-.app.nav-off .main { grid-template-columns: minmax(0, 1fr) 320px; }
-.app.nav-off .nav { display: none; }
-/* القائمة الجانبية (أقسام الأداة) */
-.nav { min-height: 0; overflow: auto; background: var(--surface); border-inline-end: 1px solid var(--line); padding: 12px 8px; display: flex; flex-direction: column; gap: 2px; }
-.nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: var(--ink); text-decoration: none; font-size: 14px; }
-.nav a:hover { background: var(--sunken); }
-.nav a[aria-current="page"] { background: var(--nav-act); color: var(--accent); font-weight: 600; }
-.nav a.soon { color: var(--muted); cursor: default; }
-.nav a.soon:hover { background: none; }
-.nav a .soon-tag { margin-inline-start: auto; font-size: 10.5px; border: 1px solid var(--line); border-radius: 99px; padding: 0 6px; }
-.nav .nav-sep { height: 1px; background: var(--line); margin: 8px 4px; }
+.main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 320px; }
+/* القائمة الجانبية بطول الصفحة: تنطوي إلى شريط أيقونات وتنفتح بالأسماء */
+.shell { height: 100%; display: flex; direction: rtl; }
+.shell > .app { flex: 1; min-width: 0; }
+.nav { position: relative; flex: none; width: 64px; height: 100%; background: var(--surface); border-inline-end: 1px solid var(--line);
+  display: flex; flex-direction: column; padding: 14px 10px; gap: 4px; transition: width .18s; z-index: 5; box-sizing: border-box; overflow: visible; }
+.shell.nav-open .nav { width: 220px; }
+.nav-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 18px; color: var(--brand); font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; }
+.nav-logo img { width: 32px; height: 32px; flex: none; }
+.nav-toggle { position: absolute; top: 46px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.nav-toggle:hover { color: var(--ink); }
+.nav-toggle svg { width: 16px; height: 16px; }
+.shell.nav-open .nav-toggle svg { transform: scaleX(-1); }
+.nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 11px; border-radius: 8px; border: 0; background: none; width: 100%;
+  color: var(--muted); text-decoration: none; font-size: 14px; white-space: nowrap; overflow: hidden; text-align: start; }
+.nav-item:hover { background: var(--sunken); color: var(--ink); }
+.nav-item[aria-current="page"] { background: var(--nav-act); color: var(--accent); font-weight: 600; }
+.nav-item.soon { cursor: default; }
+.nav-item.soon:hover { background: none; color: var(--muted); }
+.nav-item .lbl, .nav-logo .lbl { opacity: 0; transition: opacity .12s; }
+.shell.nav-open .nav-item .lbl, .shell.nav-open .nav-logo .lbl { opacity: 1; }
+.nav-item .soon-tag { margin-inline-start: auto; font-size: 10.5px; border: 1px solid var(--line); border-radius: 99px; padding: 0 6px; display: none; }
+.shell.nav-open .nav-item .soon-tag { display: inline; }
+.nav-fill { flex: 1; }
+.nav-sep { height: 1px; background: var(--line); margin: 6px 4px; }
 .desk { min-height: 0; overflow: auto; padding-block: 24px;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .page { max-width: 760px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
@@ -215,8 +225,7 @@ input[type=file] { display: none; }
 
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
-  .main, .app.nav-off .main { grid-template-columns: minmax(0, 1fr); }
-  .nav { display: none; }
+  .main { grid-template-columns: minmax(0, 1fr); }
   .desk { overflow: visible; }
   .side { border-inline-start: 0; border-top: 1px solid var(--line); }
   .cards { overflow: visible; }
@@ -226,10 +235,20 @@ input[type=file] { display: none; }
 @media (prefers-reduced-motion: reduce) { .para.flash { animation: none; } * { scroll-behavior: auto !important; } }
 </style>
 
+<div class="shell" id="shell">
+  <nav class="nav" id="nav" aria-label="أقسام الأداة">
+      <div class="nav-logo"><img src="data:image/png;base64,/*__LOGO__*/" alt="مركز تجديد"><span class="lbl">مدقق تجديد</span></div>
+      <button class="nav-toggle" id="navBtn" type="button" aria-label="توسيع القائمة أو طيّها" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <a href="#" aria-current="page" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
+      <a href="#" class="nav-item soon" aria-disabled="true" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" class="nav-item soon" aria-disabled="true" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" class="nav-item soon" aria-disabled="true" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span><span class="soon-tag">قريباً</span></a>
+      <div class="nav-fill"></div>
+      <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
+      <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
+    </nav>
 <div class="app">
   <header class="top">
-    <button class="navbtn" id="navBtn" type="button" aria-label="إظهار القائمة أو إخفاؤها" aria-expanded="true" title="القائمة"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-    <span class="brand"><img src="data:image/png;base64,/*__LOGO__*/" alt="مركز تجديد">مدقق تجديد</span>
     <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span>
       <button class="btn" id="openBtn" type="button" title="أو اسحب الملف إلى الصفحة">فتح ملف وورد…</button>
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
@@ -239,7 +258,6 @@ input[type=file] { display: none; }
       <span class="sep"></span>
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
       <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعلّم التصحيحات المقبولة بخط أخضر لتتبّعها">إظهار المقبول</button>
-      <button class="btn" id="themeBtn" type="button"></button>
       <span class="sep"></span>
       <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
       <button class="btn" id="expClean" type="button">نسخة نظيفة</button>
@@ -247,14 +265,6 @@ input[type=file] { display: none; }
   </header>
 
   <div class="main">
-    <nav class="nav" id="nav" aria-label="أقسام الأداة">
-      <a href="#" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>المحرر</a>
-      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></svg>المستندات<span class="soon-tag">قريباً</span></a>
-      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg>دليل التدقيق<span class="soon-tag">قريباً</span></a>
-      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg>القاموس<span class="soon-tag">قريباً</span></a>
-      <div class="nav-sep"></div>
-      <a class="soon" aria-disabled="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>الحساب<span class="soon-tag">قريباً</span></a>
-    </nav>
     <main class="desk" id="desk">
       <article class="page" id="page" aria-label="نص المستند"></article>
     </main>
@@ -292,6 +302,7 @@ input[type=file] { display: none; }
     </span>
     <span class="msg" id="msg" role="status"></span>
   </footer>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -772,13 +783,15 @@ input[type=file] { display: none; }
   const isDark = () => root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark' : sysDark();
   function applyTheme(t) {
     if (t) root.setAttribute('data-theme', t); else root.removeAttribute('data-theme');
-    $('themeBtn').textContent = isDark() ? 'الوضع النهاري' : 'الوضع الليلي';
+    const tl = isDark() ? 'الوضع النهاري' : 'الوضع الليلي';
+    $('themeBtn').querySelector('.lbl').textContent = tl; $('themeBtn').title = tl;
+    $('themeBtn').querySelector('svg').innerHTML = isDark() ? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>' : '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>';
   }
   applyTheme(store.get('theme', null));
   // القائمة الجانبية: تظهر وتختفي، ويُحفظ اختيار المدقق
-  const setNav = on => { document.querySelector('.app').classList.toggle('nav-off', !on); $('navBtn').setAttribute('aria-expanded', String(on)); };
-  setNav(store.get('nav', true));
-  $('navBtn').addEventListener('click', () => { const on = document.querySelector('.app').classList.contains('nav-off'); store.set('nav', on); setNav(on); });
+  const setNav = on => { $('shell').classList.toggle('nav-open', on); $('navBtn').setAttribute('aria-expanded', String(on)); };
+  setNav(store.get('navOpen', false));
+  $('navBtn').addEventListener('click', () => { const on = !$('shell').classList.contains('nav-open'); store.set('navOpen', on); setNav(on); });
   $('nav').addEventListener('click', ev => { const a = ev.target.closest('a'); if (a) ev.preventDefault(); });
   $('themeBtn').addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
 
