@@ -1,0 +1,240 @@
+<title>مدقق تجديد</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column; a tool bar of upload + options on top, results below as a proofreader's sheet. */
+:root {
+  --paper: #F4F6F8; --card: #FFFFFF; --ink: #1B2230; --muted: #5A6476; --line: #DCE1E8;
+  --accent: #1F4E8C; --accent-soft: #E3ECF7;
+  --del: #B3261E; --del-bg: #FBE7E5; --ins: #1D7444; --ins-bg: #E1F3E8; --warn: #8A5A00; --warn-bg: #FBF0D9;
+  --ui: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --text: "Noto Naskh Arabic", "Traditional Arabic", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #11151B; --card: #1A1F28; --ink: #E5E9F0; --muted: #9CA5B4; --line: #2B323E;
+  --accent: #86AEEA; --accent-soft: #1E2B40;
+  --del: #F2958B; --del-bg: #3A1D1B; --ins: #74D19C; --ins-bg: #16301F; --warn: #E8B85C; --warn-bg: #33280F; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #11151B; --card: #1A1F28; --ink: #E5E9F0; --muted: #9CA5B4; --line: #2B323E;
+  --accent: #86AEEA; --accent-soft: #1E2B40;
+  --del: #F2958B; --del-bg: #3A1D1B; --ins: #74D19C; --ins-bg: #16301F; --warn: #E8B85C; --warn-bg: #33280F; color-scheme: dark }
+body { background: var(--paper); color: var(--ink); font-family: var(--ui); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 920px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 22px; }
+header { display: grid; gap: 6px; }
+.eyebrow { font-size: 12.5px; letter-spacing: .02em; color: var(--accent); font-weight: 600; }
+h1 { margin: 0; font-size: 30px; font-weight: 700; text-wrap: balance; }
+.lead { margin: 0; color: var(--muted); max-width: 62ch; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; }
+.drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 22px 16px; display: grid; gap: 8px; justify-items: center; text-align: center; cursor: pointer; transition: border-color .15s, background .15s; }
+.drop:hover, .drop.over { border-color: var(--accent); background: var(--accent-soft); }
+.drop strong { font-size: 16px; }
+.drop span { color: var(--muted); font-size: 13.5px; }
+.drop:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opts { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.opts label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.opts small { color: var(--muted); }
+input[type=checkbox] { width: 17px; height: 17px; accent-color: var(--accent); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+button { font: inherit; border-radius: 8px; padding: 9px 16px; cursor: pointer; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--card); font-weight: 600; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button:disabled { opacity: .5; cursor: default; }
+.linkish { border: 0; background: none; color: var(--accent); padding: 0; text-decoration: underline; text-underline-offset: 3px; }
+.filehead { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; justify-content: space-between; }
+.filehead h2 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.badge { font-size: 12px; padding: 2px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.stat { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+.stat b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); font-size: 13px; }
+.stat.warn b { color: var(--warn); }
+.msg { font-size: 13.5px; color: var(--muted); }
+.msg.err { color: var(--del); }
+h3 { margin: 0; font-size: 16px; }
+.tally { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tally th, .tally td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.tally th { color: var(--muted); font-weight: 500; font-size: 12.5px; }
+.tally td.n { font-variant-numeric: tabular-nums; font-weight: 600; text-align: left; width: 3.5em; }
+.tally td.no { color: var(--accent); font-weight: 600; width: 4.5em; white-space: nowrap; }
+.tally .why { color: var(--muted); font-size: 13px; }
+.scroll { overflow-x: auto; }
+.changes { display: grid; gap: 8px; }
+.chg { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; }
+.chg .meta { display: flex; flex-wrap: wrap; gap: 6px 10px; font-size: 12.5px; color: var(--muted); }
+.chg .meta .rule { color: var(--accent); font-weight: 600; }
+.pair { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; align-items: baseline; }
+.pair > span { font-size: 12px; color: var(--muted); }
+.snip { font-family: var(--text); font-size: 16.5px; line-height: 1.9; overflow-wrap: anywhere; }
+.snip del { color: var(--del); background: var(--del-bg); text-decoration-thickness: 1.5px; border-radius: 3px; padding: 0 2px; }
+.snip ins { color: var(--ins); background: var(--ins-bg); text-decoration: none; border-bottom: 1.5px solid var(--ins); border-radius: 3px; padding: 0 2px; }
+.snip .caret { color: var(--ins); font-family: var(--ui); }
+.warnings { display: grid; gap: 6px; }
+.warnings div { background: var(--warn-bg); color: var(--ink); border-radius: 8px; padding: 8px 12px; font-size: 14px; }
+.warnings b { color: var(--warn); }
+details { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+details summary { cursor: pointer; font-weight: 600; }
+details ul { margin: 10px 0 0; padding-inline-start: 20px; display: grid; gap: 4px; color: var(--muted); }
+details p { color: var(--muted); margin: 10px 0 0; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 520px) { h1 { font-size: 25px; } .stats { grid-template-columns: 1fr 1fr 1fr; } .stat b { font-size: 20px; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" dir="rtl" lang="ar">
+  <header>
+    <div class="eyebrow">نموذج أولي · الطبقة الأولى من دليل المدققين</div>
+    <h1>مدقق تجديد</h1>
+    <p class="lead">ارفع ملف Word، فتعود إليك القواعد الشكلية الثابتة من دليل المدققين مطبّقةً عليه بتعقّب التغييرات. يُعالَج الملف داخل متصفحك فقط، ولا يُرسل إلى أي جهة.</p>
+  </header>
+
+  <section class="panel" aria-label="رفع الملف">
+    <label class="drop" id="drop" for="file">
+      <strong>اختر ملف Word أو أفلته هنا</strong>
+      <span>ملفات ‎.docx‎ فقط. الهوامش والحواشي الختامية تُفحص أيضاً.</span>
+      <input class="sr" type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+    </label>
+    <div class="opts">
+      <label for="opt-translated"><input type="checkbox" id="opt-translated"> نص مترجم <small>(تبقى أسماء الأشهر كما وضعها المترجم)</small></label>
+      <label for="opt-salam"><input type="checkbox" id="opt-salam" checked> اختصار (عليه السلام) إلى (ع) <small>(صيغة بانتظار التأكيد)</small></label>
+    </div>
+  </section>
+
+  <section class="panel" id="result" aria-live="polite">
+    <div class="filehead">
+      <h2 id="fname">…</h2>
+      <span class="badge" id="sample-badge">ملف نموذجي</span>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="s-changes">0</b><span>تصحيحاً</span></div>
+      <div class="stat"><b id="s-paras">0</b><span>فقرة فُحصت</span></div>
+      <div class="stat warn"><b id="s-warn">0</b><span>تنبيهات للمدقق</span></div>
+    </div>
+    <div class="row">
+      <button class="primary" id="dl-tracked" disabled>تنزيل بتعقّب التغييرات</button>
+      <button id="dl-clean" disabled>تنزيل نسخة نظيفة</button>
+    </div>
+    <div class="msg" id="msg">في الملف المُنزَّل، كل تغيير يحمل اسم قاعدته في خانة المؤلف، فيظهر عند المرور عليه في Word ويُلوَّن كل نوع بلون.</div>
+
+    <div class="warnings" id="warnings"></div>
+
+    <h3>التصحيحات حسب القاعدة</h3>
+    <div class="scroll"><table class="tally"><thead><tr><th>القاعدة</th><th>الوصف</th><th>العدد</th></tr></thead><tbody id="tally"></tbody></table></div>
+
+    <h3>كل التصحيحات</h3>
+    <div class="changes" id="changes"></div>
+    <button class="linkish" id="more" hidden>عرض الكل</button>
+  </section>
+
+  <details>
+    <summary>ما الذي يطبّقه هذا النموذج، وما الذي لا يطبّقه</summary>
+    <ul id="rules-list"></ul>
+    <p>لا يشمل هذا النموذج النحو والإملاء والهمزات وتشكيل ما يلتبس معناه (الطبقة الثانية بالذكاء الاصطناعي)، ولا اقتراحات الصياغة (الطبقة الثالثة)، ولا الخطوط وأحجامها. الآيات بين ﴿﴾ لا تُمسّ، والنصوص بين علامات التنصيص لا تُغيَّر كلماتها، وتطبَّق عليها قواعد المسافات فقط.</p>
+  </details>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+(function () {
+  'use strict';
+  const SAMPLE_B64 = '/*__SAMPLE__*/';
+  const $ = id => document.getElementById(id);
+  const xml = { parse: s => new DOMParser().parseFromString(s, 'application/xml'), serialize: d => new XMLSerializer().serializeToString(d) };
+  const state = { name: '', buf: null, tracked: null, clean: null, changes: [], showAll: false, sample: true };
+  const ar = n => n.toLocaleString('ar');
+
+  // rule reference list
+  const seen = new Set();
+  $('rules-list').innerHTML = TajdidEngine.RULES.filter(r => !seen.has(r.name) && seen.add(r.name))
+    .map(r => `<li><b>${r.no ? 'القاعدة ' + r.no : 'قائمة الكلمات'}:</b> ${esc(r.name)}. ${esc(r.why)}</li>`).join('');
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  const vis = s => esc(s).replace(//g, '<sup>¹</sup>').replace(/￼/g, '◻');
+
+  async function run() {
+    if (!state.buf) return;
+    $('msg').className = 'msg';
+    const opts = { translated: $('opt-translated').checked, salam: $('opt-salam').checked };
+    try {
+      const a = await TajdidEngine.processDocx(JSZip, state.buf.slice(0), opts, xml);
+      const b = await TajdidEngine.processDocx(JSZip, state.buf.slice(0), Object.assign({ clean: true }, opts), xml);
+      state.tracked = a.data; state.clean = b.data; state.changes = a.changes;
+      render(a);
+    } catch (e) {
+      $('msg').className = 'msg err';
+      $('msg').textContent = 'تعذّرت قراءة الملف. تأكد أنه ملف Word بصيغة ‎.docx‎ وليس ‎.doc‎ قديماً، ثم جرّب مرة أخرى.';
+      $('dl-tracked').disabled = $('dl-clean').disabled = true;
+    }
+  }
+
+  function render(res) {
+    $('fname').textContent = state.name.replace(/\.docx$/i, '');
+    $('sample-badge').hidden = !state.sample;
+    $('s-changes').textContent = ar(res.changes.length);
+    $('s-paras').textContent = ar(res.paragraphs);
+    $('s-warn').textContent = ar(res.warnings.length);
+    $('dl-tracked').disabled = $('dl-clean').disabled = res.changes.length === 0;
+    if (!res.changes.length) { $('msg').textContent = 'لم تجد الأداة ما يخالف القواعد الشكلية في هذا الملف.'; }
+    $('warnings').innerHTML = res.warnings.map(w => `<div><b>قوس أو علامة تنصيص غير مغلقة (${esc(w.marks)})</b> في ${esc(w.where)}: <span class="snip">${vis(w.snippet.post)}</span></div>`).join('');
+    const tally = new Map();
+    res.changes.forEach(c => { const k = c.rule.name; const t = tally.get(k) || { rule: c.rule, n: 0 }; t.n++; tally.set(k, t); });
+    $('tally').innerHTML = [...tally.values()].sort((a, b) => b.n - a.n).map(t =>
+      `<tr><td class="no">${t.rule.no ? 'القاعدة ' + ar(t.rule.no) : 'المعجم'}</td><td>${esc(t.rule.name)}<div class="why">${esc(t.rule.why)}</div></td><td class="n">${ar(t.n)}</td></tr>`).join('');
+    drawChanges();
+  }
+
+  function drawChanges() {
+    const list = state.showAll ? state.changes : state.changes.slice(0, 40);
+    $('changes').innerHTML = list.map(c => {
+      const b = c.before, a = c.after;
+      const sp = s => (s.trim() ? vis(s) : '<span title="مسافة">␣</span>'.repeat(Math.min(s.length, 4)));
+      const del = b.mid ? `<del>${sp(b.mid)}</del>` : '<span class="caret">‸</span>';
+      const ins = a.mid ? `<ins>${sp(a.mid)}</ins>` : '';
+      return `<div class="chg"><div class="meta"><span class="rule">${c.rule.no ? 'القاعدة ' + ar(c.rule.no) : 'المعجم'} · ${esc(c.rule.name)}</span><span>${esc(c.where)}</span></div>
+        <div class="pair"><span>قبل</span><div class="snip">${vis(b.pre)}${del}${vis(b.post)}</div><span>بعد</span><div class="snip">${vis(a.pre)}${ins}${vis(a.post)}</div></div></div>`;
+    }).join('');
+    $('more').hidden = state.showAll || state.changes.length <= 40;
+    $('more').textContent = 'عرض الكل (' + ar(state.changes.length) + ')';
+  }
+
+  function load(name, buf, sample) { state.name = name; state.buf = buf; state.sample = sample; state.showAll = false; run(); }
+
+  $('file').addEventListener('change', e => { const f = e.target.files[0]; if (f) f.arrayBuffer().then(b => load(f.name, b, false)); });
+  const drop = $('drop');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) f.arrayBuffer().then(b => load(f.name, b, false)); });
+  $('opt-translated').addEventListener('change', run);
+  $('opt-salam').addEventListener('change', run);
+  $('more').addEventListener('click', () => { state.showAll = true; drawChanges(); });
+
+  let downloads = null;
+  if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
+  async function save(which) {
+    const data = which === 'clean' ? state.clean : state.tracked;
+    if (!data) return;
+    const base = state.name.replace(/\.docx$/i, '');
+    const filename = base + (which === 'clean' ? ' - نظيف.docx' : ' - مدقق.docx');
+    if (!downloads) { $('msg').className = 'msg err'; $('msg').textContent = 'التنزيل غير متاح في هذا العرض. افتح الصفحة في claude.ai لتنزيل الملف.'; return; }
+    try {
+      await downloads.save({ filename, data: new Blob([data]) });
+      $('msg').className = 'msg'; $('msg').textContent = 'تم حفظ ' + filename + '.';
+    } catch (e) {
+      if (e && e.code === 'declined') return;
+      $('msg').className = 'msg err';
+      $('msg').textContent = e && e.code === 'rate_limited' ? 'هناك نافذة حفظ مفتوحة بالفعل. أكملها ثم جرّب مرة أخرى.' : 'تعذّر حفظ الملف في هذا العرض.';
+    }
+  }
+  $('dl-tracked').addEventListener('click', () => save('tracked'));
+  $('dl-clean').addEventListener('click', () => save('clean'));
+
+  // open with the sample article so the page shows what it does
+  const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  load('مقال نموذجي - الحداثة وسؤال الهوية.docx', bytes.buffer, true);
+})();
+</script>

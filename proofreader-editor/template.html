@@ -1,0 +1,527 @@
+<title>محرر تجديد</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap">
+<style>
+/* Layout: a proofreader's desk. Header of controls, the text as a page in the middle, the corrections queue beside it, a status strip below. */
+:root {
+  --bg: #EEF1EF; --surface: #FFFFFF; --sunken: #F5F7F6; --ink: #1D2321; --muted: #5C6662; --line: #D9DFDC;
+  --accent: #1E5D55; --accent-ink: #FFFFFF;
+  --punct: #2F5FB3; --spell: #B03345; --conv: #8A5F0E; --style: #6A4C9E;
+  --good: #2E7D4F; --quran: #E9F1EE;
+  --ui: "IBM Plex Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+  --text: "Noto Naskh Arabic", "Traditional Arabic", "Times New Roman", serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121615; --surface: #1A1F1E; --sunken: #161B1A; --ink: #E4E9E7; --muted: #98A39F; --line: #2C3432;
+  --accent: #5DB3A6; --accent-ink: #0E1413;
+  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #1F2A27; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121615; --surface: #1A1F1E; --sunken: #161B1A; --ink: #E4E9E7; --muted: #98A39F; --line: #2C3432;
+  --accent: #5DB3A6; --accent-ink: #0E1413;
+  --punct: #86A9EE; --spell: #EF8B98; --conv: #D8B160; --style: #B6A0DC; --good: #6CCB93; --quran: #1F2A27; color-scheme: dark }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 14px; }
+.app { height: 100%; display: grid; grid-template-rows: auto 1fr auto; direction: rtl; }
+button, select, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* header */
+.top { background: var(--surface); border-bottom: 1px solid var(--line); padding-block: 10px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.brand { font-weight: 700; font-size: 15px; color: var(--accent); white-space: nowrap; }
+.doc { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 220px; }
+.doc-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.tag { font-size: 11px; padding: 1px 7px; border-radius: 99px; background: var(--sunken); border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.ctrls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.field { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+select, .chk { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 5px 8px; }
+.chk { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); cursor: pointer; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 12px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.btn:hover { background: var(--sunken); }
+.btn[disabled] { opacity: .45; cursor: default; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.08); }
+.sep { width: 1px; align-self: stretch; background: var(--line); }
+
+/* main */
+.main { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 380px; }
+.desk { min-height: 0; overflow: auto; padding-block: 24px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.page { max-width: 760px; margin: 0 auto; background: var(--surface); border: 1px solid var(--line); border-radius: 4px;
+  padding: 40px clamp(18px, 5vw, 56px); font-family: var(--text); font-size: 19px; line-height: 2.05; }
+.page.drag { outline: 2px dashed var(--accent); outline-offset: 6px; }
+.notes-h { font-family: var(--ui); font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: .02em;
+  border-top: 1px solid var(--line); margin-top: 28px; padding-top: 14px; }
+.para { position: relative; margin: 0 0 14px; text-align: justify; border-radius: 3px; }
+.para.note { font-size: 15.5px; line-height: 1.95; margin-bottom: 8px; }
+.para.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: color-mix(in srgb, var(--accent) 18%, transparent); } to { background: transparent; } }
+.para .edit { position: absolute; inset-inline-start: calc(100% + 4px); top: 4px; font-family: var(--ui); font-size: 12px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 5px; padding: 1px 6px; line-height: 1.6; opacity: 0; }
+.para:hover .edit, .para .edit:focus-visible { opacity: 1; }
+.para.manual::after { content: "عدّله المدقق"; font-family: var(--ui); font-size: 11px; color: var(--muted); margin-inline-start: 8px; }
+.quran { background: var(--quran); border-radius: 3px; box-shadow: 0 0 0 2px var(--quran); }
+sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-weight: 600; padding: 0 1px; }
+.ob { font-family: var(--ui); font-size: 11px; color: var(--muted); }
+
+.chg { cursor: pointer; border-radius: 3px; padding: 0 1px; }
+.chg del { color: var(--c); text-decoration: line-through; text-decoration-thickness: 1.5px; opacity: .8; }
+.chg ins { color: var(--c); text-decoration: none; background: color-mix(in srgb, var(--c) 14%, transparent); border-bottom: 2px solid var(--c); border-radius: 2px; padding: 0 1px; }
+.chg.only-del del { background: color-mix(in srgb, var(--c) 12%, transparent); }
+.done { border-bottom: 1px dotted color-mix(in srgb, var(--good) 70%, transparent); cursor: pointer; }
+.done.gap { display: inline-block; width: 3px; height: .9em; vertical-align: middle; background: color-mix(in srgb, var(--good) 45%, transparent); border: 0; border-radius: 2px; }
+.rej { cursor: pointer; }
+.sel { outline: 2px solid var(--c, var(--accent)); outline-offset: 1px; border-radius: 3px; }
+.c-punct { --c: var(--punct); } .c-spell { --c: var(--spell); } .c-conv { --c: var(--conv); } .c-style { --c: var(--style); }
+.editbox { width: 100%; min-height: 120px; font-family: var(--text); font-size: 18px; line-height: 1.9; border: 1px solid var(--accent); border-radius: 4px; padding: 8px 10px; background: var(--sunken); resize: vertical; direction: rtl; }
+.editbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: var(--ui); font-size: 12px; color: var(--muted); margin-top: 6px; }
+.editbar .err { color: var(--spell); }
+
+/* side panel */
+.side { min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
+.side-head { padding: 14px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.side-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.side-title h2 { margin: 0; font-size: 15px; }
+.side-title small { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cats { display: flex; flex-wrap: wrap; gap: 6px; }
+.cat { border: 1px solid var(--line); background: var(--surface); border-radius: 99px; padding: 3px 10px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; }
+.cat .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--muted)); }
+.cat b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cat[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--surface); }
+.cat[disabled] { opacity: .55; cursor: default; }
+.side-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; font-size: 12.5px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.seg button { border: 0; background: var(--surface); padding: 4px 10px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+.link { border: 0; background: none; color: var(--accent); padding: 0; font-weight: 600; }
+.link[disabled] { color: var(--muted); font-weight: 400; cursor: default; }
+.cards { flex: 1; min-height: 0; overflow: auto; padding: 12px; display: grid; gap: 10px; align-content: start; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: grid; gap: 8px; cursor: pointer; }
+.card.sel { border-color: var(--c); box-shadow: 0 0 0 1px var(--c); outline: 0; }
+.card.decided { background: color-mix(in srgb, var(--surface) 55%, var(--sunken)); }
+.card-h { display: flex; align-items: center; gap: 8px; }
+.card-h .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex: none; }
+.card-h .name { font-weight: 600; flex: 1; min-width: 0; }
+.rno { font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ba { font-family: var(--text); font-size: 15.5px; line-height: 1.8; display: grid; gap: 2px; background: var(--sunken); border-radius: 6px; padding: 6px 10px; }
+.ba div { display: flex; gap: 8px; }
+.ba span.k { font-family: var(--ui); font-size: 11px; color: var(--muted); min-width: 30px; padding-top: 5px; }
+.ba .t { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--muted); }
+.ba .t mark { background: none; color: var(--ink); font-weight: 700; }
+.ba .t mark.d { color: var(--spell); text-decoration: line-through; }
+.ba .t mark.i { color: var(--good); }
+.why { color: var(--muted); font-size: 13px; line-height: 1.7; margin: 0; }
+.acts { display: flex; gap: 8px; align-items: center; }
+.acts .btn { padding: 4px 14px; }
+.btn.ok { border-color: color-mix(in srgb, var(--good) 50%, var(--line)); color: var(--good); font-weight: 600; }
+.btn.no { color: var(--spell); }
+.state { font-size: 12px; font-weight: 600; }
+.state.ok { color: var(--good); } .state.no { color: var(--spell); }
+.reason { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; background: var(--surface); font-size: 13px; }
+.empty { color: var(--muted); text-align: center; padding: 30px 12px; line-height: 1.8; }
+
+/* status strip */
+.bar { background: var(--surface); border-top: 1px solid var(--line); padding-block: 7px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.bar b { color: var(--ink); font-weight: 600; }
+.bar .warn { border: 0; background: none; color: var(--conv); font-weight: 600; padding: 0; }
+.bar .msg { margin-inline-start: auto; color: var(--ink); }
+.bar .msg.err { color: var(--spell); }
+.legend { display: inline-flex; gap: 10px; flex-wrap: wrap; }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+input[type=file] { display: none; }
+
+@media (max-width: 900px) {
+  .app { height: auto; min-height: 100%; }
+  .main { grid-template-columns: minmax(0, 1fr); }
+  .desk { overflow: visible; }
+  .side { border-inline-start: 0; border-top: 1px solid var(--line); }
+  .cards { overflow: visible; }
+  .para .edit { position: static; opacity: 1; margin-inline-start: 6px; vertical-align: middle; }
+  .page { font-size: 17.5px; padding: 24px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .para.flash { animation: none; } * { scroll-behavior: auto !important; } }
+</style>
+
+<div class="app">
+  <header class="top">
+    <span class="brand">مدقق تجديد</span>
+    <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span></div>
+    <div class="ctrls">
+      <label class="field" for="docType">نوع النص
+        <select id="docType"><option value="article">مقال</option><option value="translated">نص مترجم</option><option value="book">كتاب</option></select>
+      </label>
+      <label class="chk" for="optSalam"><input type="checkbox" id="optSalam"> (عليه السلام) ← (ع)</label>
+      <span class="sep"></span>
+      <button class="btn" id="openBtn" type="button">فتح ملف وورد</button>
+      <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+      <button class="btn" id="checkBtn" type="button" title="يعيد تطبيق قواعد الدليل ويحتفظ بقراراتك">فحص النص</button>
+      <button class="btn" id="undoBtn" type="button" disabled>تراجع</button>
+      <span class="sep"></span>
+      <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
+      <button class="btn" id="expClean" type="button">نسخة نظيفة</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <main class="desk" id="desk">
+      <article class="page" id="page" aria-label="نص المستند"></article>
+    </main>
+    <aside class="side" aria-label="التصحيحات">
+      <div class="side-head">
+        <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small></div>
+        <div class="cats" id="cats"></div>
+        <div class="side-tools">
+          <div class="seg" role="group" aria-label="عرض">
+            <button type="button" id="showPending" aria-pressed="true">بانتظار القرار</button>
+            <button type="button" id="showAll" aria-pressed="false">الكل</button>
+          </div>
+          <button class="link" type="button" id="acceptCat">قبول الكل</button>
+        </div>
+      </div>
+      <div class="cards" id="cards"></div>
+    </aside>
+  </div>
+
+  <footer class="bar">
+    <span>باقٍ <b id="nPending">0</b></span>
+    <span>مقبول <b id="nAcc">0</b></span>
+    <span>مرفوض <b id="nRej">0</b></span>
+    <span><b id="nWords">0</b> كلمة</span>
+    <button class="warn" type="button" id="warnBtn" hidden></button>
+    <span class="legend">
+      <span class="c-punct"><i></i>ترقيم ومسافات</span><span class="c-spell"><i></i>إملاء ورسم</span><span class="c-conv"><i></i>أعراف المركز</span>
+    </span>
+    <span class="msg" id="msg" role="status"></span>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+(function () {
+  'use strict';
+  const SAMPLE_B64 = '/*__SAMPLE__*/';
+  const SAMPLE_NAME = 'مقال نموذجي - الحداثة وسؤال الهوية.docx';
+  const E = TajdidEngine, FN = E.FN, OB = E.OB;
+  const xml = { parse: s => new DOMParser().parseFromString(s, 'application/xml'), serialize: d => new XMLSerializer().serializeToString(d) };
+  const CATS = { punct: 'ترقيم ومسافات', spell: 'إملاء ورسم', conv: 'أعراف المركز', style: 'أسلوب' };
+  const MANUAL_RULE = { id: 'manual', no: 0, name: 'تعديل المدقق', author: 'تعديل المدقق' };
+  const MK_FN = '⟦هامش⟧', MK_OB = '⟦عنصر⟧';
+  const $ = id => document.getElementById(id);
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const showChars = s => esc(s).replace(//g, '<sup class="fn">●</sup>').replace(/￼/g, '<span class="ob">▢</span>');
+  const vis = s => /^[  ]+$/.test(s) ? s.replace(/./g, '␣') : showChars(s);
+
+  const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], editing: null, warnAt: 0 };
+  const opts = () => ({ translated: $('docType').value === 'translated', salam: $('optSalam').checked });
+
+  // ---------------- model
+  const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
+  function scan(para, keep) {
+    const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes });
+    para.groups = r.groups.map(g => {
+      const old = keep && keep.get(sig(g));
+      return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
+    });
+    para.quran = r.quran; para.warnings = r.warnings;
+  }
+  function load(buf, name, sample) {
+    return E.loadDocx(JSZip, buf.slice(0), opts(), xml).then(res => {
+      st.buf = buf; st.name = name; st.sample = sample; st.undo = []; st.sel = null; st.editing = null;
+      st.paras = res.paras.map(p => ({ key: p.key, where: p.where, inNotes: p.inNotes, orig: p.text, base: p.text, manual: false, groups: [], quran: [], warnings: [] }));
+      st.byKey = new Map(st.paras.map(p => [p.key, p]));
+      st.paras.forEach(p => scan(p));
+      renderAll();
+      say(res.paras.length ? '' : 'لم أجد نصاً عربياً في هذا الملف.', !res.paras.length);
+    });
+  }
+  const allGroups = () => st.paras.flatMap(p => p.groups.map(g => [p, g]));
+  const findG = id => { for (const p of st.paras) for (const g of p.groups) if (g.id === id) return [p, g]; return [null, null]; };
+
+  function snapshot() {
+    st.undo.push(JSON.stringify(st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, groups: p.groups, quran: p.quran, warnings: p.warnings }))));
+    if (st.undo.length > 60) st.undo.shift();
+    $('undoBtn').disabled = false;
+  }
+  function undo() {
+    const s = st.undo.pop(); if (!s) return;
+    JSON.parse(s).forEach(o => Object.assign(st.byKey.get(o.key), o));
+    st.editing = null;
+    renderAll();
+    $('undoBtn').disabled = !st.undo.length;
+    say('تم التراجع عن آخر خطوة.');
+  }
+
+  // ---------------- text rendering
+  function paraHTML(p) {
+    const list = p.groups.flatMap(g => g.edits.map(e => ({ e, g }))).sort((a, b) => a.e.start - b.e.start || a.e.end - b.e.end);
+    const t = p.base, n = t.length;
+    let h = '', i = 0, k = 0, inQ = false;
+    const q = j => p.quran.some(([a, b]) => j >= a && j <= b);
+    const piece = ({ e, g }) => {
+      const del = t.slice(e.start, e.end), cls = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : '');
+      if (g.status === 'accepted') return e.repl ? `<span class="done ${cls}" data-g="${g.id}">${esc(e.repl)}</span>` : `<span class="done gap ${cls}" data-g="${g.id}"></span>`;
+      if (g.status === 'rejected') return `<span class="rej ${cls}" data-g="${g.id}">${showChars(del)}</span>`;
+      return `<span class="chg ${cls}${e.repl ? '' : ' only-del'}" data-g="${g.id}" title="${esc(g.rule.name)}">${del ? '<del>' + vis(del) + '</del>' : ''}${e.repl ? '<ins>' + vis(e.repl) + '</ins>' : ''}</span>`;
+    };
+    while (i <= n) {
+      while (k < list.length && list[k].e.start === i && list[k].e.end === i) h += piece(list[k++]);
+      if (i === n) break;
+      if (k < list.length && list[k].e.start === i) { if (inQ) { h += '</span>'; inQ = false; } h += piece(list[k]); i = list[k++].e.end; continue; }
+      const nq = q(i);
+      if (nq !== inQ) { h += nq ? '<span class="quran" title="نص قرآني محمي">' : '</span>'; inQ = nq; }
+      h += showChars(t[i]); i++;
+    }
+    if (inQ) h += '</span>';
+    return h;
+  }
+  function paraEl(p) {
+    const el = document.createElement('p');
+    el.className = 'para' + (p.inNotes ? ' note' : '') + (p.manual ? ' manual' : '');
+    el.dataset.key = p.key;
+    if (st.editing === p.key) {
+      const ta = document.createElement('textarea');
+      ta.className = 'editbox'; ta.id = 'edit-' + p.key.replace(/[^a-z0-9]/gi, '_');
+      ta.value = currentText(p).replace(//g, MK_FN).replace(/￼/g, MK_OB);
+      const bar = document.createElement('div');
+      bar.className = 'editbar';
+      bar.innerHTML = '<button class="btn primary" type="button" data-act="save">حفظ التعديل</button><button class="btn" type="button" data-act="cancel">إلغاء</button><span>التصحيحات المقبولة دخلت في النص. لا تحذف ' + MK_FN + ' لأنها إشارة الهامش.</span><span class="err" role="alert"></span>';
+      el.append(ta, bar);
+      setTimeout(() => { ta.focus(); ta.style.height = Math.max(120, ta.scrollHeight + 4) + 'px'; }, 0);
+      return el;
+    }
+    el.innerHTML = paraHTML(p) + `<button class="edit" type="button" data-act="edit" title="تعديل الفقرة يدوياً">تعديل</button>`;
+    return el;
+  }
+  function renderPage() {
+    const page = $('page');
+    page.textContent = '';
+    const body = st.paras.filter(p => !p.inNotes), notes = st.paras.filter(p => p.inNotes);
+    if (!st.paras.length) { page.innerHTML = '<p class="empty">افتح ملف وورد لتبدأ، أو اسحبه إلى هنا.</p>'; return; }
+    body.forEach(p => page.appendChild(paraEl(p)));
+    if (notes.length) {
+      const h = document.createElement('div'); h.className = 'notes-h'; h.textContent = 'الهوامش'; page.appendChild(h);
+      notes.forEach(p => page.appendChild(paraEl(p)));
+    }
+  }
+  function rerenderPara(p) {
+    const old = document.querySelector(`.para[data-key="${CSS.escape(p.key)}"]`);
+    if (old) old.replaceWith(paraEl(p)); else renderPage();
+  }
+  const currentText = p => E.applyEdits(p.base, p.groups.filter(g => g.status === 'accepted').flatMap(g => g.edits));
+
+  // ---------------- side panel
+  function counts() {
+    const c = { all: 0, punct: 0, spell: 0, conv: 0, style: 0 }, s = { pending: 0, accepted: 0, rejected: 0 };
+    allGroups().forEach(([, g]) => { s[g.status]++; if (g.status === 'pending') { c.all++; c[g.rule.cat]++; } });
+    return { c, s };
+  }
+  function renderCats() {
+    const { c } = counts();
+    $('cats').innerHTML = ['all', 'punct', 'spell', 'conv', 'style'].map(k => {
+      const off = k === 'style';
+      return `<button type="button" class="cat c-${k}" data-cat="${k}" aria-pressed="${st.cat === k}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''}>${k === 'all' ? '' : '<span class="dot"></span>'}${k === 'all' ? 'الكل' : CATS[k]} <b>${off ? 'لاحقاً' : c[k]}</b></button>`;
+    }).join('');
+  }
+  function cardHTML(p, g) {
+    const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
+    const rno = g.rule.no ? 'القاعدة ' + g.rule.no : 'قائمة الكلمات';
+    let foot;
+    if (g.status === 'pending') foot = `<div class="acts"><button class="btn ok" type="button" data-act="accept">قبول</button><button class="btn no" type="button" data-act="reject">رفض</button></div>`;
+    else {
+      foot = `<div class="acts"><span class="state ${g.status === 'accepted' ? 'ok' : 'no'}">${g.status === 'accepted' ? '✓ مقبول' : '✕ مرفوض'}</span><button class="link" type="button" data-act="reset">تغيير القرار</button></div>`;
+      if (g.status === 'rejected') foot += `<input class="reason" id="reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
+    }
+    return `<div class="card c-${cat}${st.sel === g.id ? ' sel' : ''}${g.status !== 'pending' ? ' decided' : ''}" data-g="${g.id}" tabindex="0">
+      <div class="card-h"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
+      <div class="ba"><div><span class="k">قبل</span><span class="t">${showChars(b.pre)}<mark class="d">${vis(b.mid) || '&#8203;'}</mark>${showChars(b.post)}</span></div>
+      <div><span class="k">بعد</span><span class="t">${showChars(a.pre)}<mark class="i">${vis(a.mid)}</mark>${showChars(a.post)}</span></div></div>
+      <p class="why">${esc(g.rule.why)}${p.inNotes ? ' <span class="tag">في الهوامش</span>' : ''}</p>${foot}</div>`;
+  }
+  function visibleGroups() {
+    return allGroups().filter(([, g]) => (st.cat === 'all' || g.rule.cat === st.cat) && (st.show === 'all' || g.status === 'pending'));
+  }
+  function renderCards() {
+    const list = visibleGroups();
+    const { s } = counts();
+    $('sideCount').textContent = `${s.pending} من ${s.pending + s.accepted + s.rejected} بانتظار القرار`;
+    $('cards').innerHTML = list.length ? list.map(([p, g]) => cardHTML(p, g)).join('')
+      : `<div class="empty">${s.pending + s.accepted + s.rejected ? 'لا تصحيحات بانتظار القرار هنا. يمكنك تصدير الملف الآن.' : 'لم تجد قواعد الدليل ما يُصحَّح في هذا النص.'}</div>`;
+    const pend = list.filter(([, g]) => g.status === 'pending').length;
+    $('acceptCat').disabled = !pend;
+    $('acceptCat').textContent = st.cat === 'all' ? `قبول الكل (${pend})` : `قبول كل «${CATS[st.cat]}» (${pend})`;
+    renderCats();
+    renderBar();
+  }
+  function renderBar() {
+    const { s } = counts();
+    $('nPending').textContent = s.pending; $('nAcc').textContent = s.accepted; $('nRej').textContent = s.rejected;
+    $('nWords').textContent = st.paras.reduce((n, p) => n + (currentText(p).match(/[^\s￼]+/g) || []).length, 0).toLocaleString('ar');
+    const w = st.paras.filter(p => p.warnings.length);
+    $('warnBtn').hidden = !w.length;
+    $('warnBtn').textContent = w.length === 1 ? '⚠ فقرة فيها قوس أو علامة تنصيص غير مغلقة' : `⚠ ${w.length} فقرات فيها أقواس أو علامات تنصيص غير مغلقة`;
+  }
+  function renderAll() {
+    $('docName').textContent = st.name.replace(/\.docx$/i, '') || '—';
+    $('docTag').hidden = !st.sample;
+    renderPage(); renderCards();
+  }
+
+  // ---------------- selection & decisions
+  function select(id, from) {
+    st.sel = id;
+    document.querySelectorAll('.sel').forEach(e => e.classList.remove('sel'));
+    document.querySelectorAll(`[data-g="${id}"]`).forEach(e => e.classList.add('sel'));
+    const span = document.querySelector(`.page [data-g="${id}"]`), card = document.querySelector(`.cards [data-g="${id}"]`);
+    if (from !== 'text' && span) span.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (from !== 'card' && card) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+  function decide(id, status) {
+    const [p, g] = findG(id); if (!g) return;
+    snapshot();
+    const order = visibleGroups().map(([, x]) => x.id), at = order.indexOf(id);
+    g.status = status; if (status !== 'rejected') g.reason = '';
+    rerenderPara(p); renderCards();
+    if (status === 'pending') { select(id); return; }
+    const next = visibleGroups().map(([, x]) => x).find((x, i, arr) => x.status === 'pending' && order.indexOf(x.id) > at) || visibleGroups().map(([, x]) => x).find(x => x.status === 'pending');
+    if (status === 'rejected') { select(id, 'card'); const r = $('reason-' + id); if (r) r.focus({ preventScroll: true }); }
+    else if (next) select(next.id); else st.sel = null;
+  }
+  function acceptVisible() {
+    const list = visibleGroups().filter(([, g]) => g.status === 'pending');
+    if (!list.length) return;
+    snapshot();
+    list.forEach(([, g]) => { g.status = 'accepted'; });
+    renderAll();
+    say(`قُبل ${list.length.toLocaleString('ar')} تصحيحاً.`);
+  }
+  function recheck() {
+    if (!st.paras.length) return;
+    snapshot();
+    st.paras.forEach(p => scan(p, new Map(p.groups.map(g => [sig(g), g]))));
+    st.sel = null; renderAll();
+    say('أُعيد الفحص، وبقيت قراراتك السابقة كما هي.');
+  }
+
+  // ---------------- manual edit
+  function saveEdit(el) {
+    const p = st.byKey.get(el.dataset.key), ta = el.querySelector('textarea'), err = el.querySelector('.err');
+    const val = ta.value.replace(/\r?\n+/g, ' ').split(MK_FN).join(FN).split(MK_OB).join(OB);
+    const cur = currentText(p), cnt = (s, c) => s.split(c).length - 1;
+    if (cnt(val, FN) !== cnt(cur, FN) || cnt(val, OB) !== cnt(cur, OB)) { err.textContent = 'أبقِ إشارات ' + MK_FN + ' و' + MK_OB + ' كما هي، فهي مرتبطة بالهوامش في ملف وورد.'; return; }
+    st.editing = null;
+    if (val === cur) { rerenderPara(p); return; }
+    snapshot();
+    p.base = val; p.manual = true;
+    scan(p);
+    rerenderPara(p); renderCards();
+    say('حُفظ التعديل، وأُعيد فحص الفقرة.');
+  }
+
+  // ---------------- export
+  let downloads = null;
+  if (window.claude && window.claude.use) window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
+  async function exportDoc(clean) {
+    if (!st.buf) return;
+    let skipped = 0;
+    const decideFn = (key, text) => {
+      const p = st.byKey.get(key);
+      if (!p || p.orig !== text) return null;
+      const acc = p.groups.filter(g => g.status === 'accepted').flatMap(g => g.edits);
+      if (!p.manual) return acc;
+      const edits = E.diffEdits(p.orig, E.applyEdits(p.base, acc), MANUAL_RULE);
+      if (edits.some(e => /[￼]/.test(e.repl + p.orig.slice(e.start, e.end)))) { skipped++; return null; }
+      return edits;
+    };
+    try {
+      const data = await E.exportDocx(JSZip, st.buf.slice(0), decideFn, Object.assign({ clean }, opts()), xml);
+      const fname = st.name.replace(/\.docx$/i, '') + (clean ? ' - نظيف' : ' - مدقق') + '.docx';
+      if (!downloads) { say('التنزيل غير متاح في هذا العرض. افتح الصفحة في claude.ai لتنزيل الملف.', true); return; }
+      await downloads.save({ filename: fname, data: new Blob([data]) });
+      const { s } = counts();
+      say((clean ? 'نُزّلت النسخة النظيفة.' : 'نُزّل الملف بالتعديلات المتتبَّعة.') + (s.pending ? ` لم تدخل ${s.pending.toLocaleString('ar')} تصحيحات بانتظار القرار.` : '') + (skipped ? ` تعذّر نقل تعديل يدوي في ${skipped} فقرة.` : ''));
+    } catch (e) {
+      if (e && e.code === 'declined') return;
+      say('تعذّر إنشاء الملف: ' + (e && e.message || e), true);
+    }
+  }
+
+  function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
+
+  // ---------------- events
+  $('page').addEventListener('click', ev => {
+    const act = ev.target.closest('[data-act]');
+    const para = ev.target.closest('.para');
+    if (act && para) {
+      const a = act.dataset.act;
+      if (a === 'edit') { if (st.editing) return; st.editing = para.dataset.key; rerenderPara(st.byKey.get(para.dataset.key)); return; }
+      if (a === 'cancel') { st.editing = null; rerenderPara(st.byKey.get(para.dataset.key)); return; }
+      if (a === 'save') { saveEdit(para); return; }
+    }
+    const g = ev.target.closest('[data-g]');
+    if (g) select(g.dataset.g, 'text');
+  });
+  $('cards').addEventListener('click', ev => {
+    const card = ev.target.closest('.card'); if (!card) return;
+    const act = ev.target.closest('[data-act]');
+    if (act && act.dataset.act === 'accept') return decide(card.dataset.g, 'accepted');
+    if (act && act.dataset.act === 'reject') return decide(card.dataset.g, 'rejected');
+    if (act && act.dataset.act === 'reset') return decide(card.dataset.g, 'pending');
+    if (act && act.dataset.act === 'reason') return;
+    select(card.dataset.g, 'card');
+  });
+  $('cards').addEventListener('keydown', ev => {
+    const card = ev.target.closest('.card');
+    if (!card || ev.target !== card) return;
+    if (ev.key === 'Enter') select(card.dataset.g, 'card');
+  });
+  $('cards').addEventListener('input', ev => {
+    if (ev.target.dataset.act !== 'reason') return;
+    const [, g] = findG(ev.target.closest('.card').dataset.g); if (g) g.reason = ev.target.value;
+  });
+  $('cats').addEventListener('click', ev => { const b = ev.target.closest('[data-cat]'); if (!b || b.disabled) return; st.cat = b.dataset.cat; renderCards(); });
+  $('showPending').addEventListener('click', () => { st.show = 'pending'; $('showPending').setAttribute('aria-pressed', 'true'); $('showAll').setAttribute('aria-pressed', 'false'); renderCards(); });
+  $('showAll').addEventListener('click', () => { st.show = 'all'; $('showAll').setAttribute('aria-pressed', 'true'); $('showPending').setAttribute('aria-pressed', 'false'); renderCards(); });
+  $('acceptCat').addEventListener('click', acceptVisible);
+  $('checkBtn').addEventListener('click', recheck);
+  $('docType').addEventListener('change', recheck);
+  $('optSalam').addEventListener('change', recheck);
+  $('undoBtn').addEventListener('click', undo);
+  $('expTracked').addEventListener('click', () => exportDoc(false));
+  $('expClean').addEventListener('click', () => exportDoc(true));
+  $('warnBtn').addEventListener('click', () => {
+    const w = st.paras.filter(p => p.warnings.length); if (!w.length) return;
+    const p = w[st.warnAt++ % w.length];
+    const el = document.querySelector(`.para[data-key="${CSS.escape(p.key)}"]`);
+    if (el) { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    say('علامات غير مغلقة في هذه الفقرة: ' + p.warnings.map(x => x.marks).join(' '));
+  });
+  const openFile = f => {
+    if (!f) return;
+    if (!/\.docx$/i.test(f.name)) { say('الأداة تقبل ملفات وورد بصيغة ‎.docx فقط.', true); return; }
+    f.arrayBuffer().then(b => load(b, f.name, false)).catch(e => say('تعذّرت قراءة الملف: ' + e.message, true));
+  };
+  $('openBtn').addEventListener('click', () => $('file').click());
+  $('file').addEventListener('change', e => { openFile(e.target.files[0]); e.target.value = ''; });
+  const page = $('page');
+  ['dragenter', 'dragover'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
+  page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
+  document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !/TEXTAREA|INPUT/.test(e.target.tagName)) { e.preventDefault(); undo(); } });
+
+  // sample on open
+  const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  load(bytes.buffer, SAMPLE_NAME, true).catch(e => say('تعذّر تحميل المثال: ' + e.message, true));
+})();
+</script>
