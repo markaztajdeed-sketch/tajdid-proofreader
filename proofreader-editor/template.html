@@ -27,6 +27,9 @@
 
 html, body { height: 100%; }
 [hidden] { display: none !important; }
+/* بلا أشرطة تمرير: التمرير بعجلة الفأرة فقط */
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
 .pop, .pop *, .reason { box-sizing: border-box; }
 body { background: var(--bg); color: var(--ink); font-family: var(--ui); font-size: 14px; }
 .app { height: 100%; display: grid; grid-template-rows: auto 1fr auto; direction: rtl; }
@@ -63,7 +66,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .shell.nav-open .nav { width: 220px; }
 .nav-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 18px; color: var(--brand); font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; }
 .nav-logo img { width: 32px; height: 32px; flex: none; }
-.nav-toggle { position: absolute; top: 46px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
+.nav-toggle { position: absolute; top: 72px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .nav-toggle:hover { color: var(--ink); }
 .nav-toggle svg { width: 16px; height: 16px; transform: scaleX(-1); }
