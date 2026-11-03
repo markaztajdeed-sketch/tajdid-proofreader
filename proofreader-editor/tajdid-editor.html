@@ -92,6 +92,14 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .done { border-bottom: 1px dotted color-mix(in srgb, var(--good) 70%, transparent); cursor: pointer; }
 .done.gap { display: inline-block; width: 3px; height: .9em; vertical-align: middle; background: color-mix(in srgb, var(--good) 45%, transparent); border: 0; border-radius: 2px; }
 .rej { cursor: pointer; }
+.plain { cursor: pointer; }
+.chg.wd del + ins { margin-inline-start: 5px; }
+.chg.marks { color: var(--c); text-decoration: underline wavy color-mix(in srgb, var(--c) 75%, transparent); text-underline-offset: 6px; text-decoration-thickness: 1.5px; padding: 0; margin: 0; }
+.chg.marks.hot { text-decoration-style: solid; }
+.done.wd { border-bottom: 0; text-decoration: underline color-mix(in srgb, var(--good) 65%, transparent); text-underline-offset: 6px; text-decoration-thickness: 1.5px; }
+.pop { max-height: calc(100vh - 24px); overflow: auto; }
+.pop .pg { display: grid; gap: 7px; }
+.pop .pg-sep { border: 0; border-top: 1px dashed var(--line); margin: 4px 0; width: 100%; }
 .sel { outline: 2px solid var(--c, var(--accent)); outline-offset: 1px; border-radius: 3px; }
 .c-punct { --c: var(--punct); } .c-spell { --c: var(--spell); } .c-conv { --c: var(--conv); } .c-style { --c: var(--style); }
 .editbox { width: 100%; min-height: 120px; font-family: var(--text); font-size: 18px; line-height: 1.9; border: 1px solid var(--accent); border-radius: 4px; padding: 8px 10px; background: var(--sunken); resize: vertical; direction: rtl; }
@@ -210,6 +218,7 @@ input[type=file] { display: none; }
       <button class="btn" id="optsBtn" type="button">خيارات التدقيق</button>
       <span class="sep"></span>
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
+      <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعرض التصحيحات المقبولة نصاً عادياً بلا علامات">إخفاء المقبول</button>
       <button class="btn" id="themeBtn" type="button"></button>
       <span class="sep"></span>
       <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
@@ -837,7 +846,7 @@ input[type=file] { display: none; }
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
-    off: new Set(store.get('off', [])), noHarakat: false };
+    off: new Set(store.get('off', [])), noHarakat: false, hideAcc: false };
   const HARAKA = /[\u064B-\u0652\u0670]/;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
   const opts = () => ({ translated: false, salam: true });
@@ -883,21 +892,63 @@ input[type=file] { display: none; }
   const redo = () => restore(st.redo, st.undo, 'أُعيدت الخطوة.');
 
   // ---------------- text rendering
-  function paraHTML(p) {
-    const list = p.groups.flatMap(g => g.edits.map(e => ({ e, g }))).sort((a, b) => a.e.start - b.e.start || a.e.end - b.e.end);
+  // A correction that touches Arabic letters or marks is shown on the whole word, so the letters stay joined
+  // (a border or padding inside a word breaks Arabic shaping: «الليب رالية»).
+  const ARW = /[ء-يً-ْٰـ]/;
+  const bare = s => s.replace(/[ً-ْٰ]/g, '');
+  function segments(p) {
     const t = p.base, n = t.length;
+    const items = p.groups.flatMap(g => g.edits.map(e => {
+      const word = ARW.test(t.slice(e.start, e.end) + e.repl);
+      let a = e.start, b = e.end;
+      if (word) { while (a > 0 && ARW.test(t[a - 1])) a--; while (b < n && ARW.test(t[b])) b++; }
+      return { a, b, word, list: [{ e, g }] };
+    })).sort((x, y) => x.a - y.a || x.b - y.b);
+    const out = [];
+    for (const it of items) {
+      const c = out[out.length - 1];
+      const touch = c && (it.a < c.b || (it.a === c.b && (c.word || it.word) && (it.a === it.b || c.a === c.b || c.list.some(x => x.e.end === c.b && x.e.start === c.b))));
+      if (touch) { c.b = Math.max(c.b, it.b); c.word = c.word || it.word; c.list.push(...it.list); } else out.push(it);
+    }
+    return out;
+  }
+  const uniq = list => [...new Map(list.map(x => [x.g.id, x.g])).values()];
+  function segHTML(t, s) {
+    const groups = uniq(s.list), ids = groups.map(g => g.id).join(' ');
+    const pend = groups.filter(g => g.status === 'pending'), acc = groups.filter(g => g.status === 'accepted');
+    const main = pend[0] || acc[0] || groups[0];
+    const cls = 'c-' + (main.rule.cat || 'punct') + (groups.some(g => g.id === st.sel) ? ' sel' : '');
+    const attrs = `data-g="${main.id}" data-gs="${ids}"`;
+    const S = t.slice(s.a, s.b);
+    const sub = statuses => E.applyEdits(S, s.list.filter(x => statuses.includes(x.g.status)).map(x => ({ start: x.e.start - s.a, end: x.e.end - s.a, repl: x.e.repl })));
+    if (s.word) {
+      const old = sub(['accepted']), neu = sub(['accepted', 'pending']);
+      if (pend.length) {
+        if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${showChars(neu)}</span>`;
+        return `<span class="chg wd ${cls}" ${attrs}>${old ? '<del>' + showChars(old) + '</del>' : ''}${neu ? '<ins>' + showChars(neu) + '</ins>' : ''}</span>`;
+      }
+      if (acc.length) return st.hideAcc ? `<span class="plain" ${attrs}>${showChars(old)}</span>` : `<span class="done wd ${cls}" ${attrs}>${showChars(old)}</span>`;
+      return `<span class="rej ${cls}" ${attrs}>${showChars(S)}</span>`;
+    }
+    // punctuation and spacing between words: show exactly what changes
+    return s.list.map(({ e, g }) => {
+      const del = t.slice(e.start, e.end), c = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : ''), at = `data-g="${g.id}" data-gs="${g.id}"`;
+      if (g.status === 'accepted') {
+        if (st.hideAcc) return e.repl ? `<span class="plain" ${at}>${showChars(e.repl)}</span>` : '';
+        return e.repl ? `<span class="done ${c}" ${at}>${vis(e.repl)}</span>` : `<span class="done gap ${c}" ${at}></span>`;
+      }
+      if (g.status === 'rejected') return `<span class="rej ${c}" ${at}>${showChars(del)}</span>`;
+      return `<span class="chg ${c}${e.repl ? '' : ' only-del'}" ${at}>${del ? '<del>' + vis(del) + '</del>' : ''}${e.repl ? '<ins>' + vis(e.repl) + '</ins>' : ''}</span>`;
+    }).join('');
+  }
+  function paraHTML(p) {
+    const t = p.base, n = t.length, segs = segments(p);
     let h = '', i = 0, k = 0, inQ = false;
     const q = j => p.quran.some(([a, b]) => j >= a && j <= b);
-    const piece = ({ e, g }) => {
-      const del = t.slice(e.start, e.end), cls = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : '');
-      if (g.status === 'accepted') return e.repl ? `<span class="done ${cls}" data-g="${g.id}">${esc(e.repl)}</span>` : `<span class="done gap ${cls}" data-g="${g.id}"></span>`;
-      if (g.status === 'rejected') return `<span class="rej ${cls}" data-g="${g.id}">${showChars(del)}</span>`;
-      return `<span class="chg ${cls}${e.repl ? '' : ' only-del'}" data-g="${g.id}" title="${esc(g.rule.name)}">${del ? '<del>' + vis(del) + '</del>' : ''}${e.repl ? '<ins>' + vis(e.repl) + '</ins>' : ''}</span>`;
-    };
     while (i <= n) {
-      while (k < list.length && list[k].e.start === i && list[k].e.end === i) h += piece(list[k++]);
+      while (k < segs.length && segs[k].a === i && segs[k].b === i) h += segHTML(t, segs[k++]);
       if (i === n) break;
-      if (k < list.length && list[k].e.start === i) { if (inQ) { h += '</span>'; inQ = false; } h += piece(list[k]); i = list[k++].e.end; continue; }
+      if (k < segs.length && segs[k].a === i) { if (inQ) { h += '</span>'; inQ = false; } h += segHTML(t, segs[k]); i = segs[k++].b; continue; }
       const nq = q(i);
       if (nq !== inQ) { h += nq ? '<span class="quran" title="نص قرآني محمي">' : '</span>'; inQ = nq; }
       if (!(st.noHarakat && !inQ && HARAKA.test(t[i]))) h += showChars(t[i]);
@@ -1006,8 +1057,8 @@ input[type=file] { display: none; }
   function select(id, from) {
     st.sel = id;
     document.querySelectorAll('.sel').forEach(e => e.classList.remove('sel'));
-    document.querySelectorAll(`[data-g="${id}"]`).forEach(e => e.classList.add('sel'));
-    const span = document.querySelector(`.page [data-g="${id}"]`), card = document.querySelector(`.cards [data-g="${id}"]`);
+    document.querySelectorAll(`.cards [data-g="${id}"], .page [data-gs~="${id}"]`).forEach(e => e.classList.add('sel'));
+    const span = document.querySelector(`.page [data-gs~="${id}"]`), card = document.querySelector(`.cards [data-g="${id}"]`);
     if (from !== 'text' && span) span.scrollIntoView({ block: 'center', behavior: 'smooth' });
     if (from !== 'card' && card) card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
@@ -1039,10 +1090,11 @@ input[type=file] { display: none; }
     say('أُعيد الفحص، وبقيت قراراتك السابقة كما هي.');
   }
 
-  // ---------------- popup on an error in the text
+  // ---------------- popup on an error in the text (one block per correction in that word)
   const pop = $('pop');
-  let popG = null, hideT = null, pinned = false;
-  function popHTML(p, g) {
+  let popKey = null, hideT = null, pinned = false;
+  const spanOf = id => document.querySelector(`.page [data-gs~="${id}"]`);
+  function popBlock(g) {
     const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
     const d = g.before.mid, r = g.after.mid;
     const line = g.edits.length > 1 || (d && r) ? `<del>${vis(d)}</del><span class="arr">←</span><ins>${vis(r)}</ins>`
@@ -1051,10 +1103,10 @@ input[type=file] { display: none; }
     if (g.status === 'pending') foot = `<div class="acts"><button class="btn ok" type="button" data-act="accept">قبول</button><button class="btn no" type="button" data-act="reject">رفض</button></div>`;
     else {
       foot = `<div class="acts"><span class="state ${g.status === 'accepted' ? 'ok' : 'no'}">${g.status === 'accepted' ? '✓ مقبول' : '✕ مرفوض'}</span><button class="link" type="button" data-act="reset">تغيير القرار</button></div>`;
-      if (g.status === 'rejected') foot += `<input class="reason" id="pop-reason" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
+      if (g.status === 'rejected') foot += `<input class="reason" id="pop-reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
     }
-    return `<div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
-      <div class="chgline">${line}</div><p class="why">${esc(g.rule.why)}</p>${foot}`;
+    return `<div class="pg" data-id="${g.id}"><div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
+      <div class="chgline">${line}</div><p class="why">${esc(g.rule.why)}</p>${foot}</div>`;
   }
   function placePop(anchor) {
     const r = anchor.getBoundingClientRect(), W = 300, gap = 8;
@@ -1066,43 +1118,48 @@ input[type=file] { display: none; }
     if (top < 8) top = r.bottom + gap;
     pop.style.left = left + 'px'; pop.style.top = top + 'px';
   }
-  function showPop(id, anchor) {
+  function showPop(anchor) {
     clearTimeout(hideT);
-    const [p, g] = findG(id); if (!g) return;
-    if (popG !== id) pinned = false;
-    if (popG === id && !pop.hidden && pop.dataset.state === g.status) return;
-    const same = popG === id && !pop.hidden;
-    popG = id; pop.dataset.state = g.status;
+    const key = anchor.dataset.gs || anchor.dataset.g;
+    const gs = key.split(' ').map(id => findG(id)[1]).filter(Boolean); if (!gs.length) return;
+    const state = gs.map(g => g.status).join(' ');
+    if (popKey !== key) pinned = false;
+    if (popKey === key && !pop.hidden && pop.dataset.state === state) return;
+    const same = popKey === key && !pop.hidden;
+    popKey = key; pop.dataset.state = state;
     document.querySelectorAll('.hot').forEach(e => e.classList.remove('hot'));
-    document.querySelectorAll(`.page [data-g="${id}"]`).forEach(e => e.classList.add('hot'));
-    pop.innerHTML = popHTML(p, g);
+    anchor.classList.add('hot');
+    pop.innerHTML = gs.map(popBlock).join('<hr class="pg-sep">');
     if (!same) placePop(anchor);
   }
   function hidePop(now) {
     clearTimeout(hideT);
-    const go = () => { if (pinned) return; pop.hidden = true; popG = null; document.querySelectorAll('.hot').forEach(e => e.classList.remove('hot')); };
+    const go = () => { if (pinned) return; pop.hidden = true; popKey = null; document.querySelectorAll('.hot').forEach(e => e.classList.remove('hot')); };
     if (now) go(); else hideT = setTimeout(go, 280);
   }
   $('page').addEventListener('mouseover', ev => {
     const s = ev.target.closest('.page [data-g]');
-    if (s && !st.editing) { if (popG !== s.dataset.g) pinned = false; showPop(s.dataset.g, s); }
+    if (s && !st.editing) showPop(s);
   });
   $('page').addEventListener('mouseout', ev => { if (ev.target.closest('[data-g]') && !pop.contains(ev.relatedTarget)) hidePop(); });
   pop.addEventListener('mouseenter', () => clearTimeout(hideT));
   pop.addEventListener('mouseleave', () => { pinned = false; hidePop(); });
   pop.addEventListener('click', ev => {
-    const a = ev.target.closest('[data-act]'); if (!a || !popG) return;
-    const id = popG, act = a.dataset.act;
+    const a = ev.target.closest('[data-act]'), blk = ev.target.closest('.pg'); if (!a || !blk) return;
+    const id = blk.dataset.id, act = a.dataset.act;
     if (act === 'reason') return;
     decide(id, act === 'accept' ? 'accepted' : act === 'reject' ? 'rejected' : 'pending', true);
-    const s = document.querySelector(`.page [data-g="${id}"]`);
-    if (s && act !== 'accept') { pinned = act === 'reject'; showPop(id, s); if (act === 'reject') $('pop-reason').focus(); }
-    else { pinned = false; hidePop(true); }
+    const s = spanOf(id);
+    const stillPending = s && (s.dataset.gs || '').split(' ').some(x => { const g = findG(x)[1]; return g && g.status === 'pending'; });
+    if (s && (act !== 'accept' || stillPending)) {
+      pinned = act === 'reject' || stillPending; popKey = null; showPop(s);
+      if (act === 'reject') { const r = $('pop-reason-' + id); if (r) r.focus(); }
+    } else { pinned = false; hidePop(true); }
   });
   document.addEventListener('mousedown', ev => { if (!pop.hidden && !pop.contains(ev.target)) { pinned = false; hidePop(true); } });
   document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !pop.hidden) { pinned = false; hidePop(true); } });
-  pop.addEventListener('input', ev => { if (ev.target.id === 'pop-reason') { const [, g] = findG(popG); if (g) g.reason = ev.target.value; } });
-  $('desk').addEventListener('scroll', () => { if (!pinned) hidePop(true); else { const s = document.querySelector(`.page [data-g="${popG}"]`); if (s) placePop(s); } }, { passive: true });
+  pop.addEventListener('input', ev => { const blk = ev.target.closest('.pg'); if (ev.target.dataset.act === 'reason' && blk) { const [, g] = findG(blk.dataset.id); if (g) g.reason = ev.target.value; } });
+  $('desk').addEventListener('scroll', () => { if (!pinned) hidePop(true); else { const s = popKey && spanOf(popKey.split(' ')[0]); if (s) placePop(s); } }, { passive: true });
 
   // ---------------- manual edit
   function saveEdit(el) {
@@ -1228,6 +1285,15 @@ input[type=file] { display: none; }
     $('harakatBtn').textContent = st.noHarakat ? 'إظهار التشكيل' : 'إخفاء التشكيل';
     renderPage();
     say(st.noHarakat ? 'أُخفي التشكيل من العرض فقط، وبقي في الملف. يبقى ظاهراً داخل التصحيحات والآيات.' : '');
+  });
+
+  // ---------------- clean view: accepted corrections as plain text
+  $('hideAccBtn').addEventListener('click', () => {
+    st.hideAcc = !st.hideAcc;
+    $('hideAccBtn').setAttribute('aria-pressed', String(st.hideAcc));
+    $('hideAccBtn').textContent = st.hideAcc ? 'إظهار المقبول' : 'إخفاء المقبول';
+    renderPage();
+    say(st.hideAcc ? 'النسخة النظيفة: التصحيحات المقبولة تظهر نصاً عادياً. مرّر الفأرة فوق الكلمة لترى قرارها.' : 'تظهر التصحيحات المقبولة بخط أخضر تحتها.');
   });
 
   // ---------------- light / dark
