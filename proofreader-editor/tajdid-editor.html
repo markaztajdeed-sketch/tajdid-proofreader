@@ -66,7 +66,7 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .shell.nav-open .nav { width: 220px; }
 .nav-logo { display: flex; align-items: center; gap: 10px; padding: 0 6px 18px; color: var(--brand); font-weight: 700; font-size: 15px; white-space: nowrap; overflow: hidden; }
 .nav-logo img { width: 32px; height: 32px; flex: none; }
-.nav-toggle { position: absolute; top: 72px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
+.nav-toggle { position: absolute; top: 46px; inset-inline-end: -15px; width: 30px; height: 30px; border-radius: 50%;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .nav-toggle:hover { color: var(--ink); }
 .nav-toggle svg { width: 16px; height: 16px; transform: scaleX(-1); }
@@ -146,13 +146,15 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
 /* قائمة التصحيحات تنطوي إلى شريط ضيق فيه الأعداد فقط */
 .main.side-closed { grid-template-columns: minmax(0, 1fr) 64px; }
-.side-toggle { flex: none; width: 28px; height: 28px; border-radius: 6px; border: 0; background: none; color: var(--muted); display: grid; place-items: center; padding: 0; }
-.side-toggle:hover { background: var(--surface); color: var(--ink); }
+.main { position: relative; }
+.side-toggle { position: absolute; top: -13px; inset-inline-end: 305px; width: 30px; height: 30px; border-radius: 50%; z-index: 6;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.side-toggle:hover { color: var(--ink); }
+.side-closed .side-toggle { inset-inline-end: 49px; }
 .side-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }
 .side-closed .side-toggle svg { transform: none; }
 .side-closed .side-head { padding: 14px 10px 10px; border-bottom: 0; }
-.side-closed .side-title { justify-content: center; }
-.side-closed .side-title h2, .side-closed .side-title small { display: none; }
+.side-closed .side-title { display: none; }
 .side-closed #listToggle, .side-closed #listTools, .side-closed .cards, .side-closed .sum-row .link, .side-closed .sum-row .nm { display: none !important; }
 .side-closed .sum { justify-items: center; gap: 6px; }
 .side-closed .sum-row { width: 44px; height: 44px; padding: 0; justify-content: center; }
@@ -288,12 +290,13 @@ input[type=file] { display: none; }
   </header>
 
   <div class="main">
+    <button class="side-toggle" id="sideBtn" type="button" aria-label="توسيع قائمة التصحيحات أو طيّها" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
     <main class="desk" id="desk">
       <article class="page" id="page" aria-label="نص المستند"></article>
     </main>
     <aside class="side" aria-label="التصحيحات">
       <div class="side-head">
-        <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small><button class="side-toggle" id="sideBtn" type="button" aria-label="توسيع قائمة التصحيحات أو طيّها" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+        <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small></div>
         <div class="sum" id="cats"></div>
         <button class="link" type="button" id="listToggle" aria-expanded="false">عرض قائمة التصحيحات</button>
         <div class="side-tools" id="listTools" hidden>
