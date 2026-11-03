@@ -140,7 +140,20 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .editbar .err { color: var(--spell); }
 
 /* side panel */
-.side { min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
+.side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
+/* قائمة التصحيحات تنطوي إلى شريط ضيق فيه الأعداد فقط */
+.main.side-closed { grid-template-columns: minmax(0, 1fr) 64px; }
+.side-toggle { position: absolute; top: 46px; inset-inline-start: -15px; width: 30px; height: 30px; border-radius: 50%; z-index: 4;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.side-toggle:hover { color: var(--ink); }
+.side-toggle svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transform: scaleX(-1); }
+.side-closed .side-toggle svg { transform: none; }
+.side-closed .side-head { padding: 64px 10px 10px; border-bottom: 0; }
+.side-closed .side-title, .side-closed #listToggle, .side-closed #listTools, .side-closed .cards, .side-closed .sum-row .link, .side-closed .sum-row .nm { display: none !important; }
+.side-closed .sum { justify-items: center; gap: 6px; }
+.side-closed .sum-row { width: 44px; height: 44px; padding: 0; justify-content: center; }
+.side-closed .sum-row .pick { flex: none; flex-direction: column; gap: 3px; align-items: center; }
+.side-closed .sum-row b { margin: 0; font-size: 12.5px; }
 .side-head { padding: 14px 16px 10px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
 .side-title { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .side-title h2 { margin: 0; font-size: 15px; }
@@ -274,6 +287,7 @@ input[type=file] { display: none; }
       <article class="page" id="page" aria-label="نص المستند"></article>
     </main>
     <aside class="side" aria-label="التصحيحات">
+      <button class="side-toggle" id="sideBtn" type="button" aria-label="توسيع قائمة التصحيحات أو طيّها" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="side-head">
         <div class="side-title"><h2>التصحيحات</h2><small id="sideCount"></small></div>
         <div class="sum" id="cats"></div>
@@ -489,7 +503,7 @@ input[type=file] { display: none; }
     $('cats').innerHTML = ['all', 'punct', 'spell', 'conv', 'style'].map(k => {
       const off = k === 'style', on = st.cat === k;
       const acc = !off && c[k] ? `<button type="button" class="link" data-accept="${k}">قبول الكل</button>` : '';
-      return `<div class="sum-row c-${k}${on ? ' on' : ''}${off ? ' off' : ''}"><button type="button" class="pick" data-cat="${k}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''} aria-pressed="${on}">${k === 'all' ? '<span class="dot" style="background:var(--ink)"></span>' : '<span class="dot"></span>'}${k === 'all' ? 'كل التصحيحات' : CATS[k]}<b>${off ? 'لاحقاً' : c[k]}</b></button>${acc}</div>`;
+      return `<div class="sum-row c-${k}${on ? ' on' : ''}${off ? ' off' : ''}"><button type="button" class="pick" data-cat="${k}" title="${k === 'all' ? 'كل التصحيحات' : CATS[k]}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''} aria-pressed="${on}">${k === 'all' ? '<span class="dot" style="background:var(--ink)"></span>' : '<span class="dot"></span>'}<span class="nm">${k === 'all' ? 'كل التصحيحات' : CATS[k]}</span><b>${off ? 'لاحقاً' : c[k]}</b></button>${acc}</div>`;
     }).join('');
     $('page').className = 'page' + (st.cat !== 'all' ? ' focus-' + st.cat : '');
   }
@@ -796,6 +810,9 @@ input[type=file] { display: none; }
   // القائمة الجانبية: تظهر وتختفي، ويُحفظ اختيار المدقق
   const setNav = on => { $('shell').classList.toggle('nav-open', on); $('navBtn').setAttribute('aria-expanded', String(on)); };
   setNav(store.get('navOpen', false));
+  const setSide = on => { document.querySelector('.main').classList.toggle('side-closed', !on); $('sideBtn').setAttribute('aria-expanded', String(on)); };
+  setSide(store.get('sideOpen', true));
+  $('sideBtn').addEventListener('click', () => { const on = document.querySelector('.main').classList.contains('side-closed'); store.set('sideOpen', on); setSide(on); });
   $('navBtn').addEventListener('click', () => { const on = !$('shell').classList.contains('nav-open'); store.set('navOpen', on); setNav(on); });
   $('nav').addEventListener('click', ev => { const a = ev.target.closest('a'); if (a) ev.preventDefault(); });
   $('themeBtn').addEventListener('click', () => { const t = isDark() ? 'light' : 'dark'; store.set('theme', t); applyTheme(t); });
