@@ -218,7 +218,7 @@ input[type=file] { display: none; }
       <button class="btn" id="optsBtn" type="button">خيارات التدقيق</button>
       <span class="sep"></span>
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
-      <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعرض التصحيحات المقبولة نصاً عادياً بلا علامات">إخفاء المقبول</button>
+      <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعلّم التصحيحات المقبولة بخط أخضر لتتبّعها">إظهار المقبول</button>
       <button class="btn" id="themeBtn" type="button"></button>
       <span class="sep"></span>
       <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
@@ -332,7 +332,8 @@ input[type=file] { display: none; }
     { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين.',
       find: text => {
         const out = [], rx = /(?<=\s)-([ \u00A0]+)([^\-\n]{2,80}?)([ \u00A0]+)-(?=\s)/g;
-        if ((text.match(/\s[-–]\s/g) || []).length >= 3) return out;   // a list such as keywords, not a parenthetical
+        // a list such as keywords, not a parenthetical (a dash between two numbers, 1950 - 1970, does not count)
+        if ((text.match(/(?<!\d)\s[-–]\s(?!\d)/g) || []).length >= 3) return out;
         let m;
         while ((m = rx.exec(text))) {
           const a = m.index + 1, b = a + m[1].length + m[2].length;
@@ -846,7 +847,7 @@ input[type=file] { display: none; }
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
-    off: new Set(store.get('off', [])), noHarakat: false, hideAcc: false };
+    off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
   const HARAKA = /[\u064B-\u0652\u0670]/;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
   const opts = () => ({ translated: false, salam: true });
@@ -1290,7 +1291,7 @@ input[type=file] { display: none; }
   // ---------------- clean view: accepted corrections as plain text
   $('hideAccBtn').addEventListener('click', () => {
     st.hideAcc = !st.hideAcc;
-    $('hideAccBtn').setAttribute('aria-pressed', String(st.hideAcc));
+    $('hideAccBtn').setAttribute('aria-pressed', String(!st.hideAcc));
     $('hideAccBtn').textContent = st.hideAcc ? 'إظهار المقبول' : 'إخفاء المقبول';
     renderPage();
     say(st.hideAcc ? 'النسخة النظيفة: التصحيحات المقبولة تظهر نصاً عادياً. مرّر الفأرة فوق الكلمة لترى قرارها.' : 'تظهر التصحيحات المقبولة بخط أخضر تحتها.');
