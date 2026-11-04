@@ -62,7 +62,8 @@
     { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين.',
       find: text => {
         const out = [], rx = /(?<=\s)-([ \u00A0]+)([^\-\n]{2,80}?)([ \u00A0]+)-(?=\s)/g;
-        if ((text.match(/\s[-–]\s/g) || []).length >= 3) return out;   // a list such as keywords, not a parenthetical
+        // a list such as keywords, not a parenthetical (a dash between two numbers, 1950 - 1970, does not count)
+        if ((text.match(/(?<!\d)\s[-–]\s(?!\d)/g) || []).length >= 3) return out;
         let m;
         while ((m = rx.exec(text))) {
           const a = m.index + 1, b = a + m[1].length + m[2].length;
