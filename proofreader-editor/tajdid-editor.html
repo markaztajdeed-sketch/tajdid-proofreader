@@ -368,7 +368,7 @@ input[type=file] { display: none; }
 
   const RULES = [
     { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
-      find: simple(/[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') },
+      find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
     { id: 'sp-after', no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
       find: text => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),

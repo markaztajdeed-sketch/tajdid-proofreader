@@ -5,6 +5,9 @@ node_modules/
 /ملخصات المجلات/
 /مقالات مجلة قرآنيات/
 /مقالات */
-/*.docx
-/*.doc
-/*.pdf
+/ملف البحوث */
+# وأي ملف Word أو PDF في أي مجلد، ما عدا ملف المثال المستعمل في بناء المحرر
+*.docx
+*.doc
+*.pdf
+!proofreader-prototype/sample.docx
