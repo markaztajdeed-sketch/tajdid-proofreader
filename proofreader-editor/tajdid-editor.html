@@ -367,12 +367,19 @@ input[type=file] { display: none; }
   const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
 
   const RULES = [
+    { id: 'title-ad', no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
+      find: simple(re('(?<![{LH}])([وف]?)أ\\.[ \\u00A0]*(م\\.[ \\u00A0]*)?د\\.'), m => m[1] + (m[2] ? 'أ. م. د.' : 'أ. د.')) },
     { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
-      find: simple(/[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') },
+      find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
     { id: 'sp-after', no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
       find: text => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
         ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
+      ] },
+    { id: 'semicolon', no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
+      find: text => [
+        ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
+        ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
       ] },
     { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
@@ -487,10 +494,6 @@ input[type=file] { display: none; }
         }
         return out;
       } },
-    { id: 'salawat', no: 23, name: 'اختصار الصلاة على النبي', word: true, why: 'تُكتب (صلى الله عليه وآله) مختصرة في المتن، إلا داخل الاقتباس.',
-      find: (() => { const x = fuzzy('صلى الله عليه') + '(?:\\s+و' + fuzzy('آله') + '|\\s+و' + fuzzy('اله') + ')?(?:\\s+و' + fuzzy('سلم') + ')?'; return simple(re('\\(\\s*' + x + '\\s*\\)|' + x), () => '(ص)'); })() },
-    { id: 'salam', no: 23, name: 'اختصار (عليه السلام)', word: true, optional: 'salam', why: 'تُكتب (عليه السلام) مختصرة في المتن، إلا داخل الاقتباس. الصيغة (ع) افتراض بانتظار التأكيد.',
-      find: (() => { const x = '(?:' + ['عليهما', 'عليهم', 'عليها', 'عليه'].map(fuzzy).join('|') + ')\\s+' + fuzzy('السلام'); return simple(re('\\(\\s*' + x + '\\s*\\)|' + x), () => '(ع)'); })() },
     { id: 'tatweel', no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
       find: text => [
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
@@ -502,7 +505,7 @@ input[type=file] { display: none; }
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=\\d)'), m => m[1]) },
     { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
-        ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه/g, () => 'المصدر نفسه')(text),
+        ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*\d)/g, () => '، ')(text)
       ] },
@@ -550,23 +553,25 @@ input[type=file] { display: none; }
         add(re('(?<![{LH}])([وف]?ثم)(?![{LH}])', 'g'), m => m.index + m[0].length);
         return out;
       } },
-    { id: 'quote-type', no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة توضعان بين قوسين ( )، والاقتباس الطويل بين علامتي تنصيص « ».',
+    { id: 'quote-type', no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
       find: (text, ctx) => {
         const out = [];
-        const pairs = [...ctx.straightPairs];
-        for (let i = 0; i < text.length; i++) if (text[i] === '“') { const j = text.indexOf('”', i + 1); if (j > i) pairs.push([i, j]); }
-        for (const [a, b] of pairs) {
+        const pairs = ctx.straightPairs.map(p => [...p, '"']);
+        for (const [o, c] of [['“', '”'], ['«', '»']]) {
+          const st = [];
+          for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i, o]); }
+        }
+        for (const [a, b, kind] of pairs) {
           const inner = text.slice(a + 1, b).trim();
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
           if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner)) continue;
           const words = inner.split(/\s+/).length;
-          const [o, c] = words <= 8 ? ['(', ')'] : ['«', '»'];
-          out.push({ group: [{ start: a, end: a + 1, repl: o }, { start: b, end: b + 1, repl: c }] });
+          const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
+          if (kind === '"' && op === '"') continue;
+          out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
         }
         return out;
       } },
-    { id: 'digits', no: 0, label: 'أعراف المركز', name: 'الأرقام', why: 'تُكتب الأرقام بالصيغة المعتمدة في إصدارات المركز: 1، 2، 3.',
-      find: simple(/[\u0660-\u0669\u06F0-\u06F9]+/g, m => m[0].replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x660)).replace(/[\u06F0-\u06F9]/g, d => String(d.charCodeAt(0) - 0x6F0))) },
     { id: 'words', no: 0, name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
@@ -577,9 +582,9 @@ input[type=file] { display: none; }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'dot-out', 'aw-quote', 'fn-space'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
-    conv: ['year-paren', 'months', 'salawat', 'salam', 'page', 'abbr', 'ibid', 'digits', 'quote-type'] };
+    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -909,7 +914,7 @@ input[type=file] { display: none; }
     off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
   const HARAKA = /[\u064B-\u0652\u0670]/;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
-  const opts = () => ({ translated: false, salam: true });
+  const opts = () => ({ translated: false });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
@@ -1466,15 +1471,15 @@ input[type=file] { display: none; }
     'sp-before': ['قال الكاتب ، ثم سكت .', 'قال الكاتب، ثم سكت.'], 'sp-after': ['قال الكاتب،ثم سكت.', 'قال الكاتب، ثم سكت.'],
     'br-inner': ['كتاب ( الأخلاق )', 'كتاب (الأخلاق)'], 'dash-pair': ['وهذا - كما قلنا - صحيح', 'وهذا -كما قلنا- صحيح'],
     'dash-num': ['الصفحات 10 - 20', 'الصفحات 10-20'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
+    'semicolon': ['تأخر الموعد، لأنه مرض', 'تأخر الموعد؛ لأنه مرض'],
     'dot-out': ['(الأخلاق أساس.)', '(الأخلاق أساس).'], 'aw-quote': ['الدولة "أو (المتحدة)"', 'الدولة أو (المتحدة)'],
     'fn-space': ['نهاية الجملة.¹', 'نهاية الجملة¹.'], 'year-paren': ['في عام (1950)', 'في عام 1950'],
     'ma-la': ['مازال، لابد', 'ما زال، لا بد'], 'ma-shadda': ['شخصاً مّا', 'شخصاً ما'], 'sun-shadda': ['الشّمس والنّور', 'الشمس والنور'],
     'nisba-shadda': ['الأخلاقيّة', 'الأخلاقية'], 'tanween': ['واضحًا جدًا', 'واضحاً جداً'], 'months': ['3 مارس', '3 آذار/ مارس'],
-    'salawat': ['النبي صلى الله عليه وآله وسلم', 'النبي (ص)'], 'salam': ['الإمام علي عليه السلام', 'الإمام علي (ع)'],
     'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
     'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
-    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت"', 'قال (الضمير صوت)'],
-    'digits': ['عام ١٩٥٠', 'عام 1950'], 'words': ['المسئول', 'المسؤول']
+    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
+    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول']
   };
   const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
   const optCount = () => { const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length; $('optsCount').textContent = `${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة`; };

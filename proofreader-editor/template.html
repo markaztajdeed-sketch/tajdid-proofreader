@@ -350,7 +350,7 @@ input[type=file] { display: none; }
     off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
   const HARAKA = /[\u064B-\u0652\u0670]/;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
-  const opts = () => ({ translated: false, salam: true });
+  const opts = () => ({ translated: false });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
@@ -907,15 +907,15 @@ input[type=file] { display: none; }
     'sp-before': ['قال الكاتب ، ثم سكت .', 'قال الكاتب، ثم سكت.'], 'sp-after': ['قال الكاتب،ثم سكت.', 'قال الكاتب، ثم سكت.'],
     'br-inner': ['كتاب ( الأخلاق )', 'كتاب (الأخلاق)'], 'dash-pair': ['وهذا - كما قلنا - صحيح', 'وهذا -كما قلنا- صحيح'],
     'dash-num': ['الصفحات 10 - 20', 'الصفحات 10-20'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
+    'semicolon': ['تأخر الموعد، لأنه مرض', 'تأخر الموعد؛ لأنه مرض'],
     'dot-out': ['(الأخلاق أساس.)', '(الأخلاق أساس).'], 'aw-quote': ['الدولة "أو (المتحدة)"', 'الدولة أو (المتحدة)'],
     'fn-space': ['نهاية الجملة.¹', 'نهاية الجملة¹.'], 'year-paren': ['في عام (1950)', 'في عام 1950'],
     'ma-la': ['مازال، لابد', 'ما زال، لا بد'], 'ma-shadda': ['شخصاً مّا', 'شخصاً ما'], 'sun-shadda': ['الشّمس والنّور', 'الشمس والنور'],
     'nisba-shadda': ['الأخلاقيّة', 'الأخلاقية'], 'tanween': ['واضحًا جدًا', 'واضحاً جداً'], 'months': ['3 مارس', '3 آذار/ مارس'],
-    'salawat': ['النبي صلى الله عليه وآله وسلم', 'النبي (ص)'], 'salam': ['الإمام علي عليه السلام', 'الإمام علي (ع)'],
     'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
     'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
-    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت"', 'قال (الضمير صوت)'],
-    'digits': ['عام ١٩٥٠', 'عام 1950'], 'words': ['المسئول', 'المسؤول']
+    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
+    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول']
   };
   const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
   const optCount = () => { const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length; $('optsCount').textContent = `${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة`; };
