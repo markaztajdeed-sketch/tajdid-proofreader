@@ -13,8 +13,15 @@ def docx_files(d):
         if f.endswith('.docx'):
             out[f[:-5]] = p
         elif f.endswith('.doc'):
-            subprocess.run(['soffice', '--headless', '--convert-to', 'docx', '--outdir', tmp, p], capture_output=True)
             q = os.path.join(tmp, f[:-4] + '.docx')
+            head = open(p, 'rb').read(4)
+            if head[:2] in (b'\xff\xfe', b'\xfe\xff') or head.lower().startswith(b'<'):
+                # a web page saved with a .doc name (Word "Save as Web Page"): convert it as HTML
+                h = os.path.join(tmp, f[:-4] + '.htm')
+                shutil.copy(p, h)
+                subprocess.run(['soffice', '--headless', '--writer', '--convert-to', 'docx:MS Word 2007 XML', '--outdir', tmp, h], capture_output=True)
+            else:
+                subprocess.run(['soffice', '--headless', '--convert-to', 'docx', '--outdir', tmp, p], capture_output=True)
             if os.path.exists(q):
                 out[f[:-4]] = q
     return out
