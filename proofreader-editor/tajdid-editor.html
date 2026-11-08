@@ -451,17 +451,29 @@ input[type=file] { display: none; }
   // Each rule: id, no (guide rule number), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
   // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
   // unmatched «(» right after a word and before a space or punctuation
-  function flippedParens(text) {
+  function unmatchedParens(text) {
     const st = [], bad = [];
     for (let i = 0; i < text.length; i++) {
       if (text[i] === '(') st.push(i);
       else if (text[i] === ')') { if (st.length) st.pop(); else bad.push(i); }
     }
-    bad.push(...st);
+    return bad.concat(st);
+  }
+  function flippedParens(text) {
+    const bad = unmatchedParens(text).filter(i => !doubledAfterLatin(text).some(d => d.close === i || d.close + 1 === i));
     const L = /[\u0621-\u064A]/;
     return bad.filter(i => text[i] === ')'
       ? (i === 0 || /\s/.test(text[i - 1])) && L.test(text[i + 1] || '')
       : L.test(text[i - 1] || '') && /[\s،؛:.]/.test(text[i + 1] || ' ')).sort((a, b) => a - b);
+  }
+  // «Motsamai Molefe))»: a foreign name typed in Arabic text often ends up with both parentheses after it
+  function doubledAfterLatin(text) {
+    const bad = new Set(unmatchedParens(text)), out = [];
+    for (const m of text.matchAll(/(?<![A-Za-z0-9(])([A-Za-z][A-Za-z0-9 .,'’&-]*?[A-Za-z0-9.])\)\)/g)) {
+      const close = m.index + m[1].length;
+      if (bad.has(close) && bad.has(close + 1)) out.push({ start: m.index, close });
+    }
+    return out;
   }
   const simple = (rx, repl) => text => {
     const out = [];
@@ -518,7 +530,10 @@ input[type=file] { display: none; }
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
       ] },
     { id: 'br-flip', no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
-      find: text => flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })) },
+      find: text => [
+        ...flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })),
+        ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] }))
+      ] },
     { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
