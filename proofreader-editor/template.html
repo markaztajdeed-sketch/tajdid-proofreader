@@ -533,7 +533,7 @@ input[type=file] { display: none; }
       const old = sub(['accepted']), neu = sub(['accepted', 'pending']);
       const attrs = attrs0 + ` data-src="${esc(old)}"`;
       if (pend.length) {
-        if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${showChars(neu)}</span>`;
+        if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${showChars(old)}</span>`;
         return `<span class="chg wd ${cls}" ${attrs}>${old ? '<del>' + showChars(old) + '</del>' : ''}${neu ? '<ins>' + showChars(neu) + '</ins>' : ''}</span>`;
       }
       if (acc.length) return st.hideAcc ? `<span class="plain" ${attrs}>${showChars(old)}</span>` : `<span class="done wd ${cls}" ${attrs}>${showChars(old)}</span>`;
