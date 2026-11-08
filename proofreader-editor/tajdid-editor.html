@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>محرر تجديد</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -243,6 +244,66 @@ input[type=file] { display: none; }
 .switch:checked { background: var(--accent); }
 .switch:checked::after { inset-inline-start: 18px; }
 
+/* documents page: every file the proofreader has opened, with its progress */
+.app.docs { grid-template-rows: auto 1fr; }
+.docs-top { gap: 10px 14px; }
+.docs-top h1 { margin: 0; font-size: 16px; display: flex; align-items: baseline; gap: 8px; }
+.docs-top h1 small { font-size: 12.5px; color: var(--muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.docs-top .grow { flex: 1; }
+.search { position: relative; display: flex; align-items: center; }
+.search svg { position: absolute; inset-inline-start: 9px; width: 16px; height: 16px; stroke: var(--muted); fill: none; stroke-width: 1.8; stroke-linecap: round; pointer-events: none; }
+.search input { width: 260px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; padding: 6px 10px; padding-inline-start: 32px; }
+.docs-body { min-height: 0; overflow: auto; padding-block: 18px 28px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.docs-wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 12px; }
+.docs-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; }
+.docs-tools .grow { flex: 1; }
+.docs-tools .seg b { font-weight: 600; font-variant-numeric: tabular-nums; margin-inline-start: 4px; opacity: .75; }
+.dtable { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 13.5px; }
+.dtable th { text-align: start; font-weight: 600; color: var(--muted); font-size: 12px; padding: 9px 12px; border-bottom: 1px solid var(--line); background: var(--sunken); white-space: nowrap; }
+.dtable td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.dtable tr:last-child td { border-bottom: 0; }
+.dtable tbody tr { cursor: pointer; }
+.dtable tbody tr:hover td { background: color-mix(in srgb, var(--sunken) 60%, var(--surface)); }
+.dtable tbody tr.cur td { background: var(--nav-act); }
+.dtable .c-star { width: 36px; padding-inline-end: 0; }
+.dtable .c-name { width: 40%; }
+.dtable .c-prog { width: 170px; }
+.dtable .c-date { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dtable .c-act { width: 84px; text-align: end; white-space: nowrap; }
+.star { border: 0; background: none; padding: 2px; color: var(--line); display: grid; place-items: center; }
+.star svg { width: 18px; height: 18px; fill: currentColor; stroke: none; }
+.star:hover { color: var(--muted); }
+.star[aria-pressed="true"] { color: var(--gold); }
+.dname { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dname .ic { width: 18px; height: 18px; flex: none; stroke: var(--accent); fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.dname span.t { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.dname input { flex: 1; min-width: 0; border: 1px solid var(--accent); border-radius: 5px; padding: 3px 7px; background: var(--surface); }
+.status { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; white-space: nowrap; }
+.status i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.status.new { --c: var(--muted); } .status.work { --c: var(--conv); } .status.done { --c: var(--good); }
+.prog { display: grid; gap: 4px; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.prog .track { height: 5px; border-radius: 99px; background: var(--sunken); overflow: hidden; }
+.prog .fill { height: 100%; background: var(--good); border-radius: 99px; }
+.icon-btn { border: 0; background: none; color: var(--muted); padding: 5px; border-radius: 6px; display: inline-grid; place-items: center; opacity: 0; }
+.icon-btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.dtable tr:hover .icon-btn, .icon-btn:focus-visible { opacity: 1; }
+.icon-btn:hover { background: var(--sunken); color: var(--ink); }
+.icon-btn.del:hover { color: var(--spell); }
+.docs-empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 8px; padding: 48px 16px; text-align: center; color: var(--muted); line-height: 1.9; }
+.docs-empty .btn { margin-top: 10px; }
+.docs.drag .docs-wrap { outline: 2px dashed var(--accent); outline-offset: 8px; border-radius: 8px; }
+.docs-wrap .msg { margin: 0; font-size: 13px; color: var(--ink); min-height: 0; }
+.docs-wrap .msg:empty { display: none; }
+.docs-wrap .msg.err { color: var(--spell); }
+.docs-note { font-size: 12px; color: var(--muted); margin: 0; }
+.confirm { width: min(420px, calc(100vw - 48px)); border: 1px solid var(--line); border-radius: 10px; padding: 20px; background: var(--surface); color: var(--ink);
+  direction: rtl; font-family: var(--ui); box-shadow: 0 16px 48px rgba(0,0,0,.25); }
+.confirm::backdrop { background: rgba(10,14,13,.45); }
+.confirm h2 { margin: 0 0 8px; font-size: 15px; }
+.confirm p { margin: 0 0 16px; color: var(--muted); line-height: 1.8; }
+.confirm .acts { justify-content: flex-start; }
+.btn.danger { background: var(--spell); border-color: var(--spell); color: #FFFFFF; font-weight: 600; }
+
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
   .main { grid-template-columns: minmax(0, 1fr); }
@@ -258,15 +319,16 @@ input[type=file] { display: none; }
   <nav class="nav" id="nav" aria-label="أقسام الأداة">
       <div class="nav-logo"><img src="data:image/png;base64,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" alt="مركز تجديد"><span class="lbl">مدقق تجديد</span></div>
       <button class="nav-toggle" id="navBtn" type="button" aria-label="توسيع القائمة أو طيّها" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-      <a href="#" aria-current="page" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span><span class="soon-tag">قريباً</span></a>
+      
+      <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
+      <a href="#" data-view="editor" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
       <a href="#" class="nav-item soon" aria-disabled="true" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span><span class="soon-tag">قريباً</span></a>
       <a href="#" class="nav-item soon" aria-disabled="true" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span><span class="soon-tag">قريباً</span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
       <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
     </nav>
-<div class="app">
+<div class="app" id="editorView" hidden>
   <header class="top">
     <div class="doc"><span class="doc-name" id="docName">—</span><span class="tag" id="docTag" hidden>مثال</span>
       <button class="btn" id="openBtn" type="button" title="أو اسحب الملف إلى الصفحة">فتح ملف وورد…</button>
@@ -322,6 +384,45 @@ input[type=file] { display: none; }
     </span>
     <span class="msg" id="msg" role="status"></span>
   </footer>
+</div>
+<div class="app docs" id="docsView" hidden>
+  <header class="top docs-top">
+    <h1>المستندات <small id="docsCount"></small></h1>
+    <span class="grow"></span>
+    <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input type="search" id="docsQ" placeholder="ابحث باسم المستند" aria-label="ابحث باسم المستند"></label>
+    <button class="btn primary" id="docsUpload" type="button" title="أو اسحب الملف إلى الصفحة">رفع ملف وورد…</button>
+    <input type="file" id="docsFile" multiple accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+  </header>
+  <div class="docs-body" id="docsBody">
+    <div class="docs-wrap">
+      <div class="docs-tools">
+        <div class="seg" role="group" aria-label="الحالة" id="docsStatus">
+          <button type="button" data-s="all" aria-pressed="true">الكل<b></b></button>
+          <button type="button" data-s="new" aria-pressed="false">جديد<b></b></button>
+          <button type="button" data-s="work" aria-pressed="false">قيد المراجعة<b></b></button>
+          <button type="button" data-s="done" aria-pressed="false">اكتمل<b></b></button>
+        </div>
+        <label class="field">آخر تعديل
+          <select id="docsDate">
+            <option value="all">كل التواريخ</option><option value="today">اليوم</option><option value="7">آخر ٧ أيام</option><option value="30">آخر ٣٠ يوماً</option><option value="year">هذه السنة</option>
+          </select></label>
+        <span class="grow"></span>
+        <label class="field">الترتيب
+          <select id="docsSort">
+            <option value="updated">آخر تعديل</option><option value="added">تاريخ الإضافة</option><option value="name">الاسم (أبجدياً)</option>
+          </select></label>
+      </div>
+      <div id="docsList"></div>
+      <p class="msg" id="docsMsg" role="status"></p>
+      <p class="docs-note" id="docsNote">المستندات وقراراتك فيها محفوظة في هذا المتصفح على هذا الجهاز. حفظها على الخادم ومشاركتها بين المدققين يأتيان مع الحسابات.</p>
+    </div>
+  </div>
+  <dialog class="confirm" id="delDlg" aria-labelledby="delTitle">
+    <h2 id="delTitle">حذف المستند؟</h2>
+    <p id="delText"></p>
+    <div class="acts"><button class="btn danger" type="button" id="delYes">حذف</button><button class="btn" type="button" id="delNo">إلغاء</button></div>
+  </dialog>
 </div>
 </div>
 
@@ -940,12 +1041,18 @@ input[type=file] { display: none; }
     });
     para.quran = r.quran; para.warnings = r.warnings;
   }
-  function load(buf, name, sample) {
+  function load(buf, name, sample, saved) {
     return E.loadDocx(JSZip, buf.slice(0), opts(), xml).then(res => {
       st.buf = buf; st.name = name; st.sample = sample; st.lexicon = res.lexicon; st.undo = []; st.redo = []; st.sel = null; st.editing = null;
       st.paras = res.paras.map(p => ({ key: p.key, where: p.where, inNotes: p.inNotes, orig: p.text, base: p.text, manual: false, groups: [], quran: [], warnings: [] }));
       st.byKey = new Map(st.paras.map(p => [p.key, p]));
-      st.paras.forEach(p => scan(p));
+      // a saved document: restore manual edits first, then the decisions (matched by each correction's signature)
+      const keep = saved ? new Map(saved.map(s => [s.key, s])) : null;
+      st.paras.forEach(p => {
+        const s = keep && keep.get(p.key);
+        if (s) { p.base = s.base; p.manual = s.manual; }
+        scan(p, s && s.g ? new Map(s.g.map(([k, status, reason]) => [k, { status, reason }])) : null);
+      });
       renderAll();
       say(res.paras.length ? '' : 'لم أجد نصاً عربياً في هذا الملف.', !res.paras.length);
     });
@@ -1109,7 +1216,7 @@ input[type=file] { display: none; }
     let words = 0, chars = 0;
     const WRX = new RegExp('[^\\s' + FN + OB + ']+', 'g'), CRX = new RegExp('[\\s' + FN + OB + '\\u064B-\\u0652\\u0670\\u0640]', 'g');
     st.paras.forEach(p => { const t = currentText(p); words += (t.match(WRX) || []).length; chars += t.replace(CRX, '').length; });
-    $('nWords').textContent = words.toLocaleString('ar');
+    $('nWords').textContent = words.toLocaleString('ar'); st.words = words; autosave();
     $('nChars').textContent = chars.toLocaleString('ar');
     $('nRead').textContent = Math.max(1, Math.round(words / 180)).toLocaleString('ar');
     const w = st.paras.filter(p => p.warnings.length);
@@ -1374,7 +1481,7 @@ input[type=file] { display: none; }
     }
   }
 
-  function say(t, err) { $('msg').textContent = t || ''; $('msg').className = 'msg' + (err ? ' err' : ''); }
+  function say(t, err) { ['msg', 'docsMsg'].forEach(id => { $(id).textContent = t || ''; $(id).className = 'msg' + (err ? ' err' : ''); }); }
 
   // ---------------- events
   $('page').addEventListener('click', ev => {
@@ -1425,7 +1532,7 @@ input[type=file] { display: none; }
   const openFile = f => {
     if (!f) return;
     if (!/\.docx$/i.test(f.name)) { say('الأداة تقبل ملفات وورد بصيغة ‎.docx فقط.', true); return; }
-    f.arrayBuffer().then(b => load(b, f.name, false)).catch(e => say('تعذّرت قراءة الملف: ' + e.message, true));
+    addFiles([f], true);
   };
   $('openBtn').addEventListener('click', () => $('file').click());
   $('file').addEventListener('change', e => { openFile(e.target.files[0]); e.target.value = ''; });
@@ -1528,9 +1635,233 @@ input[type=file] { display: none; }
     say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.');
   });
 
-  // sample on open
-  const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  load(bytes.buffer, SAMPLE_NAME, true).catch(e => say('تعذّر تحميل المثال: ' + e.message, true));
+  // ---------------- documents: every file opened in the tool, saved in this browser (IndexedDB) with its decisions
+  const DB = (() => {
+    let dbp = null, mem = null;
+    const open = () => dbp || (dbp = new Promise((res, rej) => {
+      if (!window.indexedDB) throw new Error('IndexedDB');
+      const r = indexedDB.open('tajdid-proofreader', 1);
+      r.onupgradeneeded = () => { r.result.createObjectStore('docs', { keyPath: 'id' }); r.result.createObjectStore('files', { keyPath: 'id' }); };
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    }).catch(() => { mem = { docs: new Map(), files: new Map() }; return null; }));
+    const req = (d, name, mode, f) => new Promise((res, rej) => {
+      const t = d.transaction(name, mode), r = f(t.objectStore(name));
+      t.oncomplete = () => res(r.result); t.onerror = t.onabort = () => rej(t.error || new Error('IndexedDB'));
+    });
+    return {
+      memory: () => !!mem,
+      all: () => open().then(d => d ? req(d, 'docs', 'readonly', s => s.getAll()) : [...mem.docs.values()]),
+      get: (name, id) => open().then(d => d ? req(d, name, 'readonly', s => s.get(id)) : mem[name].get(id)),
+      put: (name, v) => open().then(d => d ? req(d, name, 'readwrite', s => s.put(v)) : void mem[name].set(v.id, v)),
+      del: id => open().then(d => d ? Promise.all(['docs', 'files'].map(n => req(d, n, 'readwrite', s => s.delete(id)))) : (mem.docs.delete(id), mem.files.delete(id)))
+    };
+  })();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  const docs = new Map();
+  const ds = { q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
+  const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason).map(g => [sig(g), g.status, g.reason]) }));
+  function docStats() {
+    const { s } = counts();
+    return { pending: s.pending, accepted: s.accepted, rejected: s.rejected, total: s.pending + s.accepted + s.rejected, words: st.words || 0, manual: st.paras.some(p => p.manual) };
+  }
+  let saveT = null;
+  const autosave = () => { if (!st.docId) return; clearTimeout(saveT); saveT = setTimeout(saveNow, 700); };
+  function saveNow() {
+    clearTimeout(saveT);
+    const rec = st.docId && docs.get(st.docId); if (!rec) return Promise.resolve();
+    const state = docState(), str = JSON.stringify(state);
+    if (str === st.savedStr) return Promise.resolve();
+    st.savedStr = str;
+    Object.assign(rec, { state, stats: docStats(), updated: Date.now() });
+    if (!$('docsView').hidden) renderDocs();
+    return DB.put('docs', rec).catch(e => say('تعذّر حفظ القرارات: ' + (e && e.message || e), true));
+  }
+  addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { commitDirty(); saveNow(); } });
+  addEventListener('pagehide', () => { commitDirty(); saveNow(); });
+  ['cards', 'pop'].forEach(id => $(id).addEventListener('input', autosave));
+
+  async function openDoc(id) {
+    const rec = docs.get(id); if (!rec) return;
+    if (st.docId && st.docId !== id) { commitDirty(); await saveNow(); }
+    const f = await DB.get('files', id);
+    if (!f) { say('ملف هذا المستند غير موجود في المتصفح.', true); return; }
+    st.docId = null;
+    await load(f.buf, rec.name, !!rec.sample, rec.state);
+    st.docId = id; st.savedStr = JSON.stringify(docState());
+    Object.assign(rec, { opened: Date.now(), stats: docStats() });
+    DB.put('docs', rec).catch(() => {});
+    store.set('lastDoc', id);
+    setView('editor');
+  }
+  async function addFiles(files, openOne) {
+    files = [...files].filter(Boolean);
+    const bad = files.filter(f => !/\.docx$/i.test(f.name)); files = files.filter(f => /\.docx$/i.test(f.name));
+    if (bad.length && !files.length) { say('الأداة تقبل ملفات وورد بصيغة ‎.docx فقط.', true); return; }
+    let added = [];
+    for (const f of files) {
+      try {
+        const buf = await f.arrayBuffer(), now = Date.now();
+        await E.loadDocx(JSZip, buf.slice(0), opts(), xml); // يتأكد أن الملف يُقرأ قبل حفظه
+        const rec = { id: newId(), name: f.name, sample: false, size: f.size, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        await DB.put('files', { id: rec.id, buf }); await DB.put('docs', rec);
+        docs.set(rec.id, rec); added.push(rec);
+      } catch (e) { say('تعذّرت قراءة الملف «' + f.name + '»: ' + (e && e.message || e), true); }
+    }
+    if (!added.length) return;
+    if (added.length === 1 && openOne) { await openDoc(added[0].id); say('أُضيف المستند إلى قائمة المستندات، وتُحفظ قراراتك فيه تلقائياً.' + (bad.length ? ` تُرك ${bad.length.toLocaleString('ar')} من الملفات لأنها ليست ‎.docx.` : '')); return; }
+    renderDocs();
+    say(`أُضيف ${countWord(added.length)}` + (bad.length ? `، وتُرك ${bad.length.toLocaleString('ar')} من الملفات لأنها ليست ‎.docx.` : '.'));
+  }
+
+  // status: new (nothing decided), work (some decided), done (nothing left)
+  const statusOf = r => !r.stats ? 'new' : (r.stats.pending === 0 ? 'done' : (r.stats.accepted + r.stats.rejected || r.stats.manual ? 'work' : 'new'));
+  const ST_LBL = { new: 'جديد', work: 'قيد المراجعة', done: 'اكتمل' };
+  const norm = s => s.replace(/[ً-ْٰـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+  const dayStart = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  function fmtDate(t) {
+    if (!t) return '—';
+    const d = new Date(t), now = new Date(), diff = Math.round((dayStart(now) - dayStart(d)) / 864e5);
+    const time = d.toLocaleTimeString('ar-SY-u-nu-latn', { hour: 'numeric', minute: '2-digit' });
+    if (diff === 0) return 'اليوم، ' + time;
+    if (diff === 1) return 'أمس، ' + time;
+    return d.toLocaleDateString('ar-SY-u-nu-latn', d.getFullYear() === now.getFullYear() ? { day: 'numeric', month: 'long' } : { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  const fullDate = t => t ? new Date(t).toLocaleString('ar-SY-u-nu-latn', { dateStyle: 'full', timeStyle: 'short' }) : '';
+  function inDate(r) {
+    if (ds.date === 'all') return true;
+    const now = new Date();
+    if (ds.date === 'today') return r.updated >= dayStart(now);
+    if (ds.date === 'year') return new Date(r.updated).getFullYear() === now.getFullYear();
+    return r.updated >= dayStart(now) - (Number(ds.date) - 1) * 864e5;
+  }
+  const countWord = k => k === 1 ? 'مستند واحد' : k === 2 ? 'مستندان' : k.toLocaleString('ar') + (k % 100 >= 3 && k % 100 <= 10 ? ' مستندات' : ' مستنداً');
+  const docTitle = r => r.name.replace(/\.docx$/i, '');
+  const ICO = {
+    file: '<svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z"/></svg>',
+    edit: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg>',
+    del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'
+  };
+  function renderDocs() {
+    const all = [...docs.values()], n = s => s.toLocaleString('ar');
+    $('docsCount').textContent = all.length ? countWord(all.length) : '';
+    const byDate = all.filter(inDate), q = norm(ds.q.trim());
+    const byQ = q ? byDate.filter(r => norm(r.name).includes(q)) : byDate;
+    $('docsStatus').querySelectorAll('button').forEach(b => {
+      const k = b.dataset.s; b.setAttribute('aria-pressed', String(k === ds.status));
+      b.querySelector('b').textContent = n(k === 'all' ? byQ.length : byQ.filter(r => statusOf(r) === k).length);
+    });
+    const list = byQ.filter(r => ds.status === 'all' || statusOf(r) === ds.status);
+    const cmp = { updated: (a, b) => b.updated - a.updated, added: (a, b) => b.added - a.added, name: (a, b) => docTitle(a).localeCompare(docTitle(b), 'ar') }[ds.sort];
+    list.sort((a, b) => (b.pinned - a.pinned) || cmp(a, b));
+    const box = $('docsList');
+    if (!all.length) {
+      box.innerHTML = '<div class="docs-empty">لا توجد مستندات بعد.<br>ارفع ملف وورد، أو اسحبه إلى هذه الصفحة.<br><button class="btn primary" type="button" data-act="upload">رفع ملف وورد…</button></div>';
+      return;
+    }
+    if (!list.length) { box.innerHTML = '<div class="docs-empty">لا توجد مستندات تطابق البحث أو التصفية.</div>'; return; }
+    box.innerHTML = '<table class="dtable"><thead><tr><th class="c-star"><span hidden>تثبيت</span></th><th class="c-name">الاسم</th><th>الحالة</th><th class="c-prog">التقدّم</th><th>الكلمات</th><th>أُضيف</th><th>آخر تعديل</th><th class="c-act"></th></tr></thead><tbody>' +
+      list.map(r => {
+        const s = statusOf(r), t = r.stats, dec = t ? t.accepted + t.rejected : 0, pct = t && t.total ? Math.round(dec / t.total * 100) : (t ? 100 : 0);
+        const name = ds.renaming === r.id
+          ? `<input type="text" data-act="name" value="${esc(docTitle(r))}" aria-label="الاسم الجديد">`
+          : `<span class="t" title="${esc(docTitle(r))}">${esc(docTitle(r))}</span>${r.sample ? '<span class="tag">مثال</span>' : ''}`;
+        const prog = t ? `<div class="prog"><span>${t.total ? `قُرّر ${n(dec)} من ${n(t.total)}` : 'لا تصحيحات'}</span><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>` : '<div class="prog"><span>لم يُفتح بعد</span></div>';
+        return `<tr data-id="${r.id}" class="${r.id === st.docId ? 'cur' : ''}">
+          <td class="c-star"><button type="button" class="star" data-act="pin" aria-pressed="${!!r.pinned}" title="${r.pinned ? 'إلغاء التثبيت' : 'تثبيت في الأعلى'}">${ICO.star}</button></td>
+          <td class="c-name"><div class="dname">${ICO.file}${name}</div></td>
+          <td><span class="status ${s}"><i></i>${ST_LBL[s]}</span></td>
+          <td class="c-prog">${prog}</td>
+          <td class="c-date">${t ? n(t.words) : '—'}</td>
+          <td class="c-date" title="${esc(fullDate(r.added))}">${fmtDate(r.added)}</td>
+          <td class="c-date" title="${esc(fullDate(r.updated))}">${fmtDate(r.updated)}</td>
+          <td class="c-act"><button type="button" class="icon-btn" data-act="rename" title="إعادة التسمية" aria-label="إعادة التسمية">${ICO.edit}</button><button type="button" class="icon-btn del" data-act="del" title="حذف" aria-label="حذف">${ICO.del}</button></td></tr>`;
+      }).join('') + '</tbody></table>';
+    const inp = box.querySelector('input[data-act="name"]');
+    if (inp) { inp.focus(); inp.select(); }
+  }
+  function finishRename(save) {
+    const id = ds.renaming; if (!id) return;
+    const inp = $('docsList').querySelector('input[data-act="name"]'), rec = docs.get(id);
+    ds.renaming = null;
+    const v = inp ? inp.value.trim().replace(/\.docx$/i, '') : '';
+    if (save && rec && v && v !== docTitle(rec)) {
+      rec.name = v + '.docx'; DB.put('docs', rec).catch(() => {});
+      if (st.docId === id) { st.name = rec.name; $('docName').textContent = v; }
+    }
+    renderDocs();
+  }
+  $('docsList').addEventListener('click', ev => {
+    const act = ev.target.closest('[data-act]'), tr = ev.target.closest('tr[data-id]');
+    if (act && act.dataset.act === 'upload') { $('docsFile').click(); return; }
+    if (!tr) return;
+    const id = tr.dataset.id, rec = docs.get(id), a = act && act.dataset.act;
+    if (a === 'name') return;
+    if (ds.renaming && ds.renaming !== id) finishRename(true);
+    if (a === 'pin') { rec.pinned = !rec.pinned; DB.put('docs', rec).catch(() => {}); renderDocs(); return; }
+    if (a === 'rename') { ds.renaming = id; renderDocs(); return; }
+    if (a === 'del') { ds.delId = id; $('delText').textContent = `سيُحذف «${docTitle(rec)}» وكل قراراتك فيه من هذا المتصفح. لا يمكن التراجع عن الحذف، والملف الأصلي على جهازك لا يتأثر.`; $('delDlg').showModal(); return; }
+    if (ds.renaming === id) return;
+    openDoc(id).catch(e => say('تعذّر فتح المستند: ' + (e && e.message || e), true));
+  });
+  $('docsList').addEventListener('keydown', ev => {
+    if (ev.target.dataset.act !== 'name') return;
+    if (ev.key === 'Enter') { ev.preventDefault(); finishRename(true); } else if (ev.key === 'Escape') { ev.preventDefault(); finishRename(false); }
+  });
+  $('docsList').addEventListener('focusout', ev => { if (ev.target.dataset.act === 'name') setTimeout(() => finishRename(true), 0); });
+  $('delNo').addEventListener('click', () => $('delDlg').close());
+  $('delYes').addEventListener('click', async () => {
+    const id = ds.delId; $('delDlg').close(); if (!id) return;
+    const name = docTitle(docs.get(id));
+    await DB.del(id).catch(() => {}); docs.delete(id);
+    if (st.docId === id) { clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll(); store.set('lastDoc', null); }
+    renderDocs(); say(`حُذف «${name}».`);
+  });
+  $('docsQ').addEventListener('input', e => { ds.q = e.target.value; renderDocs(); });
+  $('docsStatus').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { ds.status = b.dataset.s; renderDocs(); } });
+  $('docsDate').addEventListener('change', e => { ds.date = e.target.value; renderDocs(); });
+  $('docsSort').value = ds.sort;
+  $('docsSort').addEventListener('change', e => { ds.sort = e.target.value; store.set('docsSort', ds.sort); renderDocs(); });
+  $('docsUpload').addEventListener('click', () => $('docsFile').click());
+  $('docsFile').addEventListener('change', e => { addFiles(e.target.files, true); e.target.value = ''; });
+  const dv = $('docsView');
+  ['dragenter', 'dragover'].forEach(t => dv.addEventListener(t, e => { e.preventDefault(); dv.classList.add('drag'); }));
+  dv.addEventListener('dragleave', e => { if (!dv.contains(e.relatedTarget)) dv.classList.remove('drag'); });
+  dv.addEventListener('drop', e => { e.preventDefault(); dv.classList.remove('drag'); addFiles(e.dataTransfer.files, true); });
+
+  // ---------------- views: documents / editor
+  function setView(v) {
+    if (v === 'editor' && !st.docId) v = 'docs';
+    if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
+    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor';
+    document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : 'محرر تجديد';
+    store.set('view', v);
+  }
+  $('nav').addEventListener('click', ev => {
+    const a = ev.target.closest('a[data-view]'); if (!a) return;
+    if (a.dataset.view === 'editor' && !st.docId) { setView('docs'); say('افتح مستنداً من القائمة أولاً.'); return; }
+    setView(a.dataset.view);
+  });
+
+  // ---------------- start: the documents list (the sample article is added once, on first use)
+  (async () => {
+    try {
+      let list = await DB.all();
+      if (!list.length && !store.get('seeded', false)) {
+        const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const now = Date.now(), rec = { id: newId(), name: SAMPLE_NAME, sample: true, size: bytes.length, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        await DB.put('files', { id: rec.id, buf: bytes.buffer }); await DB.put('docs', rec);
+        store.set('seeded', true); list = [rec];
+      }
+      list.forEach(r => docs.set(r.id, r));
+      if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
+      const last = store.get('lastDoc', null);
+      if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
+      else setView('docs');
+    } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
+  })();
 })();
 </script>
