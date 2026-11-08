@@ -142,7 +142,12 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
 /* قائمة التصحيحات تنطوي إلى شريط ضيق فيه الأعداد فقط */
 .main.side-closed { grid-template-columns: minmax(0, 1fr) 64px; }
-.main { position: relative; }
+.main { position: relative; transition: grid-template-columns .18s; }
+.side { overflow: hidden; }
+.side-toggle { transition: inset-inline-end .18s; }
+/* عند الفتح: يظهر المحتوى تدريجياً بعد اتساع القائمة، كما في القائمة اليمنى */
+.main:not(.side-closed) .side-head, .main:not(.side-closed) .cards { animation: sideIn .22s ease-out; }
+@keyframes sideIn { from { opacity: 0; } 60% { opacity: 0; } to { opacity: 1; } }
 .side-toggle { position: absolute; top: -13px; inset-inline-end: 305px; width: 30px; height: 30px; border-radius: 50%; z-index: 6;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .side-toggle:hover { color: var(--ink); }
@@ -312,7 +317,7 @@ input[type=file] { display: none; }
   .cards { overflow: visible; }
   .page { font-size: 17.5px; padding: 24px 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .para.flash { animation: none; } * { scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) { .para.flash, .side-head, .cards { animation: none !important; } .main, .side-toggle { transition: none; } * { scroll-behavior: auto !important; } }
 </style>
 
 <div class="shell" id="shell">
