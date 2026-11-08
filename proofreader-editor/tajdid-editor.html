@@ -475,6 +475,25 @@ input[type=file] { display: none; }
     }
     return out;
   }
+  // «…ذلكMagesa 1997), (Bujo 2009), (Metz 2012)).»: a Latin reference closed by an unmatched «)» lost its
+  // opening parenthesis; a stray «)» doubled later in the paragraph is the one that went to the wrong place
+  function openerMissing(text) {
+    const bad = unmatchedParens(text).filter(i => text[i] === ')');
+    const taken = new Set(doubledAfterLatin(text).flatMap(d => [d.close, d.close + 1]));
+    const flipped = new Set(flippedParens(text));
+    const out = [];
+    for (const i of bad) {
+      if (taken.has(i) || flipped.has(i)) continue;
+      const m = /(^|[\s\u0621-\u064A])([A-Za-z][A-Za-z0-9 .,'’&:-]{0,60}?)$/.exec(text.slice(0, i));
+      if (!m || !/[A-Za-z0-9.]$/.test(m[2])) continue;
+      const start = i - m[2].length;
+      const edits = [{ start, end: start, repl: /[\u0621-\u064A]/.test(m[1]) ? ' (' : '(' }];
+      const extra = bad.find(j => j > i && text[j - 1] === ')' && !taken.has(j));
+      if (extra !== undefined) edits.push({ start: extra, end: extra + 1, repl: '' });
+      out.push(edits);
+    }
+    return out;
+  }
   const simple = (rx, repl) => text => {
     const out = [];
     rx.lastIndex = 0;
@@ -532,7 +551,8 @@ input[type=file] { display: none; }
     { id: 'br-flip', no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
       find: text => [
         ...flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })),
-        ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] }))
+        ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
+        ...openerMissing(text).map(group => ({ group }))
       ] },
     { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
