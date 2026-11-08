@@ -142,7 +142,12 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side { position: relative; min-height: 0; display: flex; flex-direction: column; border-inline-start: 1px solid var(--line); background: var(--sunken); }
 /* قائمة التصحيحات تنطوي إلى شريط ضيق فيه الأعداد فقط */
 .main.side-closed { grid-template-columns: minmax(0, 1fr) 64px; }
-.main { position: relative; }
+.main { position: relative; transition: grid-template-columns .18s; }
+.side { overflow: hidden; }
+.side-toggle { transition: inset-inline-end .18s; }
+/* عند الفتح: يظهر المحتوى تدريجياً بعد اتساع القائمة، كما في القائمة اليمنى */
+.main:not(.side-closed) .side-head, .main:not(.side-closed) .cards { animation: sideIn .22s ease-out; }
+@keyframes sideIn { from { opacity: 0; } 60% { opacity: 0; } to { opacity: 1; } }
 .side-toggle { position: absolute; top: -13px; inset-inline-end: 305px; width: 30px; height: 30px; border-radius: 50%; z-index: 6;
   border: 1px solid var(--line); background: var(--surface); color: var(--muted); display: grid; place-items: center; padding: 0; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
 .side-toggle:hover { color: var(--ink); }
@@ -312,7 +317,7 @@ input[type=file] { display: none; }
   .cards { overflow: visible; }
   .page { font-size: 17.5px; padding: 24px 16px; }
 }
-@media (prefers-reduced-motion: reduce) { .para.flash { animation: none; } * { scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) { .para.flash, .side-head, .cards { animation: none !important; } .main, .side-toggle { transition: none; } * { scroll-behavior: auto !important; } }
 </style>
 
 <div class="shell" id="shell">
@@ -449,7 +454,7 @@ input[type=file] { display: none; }
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
     off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
-  const HARAKA = /[\u064B-\u0652\u0670]/;
+  const HARAKA = /[\u064B-\u0652\u0670]/, HARAKA_ALL = /[\u064B-\u0652\u0670]/g;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
   const opts = () => ({ translated: false });
 
@@ -528,25 +533,27 @@ input[type=file] { display: none; }
     const cls = 'c-' + (main.rule.cat || 'punct') + (groups.some(g => g.id === st.sel) ? ' sel' : '');
     const attrs0 = `data-g="${main.id}" data-gs="${ids}"`;
     const S = t.slice(s.a, s.b);
+    // إخفاء التشكيل يشمل الكلمات المعلَّمة أيضاً (تبقى الكلمة مسطَّرة، والنافذة تبيّن تصحيح الحركات)
+    const sc = x => showChars(st.noHarakat ? x.replace(HARAKA_ALL, '') : x);
     const sub = statuses => E.applyEdits(S, s.list.filter(x => statuses.includes(x.g.status)).map(x => ({ start: x.e.start - s.a, end: x.e.end - s.a, repl: x.e.repl })));
     if (s.word) {
       const old = sub(['accepted']), neu = sub(['accepted', 'pending']);
       const attrs = attrs0 + ` data-src="${esc(old)}"`;
       if (pend.length) {
-        if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${showChars(neu)}</span>`;
-        return `<span class="chg wd ${cls}" ${attrs}>${old ? '<del>' + showChars(old) + '</del>' : ''}${neu ? '<ins>' + showChars(neu) + '</ins>' : ''}</span>`;
+        if (bare(old) === bare(neu)) return `<span class="chg wd marks ${cls}" ${attrs}>${sc(old)}</span>`;
+        return `<span class="chg wd ${cls}" ${attrs}>${old ? '<del>' + sc(old) + '</del>' : ''}${neu ? '<ins>' + sc(neu) + '</ins>' : ''}</span>`;
       }
-      if (acc.length) return st.hideAcc ? `<span class="plain" ${attrs}>${showChars(old)}</span>` : `<span class="done wd ${cls}" ${attrs}>${showChars(old)}</span>`;
-      return `<span class="rej ${cls}" ${attrs}>${showChars(S)}</span>`;
+      if (acc.length) return st.hideAcc ? `<span class="plain" ${attrs}>${sc(old)}</span>` : `<span class="done wd ${cls}" ${attrs}>${sc(old)}</span>`;
+      return `<span class="rej ${cls}" ${attrs}>${sc(S)}</span>`;
     }
     // punctuation and spacing between words: show exactly what changes
     return s.list.map(({ e, g }) => {
       const del = t.slice(e.start, e.end), c = 'c-' + (g.rule.cat || 'punct') + (st.sel === g.id ? ' sel' : ''), at = `data-g="${g.id}" data-gs="${g.id}" data-src="${esc(g.status === 'accepted' ? e.repl : del)}"`;
       if (g.status === 'accepted') {
-        if (st.hideAcc) return e.repl ? `<span class="plain" ${at}>${showChars(e.repl)}</span>` : '';
+        if (st.hideAcc) return e.repl ? `<span class="plain" ${at}>${sc(e.repl)}</span>` : '';
         return e.repl ? `<span class="done ${c}" ${at}>${vis(e.repl)}</span>` : `<span class="done gap ${c}" ${at}></span>`;
       }
-      if (g.status === 'rejected') return `<span class="rej ${c}" ${at}>${showChars(del)}</span>`;
+      if (g.status === 'rejected') return `<span class="rej ${c}" ${at}>${sc(del)}</span>`;
       return `<span class="chg ${c}${e.repl ? '' : ' only-del'}" ${at}>${del ? '<del>' + vis(del) + '</del>' : ''}${e.repl ? '<ins>' + vis(e.repl) + '</ins>' : ''}</span>`;
     }).join('');
   }
@@ -976,7 +983,7 @@ input[type=file] { display: none; }
     $('harakatBtn').setAttribute('aria-pressed', String(st.noHarakat));
     $('harakatBtn').textContent = st.noHarakat ? 'إظهار التشكيل' : 'إخفاء التشكيل';
     renderPage();
-    say(st.noHarakat ? 'أُخفي التشكيل من العرض فقط، وبقي في الملف. يبقى ظاهراً داخل التصحيحات والآيات.' : '');
+    say(st.noHarakat ? 'أُخفي التشكيل من العرض فقط، وبقي في الملف. يبقى ظاهراً في الآيات فقط.' : '');
   });
 
   // ---------------- clean view: accepted corrections as plain text
