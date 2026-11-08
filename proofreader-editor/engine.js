@@ -6,9 +6,10 @@
   const L = '\\u0621-\\u064A\\u066E-\\u06D3\\u06FA-\\u06FF';   // Arabic letters (no harakat)
   const H = '\\u064B-\\u065F\\u0670';                           // harakat
   const LH = L + H;
+  const D = '0-9\\u0660-\\u0669\\u06F0-\\u06F9';               // Western, Arabic-Indic and Persian digits (digits stay as the author wrote them)
   const FN = '\uE001';   // footnote / endnote reference placeholder
   const OB = '\uFFFC';   // other opaque content placeholder
-  const re = (s, f) => new RegExp(s.replace(/\{L\}/g, L).replace(/\{H\}/g, H).replace(/\{LH\}/g, LH), f || 'g');
+  const re = (s, f) => new RegExp(s.replace(/\{L\}/g, L).replace(/\{H\}/g, H).replace(/\{LH\}/g, LH).replace(/\{D\}/g, D), f || 'g');
   const fuzzy = s => [...s].map(c => (c === ' ' ? '\\s+' : c + '[' + H + ']*')).join('');
 
   // ---------------------------------------------------------------- rules
@@ -28,6 +29,8 @@
   const LEVANT = [['كانون الثاني', 'يناير'], ['شباط', 'فبراير'], ['آذار', 'مارس'], ['نيسان', 'أبريل'], ['أيار', 'مايو'], ['حزيران', 'يونيو'], ['تموز', 'يوليو'], ['آب', 'أغسطس'], ['أيلول', 'سبتمبر'], ['تشرين الأول', 'أكتوبر'], ['تشرين الثاني', 'نوفمبر'], ['كانون الأول', 'ديسمبر']];
   const GREG_ALIASES = { 'إبريل': 'أبريل', 'يونيه': 'يونيو', 'يوليه': 'يوليو' };
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
+  // نسبة إلى كلمة من حرفين (طبّ، فنّ...): لا يكفيها شرط الجذع الثلاثي، فتُذكر هنا بأسمائها
+  const NISBA_SHORT = new Set(['طبي', 'فني', 'حسي', 'كمي', 'جوي', 'بري', 'سري', 'ذري', 'خطي', 'كلي', 'ظني']);
   const WORDS = [
     ['أفريقي', 'إفريقي'], ['إيديولوج', 'أيديولوج'], ['إنثروبولوج', 'أنثروبولوج'], ['أثنولوج', 'إثنولوج'],
     ['أبستمولوج', 'إبستمولوج'], ['أنترنت', 'إنترنت'], ['ليبيرالي', 'ليبرالي'], ['مسئول', 'مسؤول']
@@ -83,7 +86,7 @@
       find: text => {
         const out = [], rx = /(?<=\s)-([ \u00A0]+)([^\-\n]{2,80}?)([ \u00A0]+)-(?=\s)/g;
         // a list such as keywords, not a parenthetical (a dash between two numbers, 1950 - 1970, does not count)
-        if ((text.match(/(?<!\d)\s[-–]\s(?!\d)/g) || []).length >= 3) return out;
+        if ((text.match(re('(?<![{D}])\\s[-–]\\s(?![{D}])')) || []).length >= 3) return out;
         let m;
         while ((m = rx.exec(text))) {
           const a = m.index + 1, b = a + m[1].length + m[2].length;
@@ -92,7 +95,7 @@
         return out;
       } },
     { id: 'dash-num', no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين.',
-      find: simple(/(?<=\d)[ \u00A0]*([-–])[ \u00A0]*(?=\d)/g, m => m[1]) },
+      find: simple(re('(?<=[{D}])[ \\u00A0]*([-–])[ \\u00A0]*(?=[{D}])'), m => m[1]) },
     { id: 'slash', no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
@@ -114,7 +117,7 @@
     { id: 'aw-quote', no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
     { id: 'year-paren', no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
-      find: simple(/(?<=(?:عام|سنة)\s)\((\d{3,4}\s?[مه]?)\)/g, m => m[1]) },
+      find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
     { id: 'ma-la', no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
@@ -148,7 +151,8 @@
           const bare = w.replace(/[\u064B-\u065F\u0670]/g, '');
           const core = bare.replace(/[ةا]$/, '').replace(/^[وف]?[بكل]?ال/, '').replace(/^[وف]?لل/, '');
           const stem = core.slice(0, -1);
-          if (stem.length < 3 || NISBA_EXCEPT.has(core)) continue;
+          const short = NISBA_SHORT.has(core) || NISBA_SHORT.has(core.replace(/^[وف]?[بكل]?/, ''));
+          if ((stem.length < 3 && !short) || NISBA_EXCEPT.has(core)) continue;
           const pos = m.index + w.length - (mm[0].length) + 1 + mm[1].length;
           out.push({ start: pos, end: pos + 1, repl: '' });
         }
@@ -171,7 +175,7 @@
         while ((m = rx.exec(text))) {
           const s = m.index, e = s + m[0].length, name = m[1].replace(/\s+/g, ' ');
           const before = text.slice(Math.max(0, s - 6), s), after = text.slice(e, e + 8);
-          if (!(/\d\s+$/.test(before) || /^\s+\d{3,4}/.test(after))) continue;   // needs a date around it
+          if (!(re('[{D}]\\s+$', '').test(before) || re('^\\s+[{D}]{3,4}', '').test(after))) continue;   // needs a date around it
           if (/\/\s*$/.test(before) || /^\s*\//.test(after)) continue;          // already paired
           if (lev.has(name)) out.push({ start: e, end: e, repl: '/ ' + lev.get(name) });
           else out.push({ start: s, end: s, repl: greg.get(name) + '/ ' });
@@ -184,14 +188,14 @@
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
       ] },
     { id: 'page', no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
-      find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=\\d)'), () => 'ص') },
+      find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
     { id: 'abbr', no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
-      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=\\d)'), m => m[1]) },
+      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
     { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
         ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
-        ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*\d)/g, () => '، ')(text)
+        ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
     { id: 'fn-space', no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
