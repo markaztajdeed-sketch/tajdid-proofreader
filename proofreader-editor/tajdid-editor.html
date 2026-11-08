@@ -449,6 +449,20 @@ input[type=file] { display: none; }
 
   // ---------------------------------------------------------------- rules
   // Each rule: id, no (guide rule number), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
+  // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
+  // unmatched «(» right after a word and before a space or punctuation
+  function flippedParens(text) {
+    const st = [], bad = [];
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === '(') st.push(i);
+      else if (text[i] === ')') { if (st.length) st.pop(); else bad.push(i); }
+    }
+    bad.push(...st);
+    const L = /[\u0621-\u064A]/;
+    return bad.filter(i => text[i] === ')'
+      ? (i === 0 || /\s/.test(text[i - 1])) && L.test(text[i + 1] || '')
+      : L.test(text[i - 1] || '') && /[\s،؛:.]/.test(text[i + 1] || ' ')).sort((a, b) => a - b);
+  }
   const simple = (rx, repl) => text => {
     const out = [];
     rx.lastIndex = 0;
@@ -503,12 +517,14 @@ input[type=file] { display: none; }
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
       ] },
+    { id: 'br-flip', no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
+      find: text => flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })) },
     { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
           ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
-        ];
+        ].filter(e => !flippedParens(text).includes(e.end)); // a reversed «)» opens: the space before it stays
         for (const [a, b] of ctx.straightPairs) {
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
           if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
@@ -705,7 +721,7 @@ input[type=file] { display: none; }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
     conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -813,6 +829,9 @@ input[type=file] { display: none; }
     const pr = pairRanges(text);
     const warnings = [];
     if (pr.unbalanced.length) warnings.push({ where: ctx.where, kind: 'unbalanced', marks: [...new Set(pr.unbalanced)].join(' '), snippet: snippet(text, 0, 0) });
+    // spelling rules leave quotations alone, but a short quoted term (up to four words, which rule 13 puts in
+    // parentheses) is the author's own wording and gets them
+    pr.longQuotes = pr.quotes.filter(([a, b]) => text.slice(a + 1, b).trim().split(/\s+/).length > 4);
     const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon };
     const accepted = [], groups = [];
     const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
@@ -830,7 +849,7 @@ input[type=file] { display: none; }
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
           if (overlaps(e.start, e.end, pr.quran)) ok = false;
-          if (rule.word && overlaps(e.start, e.end, pr.quotes)) ok = false;
+          if (rule.word && overlaps(e.start, e.end, pr.longQuotes)) ok = false;
           if (busy(e.start, e.end)) ok = false;
         }
         if (!ok) continue;
