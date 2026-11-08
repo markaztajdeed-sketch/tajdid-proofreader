@@ -321,7 +321,38 @@
     let q = -1;
     for (let i = 0; i < text.length; i++) if (text[i] === '\uFD3F' || text[i] === '\uFD3E') { if (q < 0) q = i; else { quran.push([q, i]); q = -1; } }
     if (q >= 0) unbalanced.push('﴿');
-    return { straight, quotes: ranges, quran, unbalanced };
+    // Verses written before the ornate brackets were used: {…} and ((…)) hold Quran text, and so does a quotation
+    // that follows «تعالى» (or «عزّ وجلّ»...) or is followed by a sura citation such as (البقرة: 5) or [النساء: 95].
+    const AR = /[ء-ي]/;
+    const brace = [];
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === '{') brace.push(i);
+      else if (text[i] === '}' && brace.length) { const a = brace.pop(); if (AR.test(text.slice(a, i))) quran.push([a, i]); }
+    }
+    const INTRO_RE = /(تعالى|تعالي|عز ?و ?جل|جل ?و ?علا|سبحانه)\s*[:：]?\s*$/;
+    const INTRO = { test: t => INTRO_RE.test(t.replace(/[ً-ْٰ]/g, '')) };
+    const CITE = /^\s*[،,]?\s*[\(\[]\s*(سورة\s*)?[ء-يً-ْٰٱ ]{2,30}\s*[0-9٠-٩]*\s*[:،,/-]\s*(الآية|الآيات|آية|الآيتان)?\s*[0-9٠-٩]/;
+    // ((…)) is also used for ordinary quotations, so it counts as a verse only when introduced, cited or vocalised
+    const vocalised = t => { const l = (t.match(/[\u0621-\u064A]/g) || []).length; return l >= 6 && (t.match(/[\u064B-\u0652]/g) || []).length >= l * 0.4; };
+    for (let i = text.indexOf('(('); i >= 0; i = text.indexOf('((', i + 2)) {
+      const j = text.indexOf('))', i + 2);
+      if (j < 0) break;
+      const body = text.slice(i + 2, j);
+      if (AR.test(body) && (vocalised(body) || INTRO.test(text.slice(Math.max(0, i - 30), i)) || CITE.test(text.slice(j + 2, j + 52)))) quran.push([i, j + 1]);
+      i = j;
+    }
+    for (const [a, b] of ranges) {
+      if (!AR.test(text.slice(a, b))) continue;
+      if (INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50))) quran.push([a, b]);
+    }
+    // a stray straight quote earlier in the paragraph shifts the pairing, so also read each verse from its own marks
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] !== '"') continue;
+      if (INTRO.test(text.slice(Math.max(0, i - 30), i))) { const j = text.indexOf('"', i + 1); if (j > i && AR.test(text.slice(i, j))) quran.push([i, j]); }
+      if (CITE.test(text.slice(i + 1, i + 50))) { const a = text.lastIndexOf('"', i - 1); if (a >= 0 && i - a < 600 && AR.test(text.slice(a, i))) quran.push([a, i]); }
+    }
+    const seen = new Set();
+    return { straight, quotes: ranges, quran: quran.filter(r => !seen.has(r + '') && seen.add(r + '')).sort((x, y) => x[0] - y[0]), unbalanced };
   }
 
   const overlaps = (s, e, ranges) => ranges.some(([a, b]) => (e > s ? s <= b && e - 1 >= a : s > a && s <= b));
@@ -458,13 +489,39 @@
   async function exportDocx(JSZip, buf, decide, opts, xml) {
     const zip = await JSZip.loadAsync(buf);
     const ctx = { opts, nextId: 880000, date: new Date().toISOString().replace(/\.\d+Z$/, 'Z') };
+    // edits that carry a `note` (text) get a Word comment, unless this is the clean copy
+    if (!opts.clean && opts.comments !== false) ctx.comments = await commentsPart(zip, xml);
+    let changed = 0;
     const docs = await walk(zip, xml, (p, key) => {
       const rp = readParagraph(p);
       if (!rp) return;
       const edits = decide(key, rp.text);
-      if (edits && edits.length) rebuild(p, rp.segs, rp.text, edits, ctx);
+      if (!edits || !edits.length) return;
+      let n = p.parentNode;
+      while (n && n.nodeType === 1 && !isW(n, 'footnote') && !isW(n, 'endnote')) n = n.parentNode;
+      ctx.inNote = n && n.nodeType === 1 ? n.localName + ':' + n.getAttributeNS(W, 'id') : null;
+      rebuild(p, rp.segs, rp.text, edits, ctx); changed++;
     });
+    if (ctx.comments && ctx.comments.notes.size) {
+      const body = docs.find(d => d[0] === 'word/document.xml');
+      if (body) for (const ref of [...Array.from(body[1].getElementsByTagNameNS(W, 'footnoteReference')), ...Array.from(body[1].getElementsByTagNameNS(W, 'endnoteReference'))]) {
+        const k = ref.localName.replace('Reference', '') + ':' + ref.getAttributeNS(W, 'id');
+        const list = ctx.comments.notes.get(k);
+        const r = ref.parentNode, p = r && r.parentNode;
+        if (!list || !p || !isW(r, 'r')) continue;
+        ctx.comments.notes.delete(k);
+        const count = new Map(); list.forEach(t => count.set(t, (count.get(t) || 0) + 1));
+        const txt = 'تصحيحات في هذا الهامش:\n' + [...count].map(([t, c]) => '• ' + t.replace('\n', ' — ') + (c > 1 ? ' (' + c + ' مرات)' : '')).join('\n');
+        const doc = body[1], el = nm => doc.createElementNS(W, 'w:' + nm), id = String(ctx.comments.next++);
+        const a = el('commentRangeStart'), b = el('commentRangeEnd'), cr = el('r'), rf = el('commentReference');
+        a.setAttributeNS(W, 'w:id', id); b.setAttributeNS(W, 'w:id', id); rf.setAttributeNS(W, 'w:id', id); cr.appendChild(rf);
+        p.insertBefore(a, r); p.insertBefore(b, r.nextSibling); p.insertBefore(cr, b.nextSibling);
+        ctx.comments.list.push([id, txt]);
+      }
+    }
     for (const [path, doc] of docs) zip.file(path, xml.serialize(doc));
+    if (ctx.comments) await writeComments(zip, xml, ctx.comments, ctx.date);
+    if (!opts.clean && changed) await trackRevisions(zip, xml);
     return zip.generateAsync({ type: opts.outType || 'uint8array', compression: 'DEFLATE', mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
   }
 
@@ -484,7 +541,7 @@
     const delAt = new Array(text.length).fill(null);
     const insAt = new Map();
     for (const e of edits) {
-      for (let i = e.start; i < e.end; i++) delAt[i] = e.rule;
+      for (let i = e.start; i < e.end; i++) delAt[i] = e;
       if (e.repl) { if (!insAt.has(e.start)) insAt.set(e.start, []); insAt.get(e.start).push(e); }
     }
     const textSegs = segs.filter(s => s.kind === 'text' && s.text.length);
@@ -514,8 +571,11 @@
     };
     const insNodes = (rPr, list) => list.map(e => {
       if (ctx.opts.clean) return run(rPr, e.repl, 't');
-      const m = mark('ins', e.rule); m.appendChild(run(rPr, e.repl, 't')); return m;
+      const m = mark('ins', e.rule); m.appendChild(run(rPr, e.repl, 't')); note(e, m); return m;
     });
+    // nodes of each commented correction, so the comment can span them once the paragraph is rebuilt
+    const noted = new Map();
+    const note = (e, n) => { if (e.note && ctx.comments) { if (!noted.has(e.note)) noted.set(e.note, []); noted.get(e.note).push(n); } };
     const rPrOf = seg => seg && kids(seg.node).find(c => isW(c, 'rPr'));
     let prevText = null;
     for (const seg of segs) {
@@ -534,12 +594,12 @@
       let i = seg.start;
       while (i < end) {
         if (mine(i)) nodes.push(...insNodes(rPr, insAt.get(i)));
-        const rule = delAt[i];
+        const de = delAt[i];
         let j = i + 1;
-        while (j < end && delAt[j] === rule && !mine(j)) j++;
+        while (j < end && delAt[j] === de && !mine(j)) j++;
         const str = text.slice(i, j);
-        if (rule === null) nodes.push(run(rPr, str, 't'));
-        else if (!ctx.opts.clean) { const m = mark('del', rule); m.appendChild(run(rPr, str, 'delText')); nodes.push(m); }
+        if (de === null) nodes.push(run(rPr, str, 't'));
+        else if (!ctx.opts.clean) { const m = mark('del', de.rule); m.appendChild(run(rPr, str, 'delText')); note(de, m); nodes.push(m); }
         i = j;
       }
       if (mine(end)) nodes.push(...insNodes(rPr, insAt.get(end)));
@@ -548,6 +608,99 @@
     }
     const tail = text.length;
     if (insAt.has(tail) && owner.get(tail) === null) insNodes(rPrOf(prevText), insAt.get(tail)).forEach(n => p.appendChild(n));
+    // one Word comment per correction, spanning its insertions and deletions
+    // in a footnote the explanations are collected and shown on the note's reference mark in the text instead
+    // (LibreOffice cannot open a file with comments inside footnotes)
+    if (noted.size && ctx.inNote) {
+      const k = ctx.inNote;
+      if (!ctx.comments.notes.has(k)) ctx.comments.notes.set(k, []);
+      ctx.comments.notes.get(k).push(...noted.keys());
+    } else if (noted.size) {
+      const order = new Map(Array.from(p.childNodes).map((n, i) => [n, i]));
+      for (const [txt, nodes] of noted) {
+        nodes.sort((a, b) => order.get(a) - order.get(b));
+        const id = String(ctx.comments.next++);
+        const a = el('commentRangeStart'); a.setAttributeNS(W, 'w:id', id);
+        const b = el('commentRangeEnd'); b.setAttributeNS(W, 'w:id', id);
+        const r = el('r'), ref = el('commentReference'); ref.setAttributeNS(W, 'w:id', id); r.appendChild(ref);
+        const last = nodes[nodes.length - 1];
+        p.insertBefore(a, nodes[0]);
+        p.insertBefore(b, last.nextSibling); p.insertBefore(r, b.nextSibling);
+        ctx.comments.list.push([id, txt]);
+      }
+    }
+  }
+
+  // Word comments part: create or extend word/comments.xml and register it
+  const COMMENTS_CT = 'application/vnd.openxmlformats-officedocument.wordprocessingml.comments+xml';
+  const COMMENTS_REL = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments';
+  async function commentsPart(zip, xml) {
+    const relsF = zip.file('word/_rels/document.xml.rels');
+    const rels = relsF ? xml.parse(await relsF.async('string')) : null;
+    let target = 'comments.xml';
+    if (rels) for (const r of Array.from(rels.documentElement.childNodes)) if (r.nodeType === 1 && r.getAttribute('Type') === COMMENTS_REL) target = r.getAttribute('Target').replace(/^\/?word\//, '');
+    const path = 'word/' + target;
+    const f = zip.file(path);
+    const doc = f ? xml.parse(await f.async('string')) : xml.parse('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:comments xmlns:w="' + W + '"/>');
+    let max = 0;
+    for (const c of Array.from(doc.getElementsByTagNameNS(W, 'comment'))) max = Math.max(max, +c.getAttributeNS(W, 'id') || 0);
+    return { path, doc, rels, existed: !!f, next: max + 1, list: [], notes: new Map() };
+  }
+  async function writeComments(zip, xml, cm, date) {
+    if (!cm.list.length) return;
+    const doc = cm.doc, el = n => doc.createElementNS(W, 'w:' + n);
+    for (const [id, txt] of cm.list) {
+      const c = el('comment');
+      c.setAttributeNS(W, 'w:id', id); c.setAttributeNS(W, 'w:author', 'التدقيق اللغوي'); c.setAttributeNS(W, 'w:date', date); c.setAttributeNS(W, 'w:initials', 'ت');
+      txt.split('\n').forEach(line => {
+        const p = el('p'), pPr = el('pPr'), r = el('r'), rPr = el('rPr'), t = el('t');
+        pPr.appendChild(el('bidi')); p.appendChild(pPr);
+        rPr.appendChild(el('rtl')); r.appendChild(rPr);
+        t.setAttributeNS(XMLNS, 'xml:space', 'preserve'); t.appendChild(doc.createTextNode(line)); r.appendChild(t); p.appendChild(r);
+        c.appendChild(p);
+      });
+      doc.documentElement.appendChild(c);
+    }
+    zip.file(cm.path, xml.serialize(doc), { createFolders: false }); // folder entries make LibreOffice refuse the file
+    if (cm.existed) return;
+    if (cm.rels) {
+      const ids = new Set(Array.from(cm.rels.getElementsByTagName('Relationship')).map(r => r.getAttribute('Id')));
+      let n = 1; while (ids.has('rIdTajdidC' + n)) n++;
+      const r = cm.rels.createElementNS(cm.rels.documentElement.namespaceURI, 'Relationship');
+      r.setAttribute('Id', 'rIdTajdidC' + n); r.setAttribute('Type', COMMENTS_REL); r.setAttribute('Target', cm.path.slice(5));
+      cm.rels.documentElement.appendChild(r);
+      zip.file('word/_rels/document.xml.rels', xml.serialize(cm.rels));
+    }
+    const ctF = zip.file('[Content_Types].xml');
+    if (ctF) {
+      const ct = xml.parse(await ctF.async('string'));
+      const has = Array.from(ct.getElementsByTagName('Override')).some(o => o.getAttribute('PartName') === '/' + cm.path);
+      if (!has) {
+        const o = ct.createElementNS(ct.documentElement.namespaceURI, 'Override');
+        o.setAttribute('PartName', '/' + cm.path); o.setAttribute('ContentType', COMMENTS_CT);
+        ct.documentElement.appendChild(o);
+        zip.file('[Content_Types].xml', xml.serialize(ct));
+      }
+    }
+  }
+
+  // Switch on "Track Changes" in the exported file, so the proofreader's further edits in Word are tracked too.
+  // CT_Settings is an ordered sequence: trackRevisions goes right after the last of these if present.
+  const SETTINGS_BEFORE = ['writeProtection', 'view', 'zoom', 'removePersonalInformation', 'removeDateAndTime', 'doNotDisplayPageBoundaries',
+    'displayBackgroundShape', 'printPostScriptOverText', 'printFractionalCharacterWidth', 'printFormsData', 'embedTrueTypeFonts', 'embedSystemFonts',
+    'saveSubsetFonts', 'saveFormsData', 'mirrorMargins', 'alignBordersAndEdges', 'bordersDoNotSurroundHeader', 'bordersDoNotSurroundFooter',
+    'gutterAtTop', 'hideSpellingErrors', 'hideGrammaticalErrors', 'activeWritingStyle', 'proofState', 'formsDesign', 'attachedTemplate', 'linkStyles',
+    'stylePaneFormatFilter', 'stylePaneSortMethod', 'documentType', 'mailMerge', 'revisionView'];
+  async function trackRevisions(zip, xml) {
+    const f = zip.file('word/settings.xml');
+    if (!f) return;
+    const doc = xml.parse(await f.async('string')), root = doc.documentElement;
+    if (doc.getElementsByTagNameNS(W, 'trackRevisions').length) return;
+    let after = null;
+    for (const c of kids(root)) if (c.namespaceURI === W && SETTINGS_BEFORE.includes(c.localName)) after = c;
+    const t = doc.createElementNS(W, 'w:trackRevisions');
+    root.insertBefore(t, after ? after.nextSibling : root.firstChild);
+    zip.file('word/settings.xml', xml.serialize(doc));
   }
 
   // ---------------------------------------------------------------- docx entry
