@@ -1028,13 +1028,18 @@ input[type=file] { display: none; }
       const mine = pos => insAt.has(pos) && owner.get(pos) === seg;
       let i = seg.start;
       while (i < end) {
-        if (mine(i)) nodes.push(...insNodes(rPr, insAt.get(i)));
         const de = delAt[i];
+        // a replacement is written as Word writes it, deletion first and then insertion
+        // (the other order makes LibreOffice hang on some right-to-left paragraphs)
+        const here = mine(i) ? insAt.get(i) : [];
+        const after = here.filter(e => e === de);
+        nodes.push(...insNodes(rPr, here.filter(e => e !== de)));
         let j = i + 1;
         while (j < end && delAt[j] === de && !mine(j)) j++;
         const str = text.slice(i, j);
         if (de === null) nodes.push(run(rPr, str, 't'));
         else if (!ctx.opts.clean) { const m = mark('del', de.rule); m.appendChild(run(rPr, str, 'delText')); note(de, m); nodes.push(m); }
+        if (after.length) nodes.push(...insNodes(rPr, after));
         i = j;
       }
       if (mine(end)) nodes.push(...insNodes(rPr, insAt.get(end)));
