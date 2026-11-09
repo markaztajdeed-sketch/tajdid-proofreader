@@ -394,11 +394,12 @@
     if (open >= 0) unbalanced.push('"');
     const pairs = [['«', '»'], ['“', '”'], ['(', ')'], ['[', ']']];
     const quran = [];
+    const brackets = [];
     for (const [o, c] of pairs) {
       const st = [];
       for (let i = 0; i < text.length; i++) {
         if (text[i] === o) st.push(i);
-        else if (text[i] === c) { if (st.length) { const a = st.pop(); if (o !== '(' && o !== '[') ranges.push([a, i]); } else unbalanced.push(c); }
+        else if (text[i] === c) { if (st.length) { const a = st.pop(); if (o !== '(' && o !== '[') ranges.push([a, i]); else brackets.push([a, i]); } else unbalanced.push(c); }
       }
       if (st.length) unbalanced.push(o);
     }
@@ -426,9 +427,18 @@
       if (AR.test(body) && (vocalised(body) || INTRO.test(text.slice(Math.max(0, i - 30), i)) || CITE.test(text.slice(j + 2, j + 52)))) quran.push([i, j + 1]);
       i = j;
     }
+    // fully vocalised text in (…), […] or quotes is a verse (or a hadith or verse of poetry) written with its marks,
+    // e.g. (الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ): the marks are the author's, so the engine must not touch them
+    const vocalisedPhrase = t => /\S\s+\S/.test(t.trim()) && vocalised(t);
+    for (const [a, b] of brackets) {
+      const body = text.slice(a + 1, b);
+      if (AR.test(body) && (vocalisedPhrase(body) || INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50)))) quran.push([a, b]);
+    }
     for (const [a, b] of ranges) {
       if (!AR.test(text.slice(a, b))) continue;
-      if (INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50))) quran.push([a, b]);
+      if (vocalisedPhrase(text.slice(a + 1, b))) { quran.push([a, b]); continue; }
+      // Uthmani Quranic marks (ۡ ۖ ۚ ...) appear only in verses copied from a mushaf
+      if (INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50)) || /[\u06D6-\u06ED]/.test(text.slice(a, b))) quran.push([a, b]);
     }
     // a stray straight quote earlier in the paragraph shifts the pairing, so also read each verse from its own marks
     for (let i = 0; i < text.length; i++) {
@@ -440,6 +450,14 @@
     return { straight, quotes: ranges, quran: quran.filter(r => !seen.has(r + '') && seen.add(r + '')).sort((x, y) => x[0] - y[0]), unbalanced };
   }
 
+  // an edit that removes all the space between a verse's brackets and the text around it («تعالى: "…"» → «تعالى:"…"»);
+  // this happens when a stray straight quote shifts the pairing and the space looks like it sits inside quotes
+  const WS = c => c === ' ' || c === '\u00A0';
+  const gluesVerse = (text, e, ranges) => e.end > e.start && !e.repl.trim() && ranges.some(([a, b]) => {
+    let k = a; while (k > 0 && WS(text[k - 1])) k--;
+    let m = b + 1; while (m < text.length && WS(text[m])) m++;
+    return (k < a && e.start <= k && e.end >= a) || (m > b + 1 && e.start <= b + 1 && e.end >= m);
+  });
   const overlaps = (s, e, ranges) => ranges.some(([a, b]) => (e > s ? s <= b && e - 1 >= a : s > a && s <= b));
 
   // ---------------------------------------------------------------- paragraph processing
@@ -482,7 +500,7 @@
         for (const e of group) {
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
-          if (overlaps(e.start, e.end, pr.quran)) ok = false;
+          if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
           if (rule.word && overlaps(e.start, e.end, pr.longQuotes)) ok = false;
           if (busy(e.start, e.end)) ok = false;
         }
