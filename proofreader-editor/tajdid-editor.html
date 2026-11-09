@@ -666,10 +666,6 @@ input[type=file] { display: none; }
         ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text),
         ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text)
       ] },
-    { id: 'masdar-alif', no: 0, label: 'قاعدة إملائية', name: 'ألف مصدر افتعل واستفعل', word: true, why: 'التنوين لا يدخل الفعل، فالكلمة مصدر وتُكتب بالألف قبل آخرها: اكتشافاً، استخداماً (لا: اكتشفاً، استخدماً).',
-      // only with the tanween: without it «اكتشفا» is a dual verb
-      find: simple(re('(?<![{LH}])([وفبل]?(?:[اإ][\u0621-\u0626\u0628-\u064A][تطد][\u0621-\u0626\u0628-\u064A]|[اإ]ست[\u0621-\u0626\u0628-\u064A]{2}))([\u0621-\u0626\u0628-\u064A])(?=(?:ا\u064B|\u064Bا)(?![{LH}]))'),
-        m => m[1] + 'ا' + m[2]) },
     { id: 'months', no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
       find: text => {
         const out = [];
@@ -781,7 +777,7 @@ input[type=file] { display: none; }
   ];
 
   const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
-    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'masdar-alif', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
+    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
     conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
