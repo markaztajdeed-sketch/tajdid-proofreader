@@ -133,15 +133,40 @@
         }
         return out;
       } },
-    { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين.',
+    { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
       find: text => {
-        const out = [], rx = /(?<=\s)-([ \u00A0]+)([^\-\n]{2,80}?)([ \u00A0]+)-(?=\s)/g;
-        // a list such as keywords, not a parenthetical (a dash between two numbers, 1950 - 1970, does not count)
-        if ((text.match(re('(?<![{D}])\\s[-–]\\s(?![{D}])')) || []).length >= 3) return out;
-        let m;
-        while ((m = rx.exec(text))) {
-          const a = m.index + 1, b = a + m[1].length + m[2].length;
-          out.push({ group: [{ start: a, end: a + m[1].length, repl: '' }, { start: b, end: b + m[3].length, repl: '' }] });
+        const out = [];
+        // dashes (- – —) with a space on at least one side and not between two digits or at the paragraph edge
+        const cand = [];
+        for (let i = 1; i < text.length - 1; i++) {
+          if (!/[-–—]/.test(text[i])) continue;
+          const sl = /[  ]/.test(text[i - 1]), sr = /[  ]/.test(text[i + 1]);
+          if (!sl && !sr) continue;                                   // a hyphen inside a word
+          if (re('[{D}]').test(text[i - 1] + text[i + 1])) continue;          // a range glued to a number: 1918- نهاية
+          if (re('[{D}]').test(text.slice(0, i).trimEnd().slice(-1)) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970
+          if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
+          if (/[-–—]/.test(text[i - 1] + text[i + 1]) || /[-–—][  ]*$/.test(text.slice(0, i)) && /[-–—]/.test(text.slice(Math.max(0, i - 3), i))) continue;
+          cand.push(i);
+        }
+        if (cand.length % 2) return out;                              // an odd count: not clear which dashes pair up
+        // a list such as keywords (أ - ب - ج - د): every piece between the dashes is short
+        const segs = cand.slice(0, -1).map((c, k) => text.slice(c + 1, cand[k + 1]).trim().split(/\s+/).length);
+        if (cand.length >= 3 && segs.every(n => n <= 3)) return out;
+        for (let k = 0; k < cand.length; k += 2) {
+          const a = cand[k], b = cand[k + 1], inner = text.slice(a + 1, b).trim();
+          if (inner.length < 2 || inner.length > 120 || /[\n.؟!]/.test(inner)) continue;
+          if (!re('[{L}]').test(inner) || /[A-Za-z]/.test(inner) && (inner.match(/[A-Za-z]/g).length * 2 > inner.replace(/\s/g, '').length)) continue; // Latin text
+          if (/[:.؛!؟]\s*$/.test(text.slice(0, a)) || /:$/.test(inner)) continue;      // a list dash after a full stop or colon
+          if (!/\s/.test(inner) && !/[ \u00A0]/.test(text[a - 1])) continue;        // للوجود- في- العالم
+          let a0 = a; while (a0 > 0 && /[  ]/.test(text[a0 - 1])) a0--;
+          let a1 = a + 1; while (/[  ]/.test(text[a1])) a1++;
+          let b0 = b; while (/[  ]/.test(text[b0 - 1])) b0--;
+          let b1 = b + 1; while (b1 < text.length && /[  ]/.test(text[b1])) b1++;
+          const prev = text[a0 - 1] || '', next = text[b1] || '';
+          const ra = (a0 > 0 && !/[(\[«“]/.test(prev) ? ' ' : '') + '-';
+          const rb = '-' + (b1 < text.length && !/[،,.؛;:!؟?)\]»”]/.test(next) ? ' ' : '');
+          if (text.slice(a0, a1) === ra && text.slice(b0, b1) === rb) continue;
+          out.push({ group: [{ start: a0, end: a1, repl: ra }, { start: b0, end: b1, repl: rb }] });
         }
         return out;
       } },
