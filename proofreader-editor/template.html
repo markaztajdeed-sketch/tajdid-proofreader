@@ -55,6 +55,17 @@ select, .chk { border: 1px solid var(--line); background: var(--surface); border
 .btn[disabled] { opacity: .45; cursor: default; }
 .btn.primary { background: var(--primary); color: #FFFFFF; border-color: var(--primary); font-weight: 600; }
 .btn.primary:hover { filter: brightness(1.08); }
+.split { position: relative; display: inline-flex; }
+.split .split-main { border-start-end-radius: 0; border-end-end-radius: 0; }
+.split .split-arrow { border-start-start-radius: 0; border-end-start-radius: 0; padding: 6px 7px; border-inline-start: 1px solid rgba(255,255,255,.35); }
+.split .split-arrow svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.split-menu { position: absolute; top: calc(100% + 4px); inset-inline-end: 0; z-index: 50; min-width: 270px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); padding: 4px; }
+.split-menu[hidden] { display: none; }
+.split-menu button { display: block; width: 100%; text-align: start; background: none; border: 0; border-radius: 6px; padding: 8px 10px; color: var(--ink); cursor: pointer; }
+.split-menu button:hover { background: var(--sunken); }
+.split-menu b { display: flex; align-items: center; gap: 6px; font-weight: 600; }
+.split-menu small { display: block; color: var(--muted); margin-top: 2px; white-space: normal; }
+.split-menu .def { font-size: 11px; font-weight: 500; color: var(--accent); border: 1px solid currentColor; border-radius: 10px; padding: 0 6px; }
 .sep { width: 1px; align-self: stretch; background: var(--line); }
 
 /* main */
@@ -345,8 +356,14 @@ input[type=file] { display: none; }
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
       <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعلّم التصحيحات المقبولة بخط أخضر لتتبّعها">إظهار المقبول</button>
       <span class="sep"></span>
-      <button class="btn primary" id="expTracked" type="button">تصدير وورد بالتعديلات</button>
-      <button class="btn" id="expClean" type="button">نسخة نظيفة</button>
+      <div class="split" id="expSplit">
+        <button class="btn primary split-main" id="expMain" type="button" title="نسخة نظيفة: التصحيحات المقبولة مطبّقة، بلا تتبّع تعديلات ولا تعليقات">تصدير وورد</button>
+        <button class="btn primary split-arrow" id="expArrow" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="خيارات التصدير"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="split-menu" id="expMenu" role="menu" hidden>
+          <button type="button" role="menuitem" data-exp="clean"><b>نسخة نظيفة <span class="def">الافتراضي</span></b><small>التصحيحات المقبولة مطبّقة، بلا تتبّع ولا تعليقات</small></button>
+          <button type="button" role="menuitem" data-exp="tracked"><b>مع تتبّع التعديلات</b><small>كل تصحيح مقبول متتبَّع مع تعليق يشرح قاعدته</small></button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -979,8 +996,17 @@ input[type=file] { display: none; }
   $('showPending').addEventListener('click', () => { st.show = 'pending'; $('showPending').setAttribute('aria-pressed', 'true'); $('showAll').setAttribute('aria-pressed', 'false'); renderCards(); });
   $('showAll').addEventListener('click', () => { st.show = 'all'; $('showAll').setAttribute('aria-pressed', 'true'); $('showPending').setAttribute('aria-pressed', 'false'); renderCards(); });
   $('checkBtn').addEventListener('click', recheck);
-  $('expTracked').addEventListener('click', () => exportDoc(false));
-  $('expClean').addEventListener('click', () => exportDoc(true));
+  // export split button: the main part gives the clean copy; the arrow opens the choice of clean or tracked
+  const expMenu = $('expMenu');
+  const expMenuShow = open => { expMenu.hidden = !open; $('expArrow').setAttribute('aria-expanded', String(open)); };
+  $('expMain').addEventListener('click', () => { expMenuShow(false); exportDoc(true); });
+  $('expArrow').addEventListener('click', () => expMenuShow(expMenu.hidden));
+  expMenu.addEventListener('click', ev => {
+    const b = ev.target.closest('[data-exp]'); if (!b) return;
+    expMenuShow(false); exportDoc(b.dataset.exp === 'clean');
+  });
+  document.addEventListener('mousedown', ev => { if (!expMenu.hidden && !$('expSplit').contains(ev.target)) expMenuShow(false); });
+  document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !expMenu.hidden) expMenuShow(false); });
   $('warnBtn').addEventListener('click', () => {
     const w = st.paras.filter(p => p.warnings.length); if (!w.length) return;
     const p = w[st.warnAt++ % w.length];
