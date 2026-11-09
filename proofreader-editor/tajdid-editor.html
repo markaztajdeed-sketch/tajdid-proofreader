@@ -846,11 +846,12 @@ input[type=file] { display: none; }
     if (open >= 0) unbalanced.push('"');
     const pairs = [['«', '»'], ['“', '”'], ['(', ')'], ['[', ']']];
     const quran = [];
+    const brackets = [];
     for (const [o, c] of pairs) {
       const st = [];
       for (let i = 0; i < text.length; i++) {
         if (text[i] === o) st.push(i);
-        else if (text[i] === c) { if (st.length) { const a = st.pop(); if (o !== '(' && o !== '[') ranges.push([a, i]); } else unbalanced.push(c); }
+        else if (text[i] === c) { if (st.length) { const a = st.pop(); if (o !== '(' && o !== '[') ranges.push([a, i]); else brackets.push([a, i]); } else unbalanced.push(c); }
       }
       if (st.length) unbalanced.push(o);
     }
@@ -878,8 +879,16 @@ input[type=file] { display: none; }
       if (AR.test(body) && (vocalised(body) || INTRO.test(text.slice(Math.max(0, i - 30), i)) || CITE.test(text.slice(j + 2, j + 52)))) quran.push([i, j + 1]);
       i = j;
     }
+    // fully vocalised text in (…), […] or quotes is a verse (or a hadith or verse of poetry) written with its marks,
+    // e.g. (الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ): the marks are the author's, so the engine must not touch them
+    const vocalisedPhrase = t => /\S\s+\S/.test(t.trim()) && vocalised(t);
+    for (const [a, b] of brackets) {
+      const body = text.slice(a + 1, b);
+      if (AR.test(body) && (vocalisedPhrase(body) || INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50)))) quran.push([a, b]);
+    }
     for (const [a, b] of ranges) {
       if (!AR.test(text.slice(a, b))) continue;
+      if (vocalisedPhrase(text.slice(a + 1, b))) { quran.push([a, b]); continue; }
       // Uthmani Quranic marks (ۡ ۖ ۚ ...) appear only in verses copied from a mushaf
       if (INTRO.test(text.slice(Math.max(0, a - 30), a)) || CITE.test(text.slice(b + 1, b + 50)) || /[\u06D6-\u06ED]/.test(text.slice(a, b))) quran.push([a, b]);
     }
