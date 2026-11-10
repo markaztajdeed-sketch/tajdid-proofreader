@@ -13,7 +13,7 @@
   const fuzzy = s => [...s].map(c => (c === ' ' ? '\\s+' : c + '[' + H + ']*')).join('');
 
   // ---------------------------------------------------------------- rules
-  // Each rule: id, no (guide rule number), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
+  // Each rule: id, no (guide rule number), auto (a purely mechanical fix, applied without asking unless switched to manual), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
   // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
   // unmatched «(» right after a word and before a space or punctuation
   function unmatchedParens(text) {
@@ -86,7 +86,7 @@
   const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
 
   const RULES = [
-    { id: 'title-ad', no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
+    { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
       find: text => {
         const out = [];
         for (const m of text.matchAll(re('(?<![{LH}])[وف]?أ\\.([ \\u00A0]*)(?:م\\.([ \\u00A0]*))?د\\.'))) {
@@ -101,14 +101,14 @@
         }
         return out;
       } },
-    { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
+    { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
-    { id: 'sp-after', no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
+    { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
       find: text => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
         ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
       ] },
-    { id: 'semicolon', no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
+    { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
@@ -119,7 +119,7 @@
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
-    { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
+    { id: 'br-inner', auto: true, no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
@@ -170,11 +170,14 @@
         }
         return out;
       } },
-    { id: 'dash-num', no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين.',
-      find: simple(re('(?<=[{D}])[ \\u00A0]*([-–])[ \\u00A0]*(?=[{D}])'), m => m[1]) },
-    { id: 'slash', no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
+    { id: 'dash-num', auto: true, no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين، وتُكتب الشرطة قصيرة (-): 2015-2017.',
+      find: simple(re('(?<=[{D}])[ \\u00A0]*[-–—][ \\u00A0]*(?=[{D}])'), () => '-') },
+    // قرار المركز (10 تشرين الثاني/ نوفمبر 2026): الشرطة موحّدة قصيرة (-)، فتُستبدل بها الطويلة (– أو —) الملتصقة بكلمتين
+    { id: 'dash-short', auto: true, no: 8, name: 'الشرطة بين كلمتين', why: 'تُكتب الشرطة بين كلمتين قصيرة (-) دون مسافة: الاجتماعية-السياسية.',
+      find: simple(re('(?<=[{L}][{H}]*)[–—](?=[{L}])'), () => '-') },
+    { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
-    { id: 'sp-double', no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
+    { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
       find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
     { id: 'dot-out', no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
@@ -263,9 +266,9 @@
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
       ] },
-    { id: 'page', no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
+    { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
-    { id: 'abbr', no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
+    { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
     { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
@@ -273,7 +276,7 @@
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
-    { id: 'fn-space', no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
+    { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
         const out = simple(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'), () => '')(text);
         const rx = new RegExp('\\.(' + FN + '+)', 'g');
@@ -300,10 +303,24 @@
     { id: 'inna', no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
-    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
+    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, quotes: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
       find: text => {
         const out = [];
-        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(text))) { const p = posOf(m); out.push({ start: p, end: p, repl: '\u0651' }); } };
+        // match on the text without harakat except the tanween (so «وإن كلّ» or «أن الإنسانَ» still match), then map back;
+        //  a letter that already has a shadda in the original is left alone
+        const map = [], st = [];
+        for (let i = 0; i < text.length; i++) if (!/[\u064E-\u065F\u0670\u0640]/.test(text[i])) { map.push(i); st.push(text[i]); }
+        const plain = st.join('');
+        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(plain))) {
+          const k = posOf(m); if (k < 1) continue;
+          const p = map[k - 1] + 1, end = k < map.length ? map[k] : text.length;
+          if (/[\u0651\u0652]/.test(text.slice(p, end))) continue;          // a shadda or a sukun is already there (وإنْ في)
+          // a shadda put on a neighbouring letter (إلاّ، لأّنه، مّما): do not add a second one
+          let ws = p; while (ws > 0 && re('[{LH}\u0640]', '').test(text[ws - 1])) ws--;
+          let ne = end + 1; while (ne < text.length && /[\u064B-\u065F\u0670]/.test(text[ne])) ne++;
+          if (text.slice(ws, ne).includes('\u0651')) continue;
+          if (/^[ \u00A0]+من[\u064B-\u0650]*\u0651/.test(text.slice(p))) continue;   // «إنْ منّ الله» (a verb)
+          out.push({ start: p, end: p, repl: '\u0651' }); } };
         // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/لكنّ/كأنّ before a definite noun
@@ -313,8 +330,10 @@
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/كأنّ before a word that cannot be a verb (the light أنْ/إنْ is followed by a verb): one with
         //  a tanween (إنّ عدداً) or a final ة (أنّ دراسةً)، one that starts with م and has no verb ending (فإنّ موقف; not «وإنْ مرضن») or has the shape
-        //  تفعيل (فإنّ تنظيم); again not before a later «إلا/لما» in the clause
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}])(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
+        //  تفعيل (فإنّ تنظيم، فإنّ تصنيفه), one ending in اء (أنّ ثراء), the shapes فُعول (أنّ شيوع) and فواعل
+        //  (بأنّ فوائده), لل+noun (أنّ للإنسان), plurals in ات, and the masdar/plural shapes افتعال، انفعال،
+        //  استفعال، إفعال، فِعال، فعيل، أفعال (أنّ ارتباط، أنّ أخلاقه), فوعل (إنّ جوهر); again not before a later «إلا/لما» in the clause
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?!أ[{L}]اء(?![{LH}])|است|[يتن])[{L}]{2,}اء|(?![يتنأا])[{L}][^\sا{H}]و[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]وا[{L}]{2}(?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]و[^\sاوي{H}][^\sاويهك{H}]|لل[{L}]{2,}|(?![يتن])[{L}]{3,}ات|ا[^\sاوي{H}]ت[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ان[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|است[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|إ[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ي(?:[^\sاويتن{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ت(?:ه|ها|هم|هما|هن|نا|كم))|أ[^\sاوي{H}](?![تدط])[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
         // إنّما، أنّما، كأنّما
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=ما(?![{LH}]))', 'g'), m => m.index + m[0].length);
         // كلّ (with prefixes and pronouns)
@@ -355,7 +374,7 @@
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
     conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -501,7 +520,7 @@
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
-          if (rule.word && overlaps(e.start, e.end, pr.longQuotes)) ok = false;
+          if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
           if (busy(e.start, e.end)) ok = false;
         }
         if (!ok) continue;

@@ -179,6 +179,12 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side-title small { color: var(--muted); font-variant-numeric: tabular-nums; }
 .sum { display: grid; gap: 2px; }
 .sum-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; }
+.auto-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; padding: 6px 8px; border-radius: 6px; background: var(--sunken); border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.auto-row span { flex: 1; min-width: 0; }
+.auto-row b { color: var(--ink); }
+.auto-row.on { border-color: var(--accent); }
+.side-closed .auto-row { display: none; }
+.auto-tag { font-size: 10.5px; padding: 0 6px; margin-inline-start: 4px; }
 .sum-row .pick { flex: 1; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 0; text-align: start; }
 .sum-row .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
 .sum-row b { font-variant-numeric: tabular-nums; font-weight: 600; margin-inline-start: auto; }
@@ -235,14 +241,10 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 input[type=file] { display: none; }
 .btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
 
-/* checking options dialog */
-.opts { width: min(980px, calc(100vw - 48px)); max-height: calc(100vh - 64px); border: 1px solid var(--line); border-radius: 10px; padding: 0;
-  background: var(--surface); color: var(--ink); direction: rtl; font-family: var(--ui); box-shadow: 0 16px 48px rgba(0,0,0,.25); }
-.opts::backdrop { background: rgba(10,14,13,.45); }
-.opts-h { position: sticky; top: 0; background: var(--surface); border-bottom: 1px solid var(--line); padding: 14px 20px; display: flex; align-items: center; gap: 12px; z-index: 1; }
-.opts-h h2 { margin: 0; font-size: 16px; flex: 1; }
-.opts-h small { color: var(--muted); }
-.opts-b { padding: 6px 20px 20px; }
+/* checking options table (guide page, tab «تشغيل القواعد») */
+.opts-h { display: flex; align-items: center; gap: 12px; }
+.opts-h p { margin: 0; flex: 1; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.opts-b { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 4px 20px 16px; }
 .opts-b h3 { font-size: 13.5px; margin: 18px 0 6px; display: flex; align-items: center; gap: 8px; }
 .opts-b h3 .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
 .otable { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -320,6 +322,66 @@ input[type=file] { display: none; }
 .confirm .acts { justify-content: flex-start; }
 .btn.danger { background: var(--spell); border-color: var(--spell); color: #FFFFFF; font-weight: 600; }
 
+/* guide page: the centre's 31 rules, approved decisions, preferred words, rule switches */
+button.rno { background: none; cursor: pointer; font-family: inherit; }
+button.rno:hover { color: var(--accent); border-color: var(--accent); }
+.app.guide { grid-template-rows: auto 1fr; }
+.g-wrap { max-width: 1180px; margin: 0 auto; }
+.g-tabs b { font-weight: 600; font-variant-numeric: tabular-nums; margin-inline-start: 4px; opacity: .75; }
+.g-grid { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 20px; align-items: start; }
+.g-toc { position: sticky; top: 0; max-height: calc(100vh - 110px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 6px; font-size: 13px; }
+.g-toc a { display: grid; grid-template-columns: 20px minmax(0, 1fr) 8px; gap: 8px; align-items: center; padding: 5px 8px; border-radius: 6px; color: var(--ink); text-decoration: none; line-height: 1.5; }
+.g-toc a:hover { background: var(--sunken); }
+.g-toc a.cur { background: var(--nav-act); color: var(--accent); }
+.g-toc a .n { width: 20px; flex: none; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; }
+.g-toc a i { width: 7px; height: 7px; border-radius: 50%; background: var(--sc); }
+.g-toc .sep { border-top: 1px solid var(--line); margin: 6px 4px; }
+.g-list { display: grid; gap: 12px; }
+.g-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; font-size: 13px; margin-bottom: 12px; }
+.g-tools .grow { flex: 1; }
+.g-tools .seg b { font-weight: 600; font-variant-numeric: tabular-nums; margin-inline-start: 4px; opacity: .75; }
+.g-rule { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; scroll-margin-top: 12px; }
+.g-rule.flash { animation: flash 1.6s ease-out; }
+.g-rule > header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+.g-rule h2 { margin: 0; font-size: 15.5px; flex: 1; min-width: 0; }
+.g-no { width: 30px; height: 30px; border-radius: 50%; background: var(--sunken); display: grid; place-items: center; font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.g-st { font-size: 12px; border-radius: 99px; padding: 2px 10px; white-space: nowrap; color: var(--sc); border: 1px solid color-mix(in srgb, var(--sc) 45%, transparent); background: color-mix(in srgb, var(--sc) 9%, transparent); }
+.s-auto { --sc: var(--good); } .s-partial { --sc: var(--accent); } .s-ai { --sc: var(--style); } .s-comment { --sc: var(--conv); } .s-decision { --sc: var(--spell); } .s-deferred { --sc: var(--muted); }
+.g-text { font-family: var(--text); font-size: 16px; line-height: 2; }
+.g-text p { margin: 0 0 6px; }
+.g-text ul { margin: 0 0 6px; padding-inline-start: 22px; }
+.g-text li { margin-bottom: 4px; }
+.g-text .ex { background: var(--sunken); border-radius: 6px; padding: 2px 10px; }
+.g-text mark, .g-dtable mark, .g-tool mark, .g-eng mark { background: color-mix(in srgb, var(--gold) 40%, transparent); color: inherit; border-radius: 2px; }
+.g-tool { margin-top: 10px; font-size: 13px; color: var(--muted); line-height: 1.8; display: flex; gap: 8px; }
+.g-tool b { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.g-dec { margin-top: 10px; border-inline-start: 3px solid var(--gold); background: color-mix(in srgb, var(--gold) 9%, var(--surface)); border-radius: 6px; padding: 8px 12px; font-size: 13px; line-height: 1.8; }
+.g-dec b { font-weight: 600; }
+.g-eng { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 8px; }
+.g-eng h3 { font-size: 12.5px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
+.g-eng .otable td { padding: 6px 8px; }
+.g-eng .otable tr:last-child td { border-bottom: 0; }
+.g-empty { background: var(--surface); border: 1px dashed var(--line); border-radius: 8px; padding: 40px 16px; text-align: center; color: var(--muted); }
+.g-cards { display: grid; gap: 10px; }
+.g-dcard { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; }
+.g-dcard h2 { margin: 0 0 6px; font-size: 14.5px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.g-dcard p { margin: 0 0 6px; line-height: 1.9; }
+.g-dcard .eff { color: var(--muted); font-size: 13px; margin: 0; }
+.g-dcard .wait { font-size: 11.5px; font-weight: 600; color: var(--conv); border: 1px solid currentColor; border-radius: 99px; padding: 0 8px; }
+.g-chip { font-size: 11.5px; font-weight: 500; border: 1px solid var(--line); border-radius: 4px; padding: 0 6px; background: none; color: var(--muted); }
+.g-chip:hover { color: var(--accent); border-color: var(--accent); }
+.g-intro { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.g-dtable { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.g-dtable th { text-align: start; font-weight: 600; color: var(--muted); font-size: 12px; padding: 9px 14px; border-bottom: 1px solid var(--line); background: var(--sunken); }
+.g-dtable td { padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.g-dtable tr:last-child td { border-bottom: 0; }
+.g-dtable .w { font-family: var(--text); font-size: 16.5px; }
+.g-dtable .w.good { color: var(--good); font-weight: 700; }
+.g-dtable .w.bad { color: var(--spell); text-decoration: line-through; }
+.g-dtable .src { color: var(--muted); font-size: 12.5px; }
+.g-sw { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
+.g-sw label { display: inline-flex; align-items: center; gap: 8px; }
+
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
   .main { grid-template-columns: minmax(0, 1fr); }
@@ -338,7 +400,7 @@ input[type=file] { display: none; }
       
       <a href="#" data-view="editor" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
       <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" data-view="guide" class="nav-item" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span></a>
       <a href="#" class="nav-item soon" aria-disabled="true" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span><span class="soon-tag">قريباً</span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
@@ -351,7 +413,7 @@ input[type=file] { display: none; }
       <input type="file" id="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"></div>
     <div class="ctrls">
       <button class="btn" id="checkBtn" type="button" title="يعيد تطبيق قواعد الدليل ويحتفظ بقراراتك">فحص النص</button>
-      <button class="btn" id="optsBtn" type="button">خيارات التدقيق</button>
+      <button class="btn" id="optsBtn" type="button" title="تشغيل قواعد الفحص وإطفاؤها في صفحة الدليل">خيارات التدقيق</button>
       <span class="sep"></span>
       <button class="btn" id="harakatBtn" type="button" aria-pressed="false" title="يخفي الحركات من العرض فقط، ولا يحذفها من الملف">إخفاء التشكيل</button>
       <button class="btn" id="hideAccBtn" type="button" aria-pressed="false" title="يعلّم التصحيحات المقبولة بخط أخضر لتتبّعها">إظهار المقبول</button>
@@ -361,7 +423,7 @@ input[type=file] { display: none; }
         <button class="btn primary split-arrow" id="expArrow" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="خيارات التصدير"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="split-menu" id="expMenu" role="menu" hidden>
           <button type="button" role="menuitem" data-exp="clean"><b>نسخة نظيفة <span class="def">الافتراضي</span></b><small>التصحيحات المقبولة مطبّقة، بلا تتبّع ولا تعليقات</small></button>
-          <button type="button" role="menuitem" data-exp="tracked"><b>مع تتبّع التعديلات</b><small>كل تصحيح مقبول متتبَّع مع تعليق يشرح قاعدته</small></button>
+          <button type="button" role="menuitem" data-exp="tracked"><b>مع تتبّع التعديلات</b><small>كل تصحيح مقبول متتبَّع، مع تعليق يشرح قاعدته (إلا التصحيحات التلقائية)</small></button>
         </div>
       </div>
     </div>
@@ -389,10 +451,6 @@ input[type=file] { display: none; }
   </div>
 
   <div class="pop" id="pop" hidden></div>
-  <dialog class="opts" id="optsDlg" aria-labelledby="optsTitle">
-    <div class="opts-h"><h2 id="optsTitle">خيارات التدقيق</h2><small id="optsCount"></small><button class="btn" type="button" id="optsAllOn">تشغيل الكل</button><button class="btn primary" type="button" id="optsClose">تم</button></div>
-    <div class="opts-b" id="optsBody"></div>
-  </dialog>
   <footer class="bar">
     <span>باقٍ <b id="nPending">0</b></span>
     <span>مقبول <b id="nAcc">0</b></span>
@@ -446,6 +504,21 @@ input[type=file] { display: none; }
     <div class="acts"><button class="btn danger" type="button" id="delYes">حذف</button><button class="btn" type="button" id="delNo">إلغاء</button></div>
   </dialog>
 </div>
+<div class="app docs guide" id="guideView" hidden>
+  <header class="top docs-top">
+    <h1>دليل التدقيق <small>دليل المدققين في مركز تجديد</small></h1>
+    <div class="seg g-tabs" role="group" aria-label="أقسام الدليل" id="gTabs">
+      <button type="button" data-t="rules" aria-pressed="true">القواعد<b></b></button>
+      <button type="button" data-t="decisions" aria-pressed="false">القرارات المعتمدة<b></b></button>
+      <button type="button" data-t="words" aria-pressed="false">الكلمات المعتمدة<b></b></button>
+      <button type="button" data-t="auto" aria-pressed="false">تشغيل القواعد<b></b></button>
+    </div>
+    <span class="grow"></span>
+    <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input type="search" id="gQ" placeholder="ابحث في الدليل" aria-label="ابحث في الدليل"></label>
+  </header>
+  <div class="docs-body" id="guideBody"><div class="g-wrap" id="gWrap"></div></div>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -465,7 +538,7 @@ input[type=file] { display: none; }
   const fuzzy = s => [...s].map(c => (c === ' ' ? '\\s+' : c + '[' + H + ']*')).join('');
 
   // ---------------------------------------------------------------- rules
-  // Each rule: id, no (guide rule number), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
+  // Each rule: id, no (guide rule number), auto (a purely mechanical fix, applied without asking unless switched to manual), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
   // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
   // unmatched «(» right after a word and before a space or punctuation
   function unmatchedParens(text) {
@@ -538,7 +611,7 @@ input[type=file] { display: none; }
   const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
 
   const RULES = [
-    { id: 'title-ad', no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
+    { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
       find: text => {
         const out = [];
         for (const m of text.matchAll(re('(?<![{LH}])[وف]?أ\\.([ \\u00A0]*)(?:م\\.([ \\u00A0]*))?د\\.'))) {
@@ -553,14 +626,14 @@ input[type=file] { display: none; }
         }
         return out;
       } },
-    { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
+    { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
-    { id: 'sp-after', no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
+    { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
       find: text => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
         ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
       ] },
-    { id: 'semicolon', no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
+    { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
@@ -571,7 +644,7 @@ input[type=file] { display: none; }
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
-    { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
+    { id: 'br-inner', auto: true, no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
@@ -622,11 +695,14 @@ input[type=file] { display: none; }
         }
         return out;
       } },
-    { id: 'dash-num', no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين.',
-      find: simple(re('(?<=[{D}])[ \\u00A0]*([-–])[ \\u00A0]*(?=[{D}])'), m => m[1]) },
-    { id: 'slash', no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
+    { id: 'dash-num', auto: true, no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين، وتُكتب الشرطة قصيرة (-): 2015-2017.',
+      find: simple(re('(?<=[{D}])[ \\u00A0]*[-–—][ \\u00A0]*(?=[{D}])'), () => '-') },
+    // قرار المركز (10 تشرين الثاني/ نوفمبر 2026): الشرطة موحّدة قصيرة (-)، فتُستبدل بها الطويلة (– أو —) الملتصقة بكلمتين
+    { id: 'dash-short', auto: true, no: 8, name: 'الشرطة بين كلمتين', why: 'تُكتب الشرطة بين كلمتين قصيرة (-) دون مسافة: الاجتماعية-السياسية.',
+      find: simple(re('(?<=[{L}][{H}]*)[–—](?=[{L}])'), () => '-') },
+    { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
-    { id: 'sp-double', no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
+    { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
       find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
     { id: 'dot-out', no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
@@ -715,9 +791,9 @@ input[type=file] { display: none; }
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
       ] },
-    { id: 'page', no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
+    { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
-    { id: 'abbr', no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
+    { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
     { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
@@ -725,7 +801,7 @@ input[type=file] { display: none; }
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
-    { id: 'fn-space', no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
+    { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
         const out = simple(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'), () => '')(text);
         const rx = new RegExp('\\.(' + FN + '+)', 'g');
@@ -752,10 +828,24 @@ input[type=file] { display: none; }
     { id: 'inna', no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
-    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
+    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, quotes: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
       find: text => {
         const out = [];
-        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(text))) { const p = posOf(m); out.push({ start: p, end: p, repl: '\u0651' }); } };
+        // match on the text without harakat except the tanween (so «وإن كلّ» or «أن الإنسانَ» still match), then map back;
+        //  a letter that already has a shadda in the original is left alone
+        const map = [], st = [];
+        for (let i = 0; i < text.length; i++) if (!/[\u064E-\u065F\u0670\u0640]/.test(text[i])) { map.push(i); st.push(text[i]); }
+        const plain = st.join('');
+        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(plain))) {
+          const k = posOf(m); if (k < 1) continue;
+          const p = map[k - 1] + 1, end = k < map.length ? map[k] : text.length;
+          if (/[\u0651\u0652]/.test(text.slice(p, end))) continue;          // a shadda or a sukun is already there (وإنْ في)
+          // a shadda put on a neighbouring letter (إلاّ، لأّنه، مّما): do not add a second one
+          let ws = p; while (ws > 0 && re('[{LH}\u0640]', '').test(text[ws - 1])) ws--;
+          let ne = end + 1; while (ne < text.length && /[\u064B-\u065F\u0670]/.test(text[ne])) ne++;
+          if (text.slice(ws, ne).includes('\u0651')) continue;
+          if (/^[ \u00A0]+من[\u064B-\u0650]*\u0651/.test(text.slice(p))) continue;   // «إنْ منّ الله» (a verb)
+          out.push({ start: p, end: p, repl: '\u0651' }); } };
         // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/لكنّ/كأنّ before a definite noun
@@ -765,8 +855,10 @@ input[type=file] { display: none; }
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/كأنّ before a word that cannot be a verb (the light أنْ/إنْ is followed by a verb): one with
         //  a tanween (إنّ عدداً) or a final ة (أنّ دراسةً)، one that starts with م and has no verb ending (فإنّ موقف; not «وإنْ مرضن») or has the shape
-        //  تفعيل (فإنّ تنظيم); again not before a later «إلا/لما» in the clause
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}])(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
+        //  تفعيل (فإنّ تنظيم، فإنّ تصنيفه), one ending in اء (أنّ ثراء), the shapes فُعول (أنّ شيوع) and فواعل
+        //  (بأنّ فوائده), لل+noun (أنّ للإنسان), plurals in ات, and the masdar/plural shapes افتعال، انفعال،
+        //  استفعال، إفعال، فِعال، فعيل، أفعال (أنّ ارتباط، أنّ أخلاقه), فوعل (إنّ جوهر); again not before a later «إلا/لما» in the clause
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?!أ[{L}]اء(?![{LH}])|است|[يتن])[{L}]{2,}اء|(?![يتنأا])[{L}][^\sا{H}]و[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]وا[{L}]{2}(?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]و[^\sاوي{H}][^\sاويهك{H}]|لل[{L}]{2,}|(?![يتن])[{L}]{3,}ات|ا[^\sاوي{H}]ت[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ان[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|است[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|إ[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ي(?:[^\sاويتن{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ت(?:ه|ها|هم|هما|هن|نا|كم))|أ[^\sاوي{H}](?![تدط])[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
         // إنّما، أنّما، كأنّما
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=ما(?![{LH}]))', 'g'), m => m.index + m[0].length);
         // كلّ (with prefixes and pronouns)
@@ -807,7 +899,7 @@ input[type=file] { display: none; }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
     conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -953,7 +1045,7 @@ input[type=file] { display: none; }
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
-          if (rule.word && overlaps(e.start, e.end, pr.longQuotes)) ok = false;
+          if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
           if (busy(e.start, e.end)) ok = false;
         }
         if (!ok) continue;
@@ -1298,6 +1390,179 @@ input[type=file] { display: none; }
 
 </script>
 <script>
+// دليل المدققين في مركز تجديد: نص القواعد الـ31 كما في الدليل، وحالة كل قاعدة في الأداة،
+// والقرارات المعتمدة من رئيس المدققين، وقائمة الكلمات المعتمدة. تقرؤه صفحة «دليل التدقيق».
+// status: auto (يطبّقها المحرك) · partial (المحرك يطبّق جزءاً منها) · ai (مع طبقة الذكاء الاصطناعي)
+//         comment (اقتراح في تعليق فقط) · decision (لا تُطبَّق بقرار معتمد) · deferred (مؤجّلة)
+// text: فقرات الدليل؛ السطر الذي يبدأ بـ«• » بند في قائمة، والذي يبدأ بـ«مثال» أو «ملاحظة» يظهر مميّزاً.
+(function (root) {
+  'use strict';
+  const rules = [
+    { no: 1, title: 'السلامة النحوية والإملائية', status: 'ai',
+      text: ['تُراجع النصوص مراجعة دقيقة تضمن سلامتها النحوية وفق القواعد المقرّرة في اللغة العربية، والتثبّت من خلوّها من الأخطاء الإملائية، مع التأكد من صحة الإعراب وسلامة التراكيب اللغوية والأسلوبية.'],
+      tool: 'بعض الأخطاء الشائعة يصحّحها المحرك الآن (الياء المنقوطة، همزة إنّ بعد القول). والباقي، ومنه الأخطاء الطباعية، يأتي مع طبقة الذكاء الاصطناعي.' },
+    { no: 2, title: 'انسيابية النص وسلامة السياق', status: 'comment',
+      text: ['التأكد من انسيابية النصوص وسلامة السياق وإعطائه المعنى الصحيح.'],
+      tool: 'ملاحظات المعنى والسياق تظهر تعليقاً للمدقق، ولا يُعدَّل النص آلياً.' },
+    { no: 3, title: 'تحسين الصياغة', status: 'comment',
+      text: ['تحسين الصياغة عند الحاجة، وذلك بتظليل المقطع المراد تعديله واقتراح البديل الأنسب في تعليق جانبي، دون إجراء أي تعديل مباشر على النص قبل عرضه على إدارة المجلة للمراجعة والموافقة عليه.'],
+      tool: 'لا تعدّل الأداة الصياغة أبداً، بل تقترح البديل في تعليق.' },
+    { no: 4, title: 'همزات الوصل والقطع، وتشكيل ما يلتبس معناه', status: 'partial',
+      text: ['التحقق من سلامة كتابة همزات الوصل والقطع، وتشكيل الكلمات التي قد يتغير معناها بغياب الحركات، مع الاهتمام بوضع الشدّات حيث يجب، وبالأخص في المواضع التي يُؤدي غيابها إلى التباس في المعنى. ويشمل ذلك الكلمات المشتقة، والأفعال.',
+        'أمثلة: أصل = أصّل، عبر = عبّر، عبد = عبّد، عَلِم = عَلَّم ...إلخ.'],
+      tool: 'يضع المحرك الشدة في الأدوات الشائعة (إنّ، أنّ، كلّ، إلّا، ممّا، ثمّ، إنّما...)، ومنها (أنّ/إنّ) قبل الضمير والمعرّف بـ(ال) وأسماء الإشارة والظروف، وقبل الأسماء التي لا تكون أفعالاً بأوزانها (المنوّن، وما آخره تاء مربوطة، وتفعيل، وافتعال، وفُعول، وفواعل، وأفعال...)، ولو كان في الكلمة التالية تشكيل (وإنّ كلّ). ويعمل داخل الاقتباسات أيضاً، ويترك (إنْ) الشرطية والنافية و(أنْ) الناصبة للفعل. أما همزات الوصل والقطع وتشكيل ما يلتبس فيأتيان مع طبقة الذكاء الاصطناعي.' },
+    { no: 5, title: 'لا شدة على الحرف الشمسي ولا على ياء النسبة', status: 'auto',
+      text: ['لا تُوضع الشدّة على الحروف الشمسية التي تلي (أل) التعريف في الكتابة، رغم نطقها مشددة، مثل: الضلال، التلال، السماء، الشمس. ولا توضع على ياء النسبة: عراقيّ، مصريّ، إسلاميّ، ...'] },
+    { no: 6, title: 'موضع تنوين الفتح', status: 'auto',
+      text: ['التحقق من وضع تنوين الفتح في موضعه الصحيح، بحيث يُكتب على الألف في الكلمات المنتهية بألف ممدودة، لا على الحرف الذي يسبقها. أما في الكلمات المنتهية بألف مقصورة (مثل: "معنًى" أو "هدًى")، فيُكتب التنوين على الحرف الذي يسبق الألف، وليس على الألف المقصورة نفسها.'] },
+    { no: 7, title: 'علامات الترقيم ومسافاتها', status: 'auto',
+      text: ['استخدام علامات الترقيم بدقة، مثل: النقطة، الفاصلة، الفاصلة المنقوطة، علامات الاقتباس، الاستفهام، والتعجب، ووضعها في أماكنها الصحيحة، مع مراعاة أن تكون ملاصقة للكلمة التي تسبقها، ومفصولة بمسافة واحدة عن الكلمة التي تليها.'],
+      tool: 'تصحيحات المسافات قبل علامات الترقيم وبعدها، والمسافات الزائدة، والفاصلة المنقوطة العربية (؛) تُطبَّق تلقائياً عند فتح المستند، لأنها آلية لا تحتاج إلى رأي، ويستطيع المدقق رفض أي منها.' },
+    { no: 8, title: 'الشرطتان والشرطة بين كلمتين أو رقمين', status: 'auto',
+      text: ['بالنسبة للجمل المعترضة، والتي عادةً توضع بين شرطتين (– –)، تكون هاتان الشرطتان ملتصقتين بالجملة من اليمين واليسار، وليستا مفصولتين بمسافة، وعلامة الشرطة (–) في لوحة المفاتيح (الكيبورد) تكون في الزر الذي يسبق الرقم (0)، وتستخدم من دون زر (شفت).',
+        'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'],
+      tool: 'قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). أما الشرطتان حول الجملة المعترضة فتنتظران قرار المدقق.' },
+    { no: 9, title: 'الشرطة المائلة', status: 'auto',
+      text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'],
+      tool: 'تُصحَّح تلقائياً عند فتح المستند، ويستطيع المدقق رفض أي تصحيح منها.' },
+    { no: 10, title: 'توحيد الأقواس وعلامات الاقتباس', status: 'auto',
+      text: ['توحيد استخدام الأقواس وعلامات الاقتباس، بحيث تُستخدم علامة الاقتباس العربية " " للنصوص المقتبسة التي تتطلب توثيقاً أو إحالة مرجعية، سواء أُذكر المصدر في المتن أم في الهامش. أما الأقواس الاعتيادية ( ) فتُخصص للإيضاحات أو الشروحات داخل النص.',
+        'ويُراعى –خصوصاً في النصوص المترجمة– الالتزام بما وضعه المترجم من علامات اقتباس أو أقواس، دون تعديل أو حذف، حرصاً على أمانة النقل، وكما في توضيحات النقاط اللاحقة.',
+        'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'],
+      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند. أما القوس المقلوب والتحويل بين الأقواس وعلامات التنصيص فينتظران قرار المدقق.' },
+    { no: 11, title: 'إغلاق الأقواس وعلامات الاقتباس', status: 'auto',
+      text: ['الانتباه إلى إغلاق الأقواس الاعتيادية ( ) وعلامات الاقتباس " " عند استخدامها، والتأكد من عدم نسيان أحد طرفيها؛ إذ يُعدّ هذا من أكثر الأخطاء الشكلية شيوعاً التي تؤثر في وضوح النص وسلامة تركيبه.'],
+      tool: 'تنبّه الأداة في الشريط السفلي إلى الفقرة التي فيها قوس أو علامة غير مغلقة، ويحدّد المدقق موضع الإغلاق.' },
+    { no: 12, title: 'النصوص المنقولة والتوضيحات الطويلة', status: 'ai',
+      text: ['في التعامل مع النصوص المقتبسة أو العبارات المنقولة أو المفسّرة داخل المتن، يُراعى ما يلي:',
+        '• كل نص مأخوذ من مصدر ما، سواء كان مشفوعاً برقم هامش أو بإحالة مصدرية داخل المتن، أو لم يكن كذلك، يجب وضعه دائماً بين أقواس تنصيص: "النص المنقول".',
+        '• التوضيحات الطويلة نسبياً، التي تُدرج داخل المتن لتوضيح فكرة أو تفصيل، تُوضع أيضاً بين أقواس تنصيص، ولو لم تكن منقولة عن مصدر.',
+        '• في المجلات: التمييز بين نوعَي النصوص داخل أقواس التنصيص يكون كالتالي: إذا كان النص المنقول يحتوي على مصدر أو رقم هامش، فيُكتب بشكل مائل (Italic) وبحجم خط 14. أما إذا كان النص المنقول لا يحتوي على مصدر أو هامش، أو كان مجرد توضيح طويل من الكاتب أو المحرر، فيُكتب بشكل عادي غير مائل، وبحجم الخط المعتاد 15. أما في الكتب فإن الاقتباسات التي لها مصادر تكون مائلة ويكون الخط بحجم (14).',
+        '• إذا ورد داخل النص المحصور بين أقواس التنصيص كلمات أو عبارات تحتاج إلى أقواس داخلية (ضمن النص)، فيُستخدم لذلك الأقواس الاعتيادية ( ) وليس أقواس التنصيص، لتفادي التداخل.'],
+      tool: 'يحوّل المحرك الآن « » و“ ” إلى " " في الاقتباس الطويل (انظر القاعدة 13). والتمييز بين المنقول والتوضيح يأتي مع طبقة الذكاء الاصطناعي، والخط وحجمه مؤجّلان (القاعدة 31).' },
+    { no: 13, title: 'الكلمة والعبارة القصيرة بين أقواس', status: 'auto',
+      text: ['تُوضع الكلمات المفردة، والعبارات القصيرة، والجمل المختصرة، والأمثلة الفردية داخل المتن بين أقواس اعتيادية ( )، وليس بين أقواس تنصيص. أمثلة:',
+        '• المعنى اللغوي للكلمة (التحوّل) يدل على الانتقال من حال إلى حال.',
+        '• يشير إلى تيارات مثل (الليبرالية) و(العدمية) و(ما بعد الحداثة).',
+        '• وتدل العبارة (الذات في مواجهة النظام) على هذا التوتر الفلسفي.',
+        '• أما العبارات الطويلة أو التوضيحات، فتوضع بين أقواس تنصيص. (طويلة أي أكثر من أربع كلمات مثلاً).'],
+      tool: 'يطبّق المحرك حدّ الكلمات الأربع: ما كان أربع كلمات أو أقل يوضع بين ( )، وما زاد بين " ". ولا يمسّ ما فيه رقم هامش أو كلام أجنبي.' },
+    { no: 14, title: 'علامة الترقيم خارج القوس الختامي', status: 'auto',
+      text: ['عند استخدام علامات الاقتباس " " أو الأقواس الاعتيادية ( )، توضع علامة النقطة أو غيرها من علامات الترقيم خارج العلامة الختامية، وليس قبلها، ما لم تكن العلامة جزءاً من النص المقتبس أو المضمَّن.',
+        'مثال صحيح: وقال له: "تعال إليّ". (انظر التفاصيل في الملحق).',
+        'مثال غير صحيح: وقال له: "تعال إليّ." (انظر التفاصيل في الملحق.)',
+        'ملاحظة: تُستثنى من القاعدة السابقة علامتا الاستفهام والتعجب إذا كانتا جزءاً من الجملة داخل علامات الاقتباس أو الأقواس، فيُوضعان قبل المزدوج الثاني أو القوس الختامي، بينما تُوضع النقطة بعده. مثال: ثم سأله: (هل تريد تناول الطعام؟). قال متعجباً: (يا له من موقف!).'] },
+    { no: 15, title: 'أسماء الكتب والمجلات والصحف', status: 'ai',
+      text: ['تُوضع أسماء الكتب، والمجلات، والصحف بين هلالين ( ) عند ورودها في المتن، مثل: (نهج البلاغة)، (مجلة أخلاق)، (جريدة الحياة).',
+        'وفي حال ورد اسم المجلة أو الكتاب بالعربية والأجنبية نضع الاسمين العربي والأجنبي بين ( ).'] },
+    { no: 16, title: 'التوضيح بعد الكلمة', status: 'ai',
+      text: ['عند الحاجة إلى توضيح اسم أو مصطلح أو معنى ضمن السياق، يُوضع التوضيح بين شرطتين مباشرة بعد الكلمة المراد توضيحها، دون علامات اقتباس أو فواصل. مثال: نزل به جبرائيل (أحد الملائكة) على النبي...، مرّ ببلاد السند (منطقة في شبه القارة الهندية).'],
+      tool: 'قرار المركز: يوضع التوضيح بين قوسين ( ) كما في المثالين، لا بين شرطتين.' },
+    { no: 17, title: 'لا أقواس حول الأعلام والأماكن', status: 'ai',
+      text: ['يُتجنّب وضع أسماء الأعلام العربية، أو أسماء المدن والمناطق والدول، داخل أقواس ( ) أو علامات اقتباس " " حتى لو كانت الأقواس موجودة في النص الأصلي نزيلها.',
+        'ملاحظة: فيما يتعلق بالمصطلحات: نضع القوسين للمصطلح باللغة العربية، ونزيل القوسين عن المصطلح بالأجنبية في حال كانا موجودَين، مثال:',
+        'لقد وضع جيريمي بنثام ما عُرف باسم "حساب السعادة" (Felicific Calculus).',
+        'لتكون هكذا: لقد وضع جيريمي بنثام ما عُرف باسم (حساب السعادة) Felicific Calculus.'] },
+    { no: 18, title: 'عبارة "أو (...)"', status: 'auto',
+      text: ['في حالة وجود مثل هكذا عبارات: "أو (متحدة)"، يتم تعديلها لتكون: أو (متحدة).'] },
+    { no: 19, title: 'الأعوام لا توضع بين قوسين', status: 'auto',
+      text: ['لا توضع أرقام الأعوام بين قوسين: وُلد عام 1900م. لكن نضع القوسين في الحالة التالية: وُلد عام (1900م–1340هـ) أو في الحالة: كان الملا صدرا (1572م–1641م) مقيماً في ....'] },
+    { no: 20, title: 'توحيد أسماء الأعلام والأماكن', status: 'ai',
+      text: ['التحقق من توحيد أسماء الأعلام والأماكن في النص؛ إذ قد يَرِد الاسم الواحد بأكثر من صورة داخل المقال أو الكتاب، رغم الإشارة إلى المعنى نفسه، مثل: (غورباتشوف) و(غورباتشيف)، أو (ناجورني كاراباخ) و(نكورني كاراباغ)، أو (أمريكا) و(أميركا). يُراعى اعتماد صيغة واحدة ثابتة في جميع المواضع.'] },
+    { no: 21, title: 'أسماء الأشهر', status: 'auto',
+      text: ['في كتابة أسماء الأشهر، يُعتمد الأسلوب المزدوج، بذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: (تموز/ يوليو) و(شباط/ فبراير)، ولا تُستخدم تسميات أخرى معتمدة في بعض الدول العربية كبدائل. أما النص المترجَم فيبقى كما الأصل.'] },
+    { no: 22, title: 'فصل (ما) و(لا) عمّا بعدهما', status: 'auto',
+      text: ['يُراعى الفصل بين (ما) النافية أو (ما) التي تُستعمل كاسم موصول، وبين الكلمة التي تليها، مثل: (ما زال)، (ما دام)، ولا تُكتب ملاصقة لها (مثلاً: "مازال" خطأ). وكذلك الأمر في استعمال (لا) النافية مع ما بعدها، فتُكتب مفصولة: (لا بد)، (لا زال)، (لا سيما)، ولا تُكتب موصولة (مثل: "لابد" أو "لازال")، فكلها أخطاء شائعة ينبغي تجنّبها.'] },
+    { no: 23, title: 'اختصار الصلاة والسلام', status: 'decision',
+      text: ['تُكتب عبارة (صلى الله عليه وآله) و(عليه السلام) بصيغة مختصرة كـ(مخطوطة) في المتن، ما لم تردا ضمن نص مقتبس من كتاب أو حديث شريف، ففي هذه الحالة تُتركان كما وردتا في المصدر الأصلي دون تغيير.'],
+      tool: 'لا تُطبَّق: قرار رئيس المدققين أن تُترك الصلوات كما كتبها الكاتب أو المترجم.' },
+    { no: 24, title: 'الـ والباء والفاء مع الأجنبي والأقواس', status: 'auto',
+      text: ['عند إدخال (أل) التعريف أو حروف الجر أو العطف (مثل الباء والفاء) على الكلمات الأجنبية أو الكلمات التي تليها علامات تنصيص أو أقواس، يُراعى كتابتها بشكل صحيح باستخدام زريّ (شفت + ت) بالكيبورد، للدلالة على الاتصال دون ترك مسافة، وذلك كما يلي: تُكتب (أل) التعريف بهذا الشكل: الـ MetaEthic، ولا تُكتب: ال MetaEthic، تُكتب الباء متصلة بهذا الشكل: بـ MetaEthic، ولا تُكتب: ب MetaEthic، تُكتب الفاء بهذا الشكل: فـ(إن الحقيقة...)، ولا تُكتب: ف(إن الحقيقة...).'] },
+    { no: 25, title: '(لا) و(اللا) مع الكلمة التي تليها', status: 'ai',
+      text: ['في بعض التراكيب والمصطلحات التي تتكوّن من (لا) أو (اللا) متبوعة بكلمة أخرى، يجب التمييز في طريقة الكتابة بين الحالتين: في حالة (لا) تُستخدم ككلمة مستقلة، تُكتب مفصولة عن الكلمة التي تليها. مثال: لا مركزية، لا نهاية، لا موضوعية. وفي حالة (اللا) تُكتب متصلة بالكلمة. أمثلة: اللامرئي، اللاعقلاني، اللاعنف.'] },
+    { no: 26, title: '(ما) بعد النكرة', status: 'auto',
+      text: ['عند ورود كلمة (ما) بعد نكرة أو كلمة عامة، مثل: (شخصاً ما)، (مكاناً ما)، (شيئاً ما)، تُكتب (ما) بدون شدّة على الميم، بغضّ النظر عن طبيعة الكلمة التي تسبقها. مثال: إنّ شخصاً ما – في وقت ما – في مكان ما.'] },
+    { no: 27, title: 'إذن وإذاً', status: 'ai',
+      text: ['تُكتب (إذن) بالنون إذا كانت أداة نصب وجاء بعدها فعل مضارع منصوب، مثل: سأزورك، إذن أكرمَك. أمّا إذا لم يأتِ بعدها فعل مضارع، أو استُعملت حرفَ جواب وجزاء، فإنها تُكتب بالتنوين (إذاً)، التنوين هنا تنوين عِوَض عن مفردة أو جملة محذوفة.'] },
+    { no: 28, title: 'توثيق الآيات والكتاب المقدس', status: 'ai',
+      text: ['في توثيق الآيات أو النصوص المقتبسة من القرآن الكريم أو الكتاب المقدس، يُراعى اعتماد أسلوب مختصر وواضح دون حشو، وذلك على النحو الآتي: في القرآن الكريم يكون التخريج على وفقاً للمثالين التاليين: [البقرة: الآية 3]، في حال كانت الآية المقتبسة كاملة، وأمّا إذا كان جزء آية فيكون على النحو التالي: [البقرة: من الآية 3]. وفي الكتاب المقدس: يُذكر اسم السفر متبوعاً برقم الإصحاح والعدد مفصولين بشرطة مائلة (/)، دون نقطتين أو فواصل. مثال: (متى 4/5) وليس (متى: 4/5) أو (متى، 4/5).'],
+      tool: 'الآيات محمية الآن: لا يعدّلها المحرك. أما التحقق من التخريج ومطابقة الآية فيأتي لاحقاً.' },
+    { no: 29, title: 'الهوامش', status: 'partial',
+      text: ['• يُوضع رقم الهامش بين قوسين ( ) ملاصقَين للرقم دون فراغ: (1)، ويُلصق الرقم كاملاً بالكلمة التي يسبقه دون ترك مسافة، سواء أكان النص المسبوق نصاً عادياً أو بين علامات تنصيص. كما يُراعى أن تكون جميع الهوامش مُدرجة بطريقة تلقائية (أوتوماتيكية) باستخدام خاصية إدراج الهوامش في برنامج الـ word، وليس بإدخال الأرقام أو النصوص يدوياً. مثال: المؤمن كيّس فطن(1). "المؤمن كيّس فطن"(1).',
+        '• في حال ورود علامة هامش غير رقمية (مثل النجمة * أو غيرها)، يجب تحويلها إلى رقم يتماشى مع تسلسل الهوامش في النص، بحيث تأخذ الرقم المناسب بين ما قبلها وما بعدها. مثال: إذا ورد في النص هامش برقم (1)، تلاه هامش بعلامة *، ثم هامش برقم (2)، فإن العلامة * تُحوَّل إلى الرقم (2)، ويُصبح الهامش الذي كان (2) هو (3)، وهكذا. ويُراعى دائماً أن تكون جميع الهوامش مرقّمة ترقيماً متسلسلاً ومنسّقاً بشكل تلقائي.',
+        '• لا بد أن يكون الهامش عائداً إلى المكان المشار إليه فعلاً، وإلّا فعلى المدقق التنبيه إلى ذلك.',
+        '• إذا كان في الهامش مصدر أو مرجع أجنبي، فلا يُترجم، بل يذكر كما هو.',
+        '• في ما يخص موضع رقم الهامش داخل المتن، يُراعى أن يُدرج الهامش مباشرة بعد الكلمة أو الجملة التي يتعلّق بها، وقبل النقطة النهائية للجملة. فإذا وردت عدة هوامش متتالية تتعلّق بجزء واحد من الجملة، فيُجمع بينها جميعاً وتُوضع متجاورة قبل النقطة، دون أن يُترك أحدها بعد النقطة. فالهامش الثالث على سبيل وروده في موضع ما في هذه الحالة يوضع بجانب الهامش الثاني، لا بعد النقطة، مثال: "فذهب الخالدي(1) قبل أن يموت"(2)(3). في هذا المثال: (1) يتعلّق بـ(الخالدي)، (2) مصدر لعبارة "فذهب الخالدي قبل أن يموت". (3) توضيح أو تعليق إضافي على العبارة نفسها، لذا وُضع بجانب (2) قبل النقطة.',
+        '• عند ذكر أرقام الصفحات، يجب الالتزام بالتنسيق السليم من حيث المسافات وعلامات الترقيم، مع إنهاء السطر بنقطة. ويُراعى في ذلك ما يلي: في النصوص العربية: يكتب حرف "ص" ملاصقة للرقم دون فراغ، مع وضع نقطة في نهاية السطر، مثل: ص22. أو ص22–25. ولا يُكتب بصيغ مثل: ص 22 أو ص.22 أو صص 22–25، فجميعها غير معتمدة.',
+        '• من المهم الانتباه إلى توحيد الاختصارات المستعملة في الهوامش والمراجع، وذلك باعتماد نمط واحد وثابت في جميع أنحاء النص. ويُراعى في ذلك ما يلي: تُكتب الاختصارات كما يلي: مج = مجلد، ط = طبعة، ص = صفحة.',
+        '• في حال احتوى الهامش على شرح بالعربية يتبعه مرجع أو مصدر بلغة أجنبية كـ(الإنجليزية)، يُراعى أن يُكتب الشرح أولاً، ثم توضع نقطة، ويُكتب بعدها المصدر الأجنبي في السطر نفسه. مثال: المصطلح يدل على بُعدٍ فلسفي وجودي ارتبط بفكر سارتر. Jean-Paul Sartre, Being and Nothingness, Vintage Books, 1956.',
+        '• يجب تمييز الهوامش التي لا تعود إلى المؤلف الأصلي، وذلك بإضافة إشارة واضحة في نهاية الهامش تُبيّن مصدره، كما يلي: إذا كان الهامش من المترجم، تُضاف إشارة (المترجم). مثال: 1 كما ورد ذلك في أماكن أخرى. (المترجم). أما إذا كان الهامش من الناشر الأجنبي أو العربي، تُضاف إشارة (الناشر). مثال: 2 تم تصحيح هذا الخطأ الطباعي في الطبعة اللاحقة. (الناشر).',
+        '• إذا كانت الهوامش كلها من وضع المترجم، نكتفي بذكر (الهوامش كافة من المترجم) عند الهامش الأول.',
+        '• في حالة ورود مصدر مكرّر في الهوامش، يُراعى ما يلي:',
+        '1- إذا كان المصدر المكرر متصلاً مباشرة بالمصدر الذي سبقه، فلا يُعاد ذكر المرجع كاملاً، بل يُكتفى بكتابة (المصدر نفسه) متبوعاً بفارزة (،) ثم رقم الصفحة الجديدة. مثال: المصدر نفسه، ص75.',
+        '2- أما إذا كان المصدر قد ورد سابقاً لكنه ليس الهامش المباشر السابق (بل قبل عدة هوامش: 4 أو 5 مثلاً)، فيُذكر اسم الكتاب، متبوعاً بفاصلة، ثم عبارة (مصدر سابق)، ثم رقم الصفحة أو الجزء. مثال: الكلمات والأشياء، مصدر سابق، ص214.',
+        '3- إذا كان المصدر قد ورد كالتالي: المصدر نفسه، ص70، ثم جاء الاقتباس أو الهامش التالي من المصدر نفسه والصفحة نفسها يكون الهامش كالتالي: المصدر نفسه (دون وضع رقم الصفحة).'],
+      tool: 'يطبّق المحرك: موضع رقم الهامش قبل النقطة، وكتابة (ص22)، والاختصارات (ط، مج)، و(المصدر نفسه) و(مصدر سابق). وهذه كلها ما عدا (المصدر نفسه) و(مصدر سابق) تُطبَّق تلقائياً عند فتح المستند. أما تسلسل الهوامش وعودتها إلى موضعها وإشارة (المترجم) فتأتي لاحقاً.' },
+    { no: 30, title: 'التوثيق بنظام شيكاغو', status: 'deferred',
+      text: ['استعمال نظام شيكاغو (Chicago) في ترتيب المصادر والمراجع وتنسيقها بأسلوب (End Notes) ولضرب مثال على ذلك نورد بعض الحالات: في حال التوثيق من كتاب: اسم المؤلف، عنوان الكتاب، اسم المترجم (إن كان الكتاب مترجماً)، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ذكر الجزء أو المجلد (إن كان الكتاب على عدة أجزاء)، ورقم الصفحة. في حال التوثيق من مجلة: اسم المؤلف؛ عنوان البحث أو المقال أو الدراسة، اسم المجلة، العدد، تاريخ النشر، الطبعة، ورقم الصفحة. في حال التوثيق من كتاب جماعي: اسم كاتب البحث أو المقال () في ضمن كتاب () عنوان الكتاب، اسم المحرر أو المشرف، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ورقم الصفحة. في حال التوثيق من رسالة أو أطروحة: اسم الباحث؛ عنوان الرسالة أو الأطروحة، الجامعة والكلية، تاريخ المناقشة، ورقم الصفحة.',
+        'ملاحظة: ما تم ذكره في أعلاه من مصادر إن كانت إلكترونية فيُتم إدراج الرابط بعد رقم الصفحة في الأسفل.',
+        'أمثلة:',
+        '• مثال: محمد عابد الجابري، بنية العقل العربي، مركز دراسات الوحدة العربية، بيروت، ط1، 1991، ص45.',
+        '• ثانياً: في حال التوثيق من مقال في مجلة: اسم المؤلف، عنوان المقال، اسم المجلة، رقم العدد، تاريخ النشر، رقم الصفحة. مثال: أحمد محمد، في معنى الحداثة، مجلة الفكر العربي المعاصر، ع102، 2005، ص88.',
+        '• ثالثاً: في حال التوثيق من فصل في كتاب جماعي: اسم كاتب الفصل أو الدراسة (عنوان الفصل) في ضمن: عنوان الكتاب، تحرير أو إشراف: اسم المحرر، دار النشر، مكان النشر، الطبعة، سنة النشر، رقم الصفحة. مثال: محمد محفوظ (الهوية والاختلاف)، في ضمن: سؤال الهوية في العالم العربي، تحرير: عبد الإله بلقزيز، مركز دراسات الوحدة العربية، بيروت، ط1، 2006، ص112.',
+        '• رابعاً: في حال التوثيق من رسالة ماجستير أو أطروحة دكتوراه: اسم الباحث، عنوان الرسالة أو الأطروحة، اسم الجامعة، الكلية، سنة المناقشة، رقم الصفحة. مثال: أحمد خليل، البنية الحجاجية في الخطاب النقدي العربي المعاصر، جامعة القاهرة، كلية الآداب، 2018، ص67.',
+        '• إذا كانت المصادر إلكترونية، يُدرج رابط المصدر الإلكتروني بعد رقم الصفحة مباشرة في الهامش. مثال: عبد الرحمن الحاج، الدولة والمجتمع المدني في الفكر السياسي الإسلامي، مؤسسة مؤمنون بلا حدود، 12 مارس 2015، شوهد في 4 أبريل 2025، https://www.mominoun.com/articles/الدولة-والمجتمع-المدني.'],
+      tool: 'مؤجّلة: التحقق من اكتمال التوثيق وترتيبه يأتي بعد استقرار باقي القواعد.' },
+    { no: 31, title: 'الخطوط وأحجامها', status: 'partial',
+      text: ['يُراعى الالتزام بنمط موحّد لتنسيق المقالات من حيث نوع الخط وحجمه في جميع عناصر النص، وذلك على النحو الآتي:',
+        '• العنوان الرئيس للمقال: يُكتب بحجم (14)، ونوع الخط: (Arabic UI Display Heavy). ويُكتب تحته العنوان باللغة الإنجليزية بنفس الحجم والخط.',
+        '• اسم المؤلف والمترجم: يُكتب أسفل العنوان بصيغة: (تأليف: أ. د. أحمد محمد – Ahmad Muhammed، ترجمة: علي ماجد – Ali Majid) بحجم خط 15، ونوع خط Tajdid Regular.',
+        '• ملخص البحث: تُكتب عبارة (ملخص البحث:) بخط (Arabic UI Display Heavy)، حجم (13). يليها نص الملخص بنوع خط المتن Tajdid Regular، وحجم (15).',
+        '• المتن العام للمقال: حجم الخط (15)، ونوع الخط (Tajdid Regular).',
+        '• الاقتباسات داخل المتن (التي تحتوي على مصدر): حجم الخط (14)، بنفس نوع خط المتن، لكن تُكتب بخط مائل (Italic).',
+        '• أي جملة لا تتوفر فيها شروط إمالة الخط italic يجب تحويله إلى الشكل العادي.',
+        '• العناوين داخل المقال: العنوان الرئيس الداخلي: حجم الخط (13)، ونوع الخط (Arabic UI Display Heavy). والعنوان الفرعي الأول (التابع له مباشرة): حجم الخط (12)، ونفس نوع الخط (Arabic UI Display Heavy). أما العنوان الفرعي الثاني (التابع للفرعي الأول): فحجم الخط (16)، ونوعه (Tajdid Bold).',
+        '• الهوامش السفلية: نوع الخط: (Tajdid Regular) بحجم (12).',
+        '• نقطة بعد (المترجم).'],
+      tool: 'يطبّق المحرك كتابة اللقب العلمي بمسافة (أ. د.) تلقائياً عند فتح المستند. أما فحص الخطوط وأحجامها فمؤجّل بطلب المركز.' }
+  ];
+
+  // قرارات «القرارات المعتمدة في التدقيق اللغوي»، أجاب عنها رئيس المدققين، وأكّدها بشار في 5 تشرين الثاني/ نوفمبر 2026
+  const decisions = [
+    { rules: [23], title: 'الصلاة والسلام', text: 'لا قاعدة فيها ولا نتدخل بها: تُترك (صلى الله عليه وآله) و(عليه السلام) وما يشبههما كما كتبها الكاتب أو المترجم.', effect: 'يخالف القاعدة 23، فلا يختصرها المحرك.' },
+    { rules: [], title: 'نوع الأرقام', text: 'تُترك الأرقام كما وردت في النص الأصلي (هندية أو عربية).', effect: 'لا يحوّل المحرك الأرقام.' },
+    { rules: [31], title: 'اللقب العلمي', text: 'يُكتب أ. د. وأ. م. د. بمسافة بعد كل نقطة، كما في الدليل.', effect: 'يطبّقه المحرك.' },
+    { rules: [8], title: 'الشرطة بين رقمين', text: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين: (1572-1641).', effect: 'يطبّقه المحرك.' },
+    { rules: [8], title: 'نوع الشرطة', text: 'تُوحَّد الشرطة وتكون قصيرة (-) بين الكلمات والأرقام وحول الجملة المعترضة، لا الطويلة (–). قرار بشار في 10 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك.' },
+    { rules: [9], title: 'الشرطة المائلة', text: 'مسافة واحدة دائماً بعد الشرطة المائلة: أخلاقي/ سياسي.', effect: 'يطبّقه المحرك.' },
+    { rules: [12], title: 'الاقتباسات الطويلة', text: 'تُكتب بين علامتَي التنصيص " " كما في الدليل، في المجلات الثلاث.', effect: 'يطبّقه المحرك.' },
+    { rules: [29], title: 'هامش النجمة (*)', text: 'تُستعمل النجمة للتعريف بالكاتب أو المترجم فقط، في الصفحة الأولى. وهذا استثناء من تحويل النجمة إلى رقم.', effect: 'لا يحتاج إلى تعديل في المحرك.' },
+    { rules: [30], title: 'ترتيب التوثيق', text: 'يُتّبع ترتيب الدليل في توثيق الكتب، وتُعدَّل قواعد النشر لتوافقه.', effect: 'مع القاعدة 30 المؤجّلة.' },
+    { rules: [31], title: 'سطر الكاتب والمترجم', text: 'يبقى الشكل الحالي في المجلة، وتُكتب الصفات (إعداد، مراجعة...) كما وردت في كل مقال.', effect: 'لا يحتاج إلى تعديل في المحرك.' },
+    { rules: [19], title: 'حرف (م) بعد السنة الميلادية', text: 'إذا كان النص يتحدث عن السنة الميلادية تُوضع (م) بعد رقم السنة، و(هـ) و(م) معاً إذا ذُكرت السنتان.', effect: 'بانتظار جواب الإدارة عن الحالات التي يشملها، ولا يطبّقه المحرك بعد.', pending: true }
+  ];
+
+  // «طرق استعمال بعض الكلمات في إصدارات المركز» في آخر الدليل
+  const words = [
+    { good: 'إفريقيا', bad: 'أفريقيا' },
+    { good: 'رئيس، رئيسة', bad: 'رئيسي، رئيسية' },
+    { good: 'أيديولوجيا', bad: 'إيديولوجيا' },
+    { good: 'أنثروبولوجيا', bad: 'إنثروبولوجيا' },
+    { good: 'إثنولوجيا', bad: 'أثنولوجيا' },
+    { good: 'إبستمولوجيا', bad: 'أبستمولوجيا' },
+    { good: 'إنترنت', bad: 'أنترنت' },
+    { good: 'ليبرالية', bad: 'ليبيرالية' },
+    { good: 'ق.م', bad: 'ق.م.' },
+    { good: 'مسؤول', bad: 'مسئول', extra: true }
+  ];
+
+  const api = { rules, decisions, words };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.TajdidGuide = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
 (function () {
   'use strict';
   const SAMPLE_B64 = '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';
@@ -1315,18 +1580,24 @@ input[type=file] { display: none; }
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
-    off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
+    off: new Set(store.get('off', [])), autoSet: store.get('auto', {}), noHarakat: false, hideAcc: true };
+  // Purely mechanical rules (auto: true in the engine) are accepted on their own when a document is opened.
+  // The guide page can switch any rule to automatic or manual; only the choices that differ from the default are stored.
+  const isAuto = id => id in st.autoSet ? st.autoSet[id] : !!(E.RULES.find(r => r.id === id) || {}).auto;
   const HARAKA = /[\u064B-\u0652\u0670]/, HARAKA_ALL = /[\u064B-\u0652\u0670]/g;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
   const opts = () => ({ translated: false });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
-  function scan(para, keep) {
+  // fresh: the document is being opened, so a correction met for the first time from an automatic rule is accepted at once
+  function scan(para, keep, fresh) {
     const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
     para.groups = r.groups.filter(g => !st.off.has(g.rule.id)).map(g => {
       const old = keep && keep.get(sig(g));
-      return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
+      if (old) return Object.assign(g, { id: 'g' + (++st.gid), status: old.status, reason: old.reason || '', auto: !!old.auto });
+      const auto = !!fresh && isAuto(g.rule.id);
+      return Object.assign(g, { id: 'g' + (++st.gid), status: auto ? 'accepted' : 'pending', reason: '', auto });
     });
     para.quran = r.quran; para.warnings = r.warnings;
   }
@@ -1340,8 +1611,9 @@ input[type=file] { display: none; }
       st.paras.forEach(p => {
         const s = keep && keep.get(p.key);
         if (s) { p.base = s.base; p.manual = s.manual; }
-        scan(p, s && s.g ? new Map(s.g.map(([k, status, reason]) => [k, { status, reason }])) : null);
+        scan(p, s && s.g ? new Map(s.g.map(([k, status, reason, auto]) => [k, { status, reason, auto }])) : null, true);
       });
+      st.cat = 'all';
       renderAll();
       say(res.paras.length ? '' : 'لم أجد نصاً عربياً في هذا الملف.', !res.paras.length);
     });
@@ -1471,9 +1743,26 @@ input[type=file] { display: none; }
       const off = k === 'style', on = st.cat === k;
       const acc = !off && c[k] ? `<button type="button" class="link" data-accept="${k}">قبول الكل</button>` : '';
       return `<div class="sum-row c-${k}${on ? ' on' : ''}${off ? ' off' : ''}"><button type="button" class="pick" data-cat="${k}" title="${k === 'all' ? 'كل التصحيحات' : CATS[k]}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''} aria-pressed="${on}">${k === 'all' ? '<span class="dot" style="background:var(--ink)"></span>' : '<span class="dot"></span>'}<span class="nm">${k === 'all' ? 'كل التصحيحات' : CATS[k]}</span><b>${off ? 'لاحقاً' : c[k]}</b></button>${acc}</div>`;
-    }).join('');
-    $('page').className = 'page' + (st.cat !== 'all' ? ' focus-' + st.cat : '');
+    }).join('') + autoRow();
+    $('page').className = 'page' + (CATS[st.cat] ? ' focus-' + st.cat : '');
   }
+  // the corrections the engine applied on its own: shown, and taken back, together
+  const autoDone = () => allGroups().filter(([, g]) => g.auto && g.status === 'accepted');
+  function autoRow() {
+    const n = autoDone().length; if (!n) return '';
+    return `<div class="auto-row${st.cat === 'auto' ? ' on' : ''}"><span>⚡ طُبّق تلقائياً <b>${n.toLocaleString('ar')}</b> تصحيحاً آلياً</span>
+      <button type="button" class="link" data-auto-act="show">${st.cat === 'auto' ? 'إخفاؤها' : 'عرضها'}</button><button type="button" class="link" data-auto-act="undo">التراجع عنها</button></div>`;
+  }
+  function undoAuto() {
+    const list = autoDone(); if (!list.length) return;
+    snapshot();
+    list.forEach(([, g]) => { g.status = 'pending'; });
+    if (st.cat === 'auto') st.cat = 'all';
+    renderAll();
+    say(`أُعيد ${list.length.toLocaleString('ar')} تصحيحاً آلياً إلى «بانتظار القرار» (Ctrl+Z للتراجع).`);
+  }
+  const autoTag = g => g.auto ? '<span class="tag auto-tag" title="قاعدة آلية: طبّقها المحرك دون انتظار القرار">تلقائي</span>' : '';
+  const rnoTag = (r, rno) => r.id === 'manual' ? `<span class="rno">${rno}</span>` : `<button type="button" class="rno" data-act="guide" title="افتح القاعدة في دليل التدقيق">${rno}</button>`;
   function cardHTML(p, g) {
     const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
     const rno = g.rule.no ? 'القاعدة ' + g.rule.no : (g.rule.label || 'قائمة الكلمات');
@@ -1484,12 +1773,13 @@ input[type=file] { display: none; }
       if (g.status === 'rejected') foot += `<input class="reason" id="reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
     }
     return `<div class="card c-${cat}${st.sel === g.id ? ' sel' : ''}${g.status !== 'pending' ? ' decided' : ''}" data-g="${g.id}" tabindex="0">
-      <div class="card-h"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
+      <div class="card-h"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${autoTag(g)}${rnoTag(g.rule, rno)}</div>
       <div class="ba"><div><span class="k">قبل</span><span class="t">${showChars(b.pre)}<mark class="d">${vis(b.mid) || '&#8203;'}</mark>${showChars(b.post)}</span></div>
       <div><span class="k">بعد</span><span class="t">${showChars(a.pre)}<mark class="i">${vis(a.mid)}</mark>${showChars(a.post)}</span></div></div>
       <p class="why">${esc(g.rule.why)}${p.inNotes ? ' <span class="tag">في الهوامش</span>' : ''}</p>${foot}</div>`;
   }
   function visibleGroups() {
+    if (st.cat === 'auto') return autoDone();
     return allGroups().filter(([, g]) => (st.cat === 'all' || g.rule.cat === st.cat) && (st.show === 'all' || g.status === 'pending'));
   }
   function renderCards() {
@@ -1572,7 +1862,7 @@ input[type=file] { display: none; }
       foot = `<div class="acts"><span class="state ${g.status === 'accepted' ? 'ok' : 'no'}">${g.status === 'accepted' ? '✓ مقبول' : '✕ مرفوض'}</span><button class="link" type="button" data-act="reset">تغيير القرار</button></div>`;
       if (g.status === 'rejected') foot += `<input class="reason" id="pop-reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
     }
-    return `<div class="pg" data-id="${g.id}"><div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span><span class="rno">${rno}</span></div>
+    return `<div class="pg" data-id="${g.id}"><div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${autoTag(g)}${rnoTag(g.rule, rno)}</div>
       <div class="chgline">${line}</div><p class="why">${esc(g.rule.why)}</p>${foot}</div>`;
   }
   function placePop(anchor) {
@@ -1615,6 +1905,7 @@ input[type=file] { display: none; }
     const a = ev.target.closest('[data-act]'), blk = ev.target.closest('.pg'); if (!a || !blk) return;
     const id = blk.dataset.id, act = a.dataset.act;
     if (act === 'reason') return;
+    if (act === 'guide') { const [, g] = findG(id); pinned = false; hidePop(true); if (g) openGuideAt(g.rule); return; }
     decide(id, act === 'accept' ? 'accepted' : act === 'reject' ? 'rejected' : 'pending', true);
     const s = spanOf(id);
     const stillPending = s && (s.dataset.gs || '').split(' ').some(x => { const g = findG(x)[1]; return g && g.status === 'pending'; });
@@ -1760,7 +2051,8 @@ input[type=file] { display: none; }
     let skipped = 0;
     // each accepted correction carries its explanation, which becomes a Word comment
     const noteOf = g => (g.rule.no ? 'القاعدة ' + g.rule.no + ': ' : '') + g.rule.name + (g.rule.why ? '\n' + g.rule.why : '');
-    const accEdits = p => p.groups.filter(g => g.status === 'accepted').flatMap(g => { const note = noteOf(g); return g.edits.map(e => Object.assign({}, e, { note })); });
+    // automatic (mechanical) corrections stay tracked but carry no comment, so the margin is kept for real decisions
+    const accEdits = p => p.groups.filter(g => g.status === 'accepted').flatMap(g => { const note = g.auto ? null : noteOf(g); return g.edits.map(e => Object.assign({}, e, { note })); });
     const bad = (p, es) => es.some(e => /[￼]/.test(e.repl + p.orig.slice(e.start, e.end)));
     const decideFn = (key, text) => {
       const p = st.byKey.get(key);
@@ -1816,6 +2108,7 @@ input[type=file] { display: none; }
     if (act && act.dataset.act === 'reject') return decide(card.dataset.g, 'rejected');
     if (act && act.dataset.act === 'reset') return decide(card.dataset.g, 'pending');
     if (act && act.dataset.act === 'reason') return;
+    if (act && act.dataset.act === 'guide') { const [, g] = findG(card.dataset.g); if (g) openGuideAt(g.rule); return; }
     select(card.dataset.g, 'card');
   });
   $('cards').addEventListener('keydown', ev => {
@@ -1829,6 +2122,8 @@ input[type=file] { display: none; }
   });
   $('cats').addEventListener('click', ev => {
     const acc = ev.target.closest('[data-accept]'); if (acc) return acceptCat(acc.dataset.accept);
+    const aa = ev.target.closest('[data-auto-act]');
+    if (aa) { if (aa.dataset.autoAct === 'undo') return undoAuto(); st.cat = st.cat === 'auto' ? 'all' : 'auto'; st.sel = null; if (st.cat === 'auto' && $('cards').hidden) $('listToggle').click(); return renderCards(); }
     const b = ev.target.closest('[data-cat]'); if (!b || b.disabled) return;
     st.cat = st.cat === b.dataset.cat ? 'all' : b.dataset.cat; renderCards();
   });
@@ -1871,7 +2166,7 @@ input[type=file] { display: none; }
   ['dragleave', 'drop'].forEach(t => page.addEventListener(t, e => { e.preventDefault(); page.classList.remove('drag'); }));
   page.addEventListener('drop', e => openFile(e.dataTransfer.files[0]));
   document.addEventListener('keydown', e => {
-    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName)) return;
+    if (!(e.ctrlKey || e.metaKey) || /TEXTAREA|INPUT|SELECT/.test(e.target.tagName) || $('editorView').hidden) return;
     if (e.code === 'KeyZ' || e.code === 'KeyY') commitDirty();
     // e.code works with the Arabic keyboard layout too
     if (e.code === 'KeyZ' && !e.shiftKey) { e.preventDefault(); undo(); }
@@ -1921,7 +2216,7 @@ input[type=file] { display: none; }
   const EX = {
     'sp-before': ['قال الكاتب ، ثم سكت .', 'قال الكاتب، ثم سكت.'], 'sp-after': ['قال الكاتب،ثم سكت.', 'قال الكاتب، ثم سكت.'],
     'br-inner': ['كتاب ( الأخلاق )', 'كتاب (الأخلاق)'], 'dash-pair': ['وهذا - كما قلنا - صحيح', 'وهذا -كما قلنا- صحيح'],
-    'dash-num': ['الصفحات 10 - 20', 'الصفحات 10-20'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
+    'dash-num': ['الصفحات 10 – 20', 'الصفحات 10-20'], 'dash-short': ['التكليف–المسؤولية', 'التكليف-المسؤولية'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
     'semicolon': ['تأخر الموعد، لأنه مرض', 'تأخر الموعد؛ لأنه مرض'],
     'dot-out': ['(الأخلاق أساس.)', '(الأخلاق أساس).'], 'aw-quote': ['الدولة "أو (المتحدة)"', 'الدولة أو (المتحدة)'],
     'fn-space': ['نهاية الجملة.¹', 'نهاية الجملة¹.'], 'year-paren': ['في عام (1950)', 'في عام 1950'],
@@ -1932,38 +2227,148 @@ input[type=file] { display: none; }
     'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
     'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول']
   };
-  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
-  const optCount = () => { const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length; $('optsCount').textContent = `${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة`; };
-  function renderOpts() {
-    const rules = optRules();
-    $('optsBody').innerHTML = ['punct', 'spell', 'conv'].map(cat => {
-      const rows = rules.filter(r => r.cat === cat).map(r => {
-        const on = !st.off.has(r.id), ex = EX[r.id];
-        const rno = r.no ? 'القاعدة ' + r.no : (r.label || 'قائمة الكلمات');
-        return `<tr class="${on ? '' : 'off'}"><td><div class="rn">${esc(r.name)}</div><span class="rno">${rno}</span>${r.scope === 'notes' ? ' <span class="tag">في الهوامش</span>' : ''}</td>
-          <td>${esc(r.why)}</td><td class="ex">${ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''}</td>
-          <td class="sw"><input type="checkbox" class="switch" data-rule="${r.id}" ${on ? 'checked' : ''} aria-label="تشغيل ${esc(r.name)}"></td></tr>`;
-      }).join('');
-      return `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th></tr></thead><tbody>${rows}</tbody></table>`;
-    }).join('');
-    optCount();
-  }
+  // ---------------- guide page: the centre's rules with their status in the tool, approved decisions, preferred words,
+  // and the rule switches (checking options). Switching a rule marks the open document for a re-check on return to the editor.
+  const G = window.TajdidGuide;
+  const ST = { auto: 'يطبّقها المحرك', partial: 'المحرك يطبّق جزءاً منها', ai: 'مع طبقة الذكاء الاصطناعي', comment: 'اقتراح في تعليق فقط', decision: 'لا تُطبَّق بقرار معتمد', deferred: 'مؤجّلة' };
+  const SF = { all: null, engine: ['auto', 'partial'], later: ['ai', 'comment'], off: ['decision', 'deferred'] };
+  const gs = { tab: store.get('guideTab', 'rules'), q: '', sf: 'all' };
   let optsDirty = false;
-  $('optsBtn').addEventListener('click', () => { renderOpts(); optsDirty = false; hidePop(true); $('optsDlg').showModal(); });
-  $('optsBody').addEventListener('change', ev => {
+  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
+  const gNorm = s => s.replace(/[ً-ْٰـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+  // a search that ignores tashkeel, hamza forms and ta marbuta, and marks what it finds
+  function gRx(q) {
+    const cls = { 'ا': '[اأإآٱ]', 'ه': '[هة]', 'ي': '[يى]' };
+    const parts = [...gNorm(q)].map(c => cls[c] || c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    return parts.length ? new RegExp(parts.join('[\\u064B-\\u0652\\u0670\\u0640]*'), 'gi') : null;
+  }
+  const hit = s => !gs.q || gNorm(s).includes(gNorm(gs.q));
+  function hl(s) {
+    const rx = gs.q && gRx(gs.q); if (!rx) return esc(s);
+    let out = '', last = 0, m;
+    while ((m = rx.exec(s))) { if (!m[0]) { rx.lastIndex++; continue; } out += esc(s.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>'; last = m.index + m[0].length; }
+    return out + esc(s.slice(last));
+  }
+  const engineOf = no => optRules().filter(r => r.no === no && r.id !== 'words');
+  const extras = () => optRules().filter(r => !r.no && r.id !== 'words');
+  const decOf = no => G.decisions.filter(d => d.rules.includes(no));
+  const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
+  const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
+  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : ''} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
+  const autoMark = r => isAuto(r.id) ? ' <span class="tag auto-tag" title="تُطبَّق تلقائياً عند فتح المستند، ويستطيع المدقق رفضها">تلقائي</span>' : '';
+  const exHTML = id => { const ex = EX[id]; return ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''; };
+  function engTable(list) {
+    return `<table class="otable"><tbody>${list.map(r => `<tr class="${st.off.has(r.id) ? 'off' : ''}"><td><div class="rn">${hl(r.name)}${autoMark(r)}</div>${r.scope === 'notes' ? '<span class="tag">في الهوامش</span>' : ''}</td><td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td></tr>`).join('')}</tbody></table>`;
+  }
+  function textHTML(lines) {
+    let out = '', ul = false;
+    for (const l of lines) {
+      const li = l.startsWith('• ');
+      if (li && !ul) { out += '<ul>'; ul = true; } else if (!li && ul) { out += '</ul>'; ul = false; }
+      if (li) out += `<li>${hl(l.slice(2))}</li>`;
+      else out += `<p${/^(مثال|ملاحظة|لتكون|لقد وضع)/.test(l) ? ' class="ex"' : ''}>${hl(l)}</p>`;
+    }
+    return out + (ul ? '</ul>' : '');
+  }
+  function ruleHTML(r) {
+    const eng = engineOf(r.no), decs = decOf(r.no);
+    return `<section class="g-rule" id="g-rule-${r.no}"><header><span class="g-no">${r.no}</span><h2>${hl(r.title)}</h2><span class="g-st s-${r.status}">${ST[r.status]}</span></header>
+      <div class="g-text">${textHTML(r.text)}</div>
+      ${r.tool ? `<div class="g-tool"><b>في الأداة:</b><span>${hl(r.tool)}</span></div>` : ''}
+      ${decs.map(d => `<div class="g-dec"><b>قرار معتمد · ${hl(d.title)}:</b> ${hl(d.text)}${d.pending ? ' <b>(بانتظار الإدارة)</b>' : ''}</div>`).join('')}
+      ${eng.length ? `<div class="g-eng"><h3>ما يصحّحه المحرك من هذه القاعدة</h3>${engTable(eng)}</div>` : ''}</section>`;
+  }
+  function renderRules() {
+    const want = SF[gs.sf], cnt = k => G.rules.filter(r => (!SF[k] || SF[k].includes(r.status)) && hit(ruleHay(r))).length;
+    const list = G.rules.filter(r => (!want || want.includes(r.status)) && hit(ruleHay(r)));
+    const xs = extras().filter(r => hit(r.name + ' ' + r.why) && (!want || want.includes('auto')));
+    const toc = G.rules.map(r => `<a href="#g-rule-${r.no}" data-go="g-rule-${r.no}" class="s-${r.status}" title="${ST[r.status]}"><span class="n">${r.no}</span><span>${esc(r.title)}</span><i></i></a>`).join('')
+      + `<div class="sep"></div><a href="#g-extra" data-go="g-extra" class="s-auto"><span class="n">+</span><span>قواعد إضافية</span><i></i></a>`;
+    const seg = Object.keys(SF).map(k => `<button type="button" data-sf="${k}" aria-pressed="${gs.sf === k}">${{ all: 'الكل', engine: 'يطبّقها المحرك', later: 'لاحقاً', off: 'لا تُطبَّق الآن' }[k]}<b>${cnt(k).toLocaleString('ar')}</b></button>`).join('');
+    return `<div class="g-grid"><nav class="g-toc" aria-label="فهرس القواعد">${toc}</nav><div>
+      <div class="g-tools"><div class="seg" role="group" aria-label="حالة القاعدة في الأداة">${seg}</div><span class="grow"></span></div>
+      <div class="g-list">${list.map(ruleHTML).join('') || ''}
+      ${xs.length ? `<section class="g-rule" id="g-extra"><header><span class="g-no">+</span><h2>قواعد إضافية يطبّقها المحرك</h2><span class="g-st s-auto">${ST.auto}</span></header>
+        <div class="g-tool"><span>ليست بنداً مستقلاً في الدليل، لكنها من السلامة الإملائية والنحوية (القاعدة 1)، وأُضيفت بعد تحليل مقالات المجلات.</span></div><div class="g-eng">${engTable(xs)}</div></section>` : ''}
+      ${!list.length && !xs.length ? '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>' : ''}</div></div></div>`;
+  }
+  function renderDecisions() {
+    const list = G.decisions.filter(d => hit(d.title + ' ' + d.text + ' ' + d.effect));
+    return `<p class="g-intro">من ورقة «القرارات المعتمدة في التدقيق اللغوي»، بإجابات رئيس المدققين، وأُكّدت في 5 تشرين الثاني/ نوفمبر 2026. حيث يخالف القرار نصّ الدليل، فالقرار هو المعتمد.</p>
+      <div class="g-cards">${list.map(d => `<article class="g-dcard"><h2>${hl(d.title)}${d.rules.map(n => `<button type="button" class="g-chip" data-rule-go="${n}">القاعدة ${n}</button>`).join('')}${d.pending ? '<span class="wait">بانتظار الإدارة</span>' : ''}</h2>
+        <p>${hl(d.text)}</p><p class="eff">${hl(d.effect)}</p></article>`).join('') || '<div class="g-empty">لا يوجد قرار يطابق البحث.</div>'}</div>`;
+  }
+  function renderWords() {
+    const w = E.RULES.find(r => r.id === 'words');
+    const list = G.words.filter(x => hit(x.good + ' ' + x.bad));
+    return `<p class="g-intro">«طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل. يصحّحها المحرك آلياً، ومعها صيغها بـ(ال) وحروف العطف والجر.</p>
+      ${w ? `<div class="g-sw"><label>${swHTML(w)} تصحيح هذه الكلمات آلياً</label></div>` : ''}
+      ${list.length ? `<table class="g-dtable"><thead><tr><th>تُكتب</th><th>لا تُكتب</th><th>المصدر</th></tr></thead><tbody>${list.map(x => `<tr><td class="w good">${hl(x.good)}</td><td class="w bad">${hl(x.bad)}</td><td class="src">${x.extra ? 'أُضيفت بعد تحليل المقالات' : 'الدليل'}</td></tr>`).join('')}</tbody></table>` : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}
+      <p class="g-intro" style="margin-top:12px">إضافة الكلمات واقتراحها من المدققين تأتي مع الحسابات.</p>`;
+  }
+  function renderAuto() {
+    const rules = optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || '')));
+    const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length, nAuto = rs.filter(r => !st.off.has(r.id) && isAuto(r.id)).length;
+    const body = ['punct', 'spell', 'conv'].map(cat => {
+      const rows = rules.filter(r => r.cat === cat).map(r => {
+        const rno = r.no ? 'القاعدة ' + r.no : (r.label || 'قائمة الكلمات');
+        return `<tr class="${st.off.has(r.id) ? 'off' : ''}"><td><div class="rn">${hl(r.name)}</div><button type="button" class="rno" data-rule-go="${r.no || ''}" data-rid="${r.id}">${rno}</button>${r.scope === 'notes' ? ' <span class="tag">في الهوامش</span>' : ''}</td>
+          <td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td><td class="sw">${autoSwHTML(r)}</td></tr>`;
+      }).join('');
+      return rows ? `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th><th title="تُقبل تصحيحاتها وحدها عند فتح المستند">تلقائي</th></tr></thead><tbody>${rows}</tbody></table>` : '';
+    }).join('');
+    return `<div class="opts-h g-tools"><p>${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة. القاعدة المطفأة لا يقترح المحرك تصحيحاتها، ويُعاد فحص المستند المفتوح عند الرجوع إلى المحرر.
+      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يُحفظ الاختيار في هذا المتصفح.</p>
+      <button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button></div>
+      <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
+  }
+  function renderGuide() {
+    const counts = { rules: G.rules.filter(r => hit(ruleHay(r))).length, decisions: G.decisions.filter(d => hit(d.title + ' ' + d.text + ' ' + d.effect)).length,
+      words: G.words.filter(x => hit(x.good + ' ' + x.bad)).length, auto: optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || ''))).length };
+    $('gTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === gs.tab)); b.querySelector('b').textContent = counts[b.dataset.t].toLocaleString('ar'); });
+    $('gWrap').innerHTML = { rules: renderRules, decisions: renderDecisions, words: renderWords, auto: renderAuto }[gs.tab]();
+  }
+  function gTab(t) { gs.tab = t; store.set('guideTab', t); renderGuide(); $('guideBody').scrollTo({ top: 0, behavior: 'instant' }); }
+  function gGo(id) {
+    const el = $(id); if (!el) return;
+    const box = $('guideBody');
+    box.scrollTo({ top: el.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop - 12, behavior: 'smooth' });
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+  // from a correction in the editor: open its rule in the guide
+  function openGuideAt(rule) {
+    gs.q = ''; $('gQ').value = ''; gs.sf = 'all';
+    gs.tab = rule.id === 'words' ? 'words' : 'rules'; store.set('guideTab', gs.tab);
+    setView('guide');
+    if (gs.tab === 'rules') requestAnimationFrame(() => gGo(rule.no ? 'g-rule-' + rule.no : 'g-extra'));
+  }
+  $('gTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (b) gTab(b.dataset.t); });
+  let gT = null;
+  $('gQ').addEventListener('input', e => { clearTimeout(gT); gT = setTimeout(() => { gs.q = e.target.value.trim(); renderGuide(); }, 150); });
+  $('gWrap').addEventListener('click', ev => {
+    const go = ev.target.closest('[data-go]');
+    if (go) { ev.preventDefault(); gGo(go.dataset.go); return; }
+    const sf = ev.target.closest('[data-sf]');
+    if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
+    const rg = ev.target.closest('[data-rule-go]');
+    if (rg) { const no = +rg.dataset.ruleGo; if (!no && rg.dataset.rid === 'words') return gTab('words'); gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
+    if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
+  });
+  $('gWrap').addEventListener('change', ev => {
+    const aid = ev.target.dataset.autorule;
+    if (aid) {
+      const def = !!(E.RULES.find(r => r.id === aid) || {}).auto;
+      if (ev.target.checked === def) delete st.autoSet[aid]; else st.autoSet[aid] = ev.target.checked;
+      store.set('auto', st.autoSet); renderGuide(); return;
+    }
     const id = ev.target.dataset.rule; if (!id) return;
     if (ev.target.checked) st.off.delete(id); else st.off.add(id);
     store.set('off', [...st.off]); optsDirty = true;
-    ev.target.closest('tr').classList.toggle('off', !ev.target.checked);
-    optCount();
+    const tr = ev.target.closest('tr'); if (tr) tr.classList.toggle('off', !ev.target.checked);
+    if (gs.tab === 'auto') renderGuide();
   });
-  $('optsAllOn').addEventListener('click', () => { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderOpts(); });
-  $('optsClose').addEventListener('click', () => $('optsDlg').close());
-  $('optsDlg').addEventListener('close', () => {
-    if (!optsDirty) return;
-    recheck();
-    say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.');
-  });
+  $('optsBtn').addEventListener('click', () => { gs.q = ''; $('gQ').value = ''; gs.tab = 'auto'; store.set('guideTab', 'auto'); setView('guide'); });
 
   // ---------------- documents: every file opened in the tool, saved in this browser (IndexedDB) with its decisions
   const DB = (() => {
@@ -1990,7 +2395,7 @@ input[type=file] { display: none; }
   const docs = new Map();
   const ds = { q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
   const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason).map(g => [sig(g), g.status, g.reason]) }));
+  const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason || g.auto).map(g => g.auto ? [sig(g), g.status, g.reason, 1] : [sig(g), g.status, g.reason]) }));
   function docStats() {
     const { s } = counts();
     return { pending: s.pending, accepted: s.accepted, rejected: s.rejected, total: s.pending + s.accepted + s.rejected, words: st.words || 0, manual: st.paras.some(p => p.manual) };
@@ -2164,9 +2569,11 @@ input[type=file] { display: none; }
   function setView(v) {
     if (v === 'editor' && !st.docId) v = 'docs';
     if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
-    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor';
+    if (v === 'guide') { hidePop(true); commitDirty(); renderGuide(); }
+    if (v === 'editor' && optsDirty) { optsDirty = false; recheck(); say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.'); }
+    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide';
     document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : 'محرر تجديد';
+    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : 'محرر تجديد';
     store.set('view', v);
   }
   $('nav').addEventListener('click', ev => {
@@ -2190,7 +2597,7 @@ input[type=file] { display: none; }
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
       const last = store.get('lastDoc', null);
       if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
-      else setView('docs');
+      else setView(store.get('view', 'docs') === 'guide' ? 'guide' : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
   })();
 })();
