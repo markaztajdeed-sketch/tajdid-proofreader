@@ -179,6 +179,12 @@ sup.fn { font-family: var(--ui); font-size: 11px; color: var(--accent); font-wei
 .side-title small { color: var(--muted); font-variant-numeric: tabular-nums; }
 .sum { display: grid; gap: 2px; }
 .sum-row { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; }
+.auto-row { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; padding: 6px 8px; border-radius: 6px; background: var(--sunken); border: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.auto-row span { flex: 1; min-width: 0; }
+.auto-row b { color: var(--ink); }
+.auto-row.on { border-color: var(--accent); }
+.side-closed .auto-row { display: none; }
+.auto-tag { font-size: 10.5px; padding: 0 6px; margin-inline-start: 4px; }
 .sum-row .pick { flex: 1; display: flex; align-items: center; gap: 8px; border: 0; background: none; padding: 0; text-align: start; }
 .sum-row .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c, var(--muted)); flex: none; }
 .sum-row b { font-variant-numeric: tabular-nums; font-weight: 600; margin-inline-start: auto; }
@@ -417,7 +423,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         <button class="btn primary split-arrow" id="expArrow" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="خيارات التصدير"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
         <div class="split-menu" id="expMenu" role="menu" hidden>
           <button type="button" role="menuitem" data-exp="clean"><b>نسخة نظيفة <span class="def">الافتراضي</span></b><small>التصحيحات المقبولة مطبّقة، بلا تتبّع ولا تعليقات</small></button>
-          <button type="button" role="menuitem" data-exp="tracked"><b>مع تتبّع التعديلات</b><small>كل تصحيح مقبول متتبَّع مع تعليق يشرح قاعدته</small></button>
+          <button type="button" role="menuitem" data-exp="tracked"><b>مع تتبّع التعديلات</b><small>كل تصحيح مقبول متتبَّع، مع تعليق يشرح قاعدته (إلا التصحيحات التلقائية)</small></button>
         </div>
       </div>
     </div>
@@ -532,7 +538,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const fuzzy = s => [...s].map(c => (c === ' ' ? '\\s+' : c + '[' + H + ']*')).join('');
 
   // ---------------------------------------------------------------- rules
-  // Each rule: id, no (guide rule number), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
+  // Each rule: id, no (guide rule number), auto (a purely mechanical fix, applied without asking unless switched to manual), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
   // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
   // unmatched «(» right after a word and before a space or punctuation
   function unmatchedParens(text) {
@@ -605,7 +611,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
 
   const RULES = [
-    { id: 'title-ad', no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
+    { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
       find: text => {
         const out = [];
         for (const m of text.matchAll(re('(?<![{LH}])[وف]?أ\\.([ \\u00A0]*)(?:م\\.([ \\u00A0]*))?د\\.'))) {
@@ -620,14 +626,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'sp-before', no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
+    { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
-    { id: 'sp-after', no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
+    { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
       find: text => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
         ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
       ] },
-    { id: 'semicolon', no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
+    { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
@@ -638,7 +644,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
-    { id: 'br-inner', no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
+    { id: 'br-inner', auto: true, no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
@@ -689,11 +695,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'dash-num', no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين.',
+    { id: 'dash-num', auto: true, no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين.',
       find: simple(re('(?<=[{D}])[ \\u00A0]*([-–])[ \\u00A0]*(?=[{D}])'), m => m[1]) },
-    { id: 'slash', no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
+    { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
-    { id: 'sp-double', no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
+    { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
       find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
     { id: 'dot-out', no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
@@ -782,9 +788,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
       ] },
-    { id: 'page', no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
+    { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
-    { id: 'abbr', no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
+    { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
     { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
@@ -792,7 +798,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
-    { id: 'fn-space', no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
+    { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
         const out = simple(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'), () => '')(text);
         const rx = new RegExp('\\.(' + FN + '+)', 'g');
@@ -1393,16 +1399,20 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 6, title: 'موضع تنوين الفتح', status: 'auto',
       text: ['التحقق من وضع تنوين الفتح في موضعه الصحيح، بحيث يُكتب على الألف في الكلمات المنتهية بألف ممدودة، لا على الحرف الذي يسبقها. أما في الكلمات المنتهية بألف مقصورة (مثل: "معنًى" أو "هدًى")، فيُكتب التنوين على الحرف الذي يسبق الألف، وليس على الألف المقصورة نفسها.'] },
     { no: 7, title: 'علامات الترقيم ومسافاتها', status: 'auto',
-      text: ['استخدام علامات الترقيم بدقة، مثل: النقطة، الفاصلة، الفاصلة المنقوطة، علامات الاقتباس، الاستفهام، والتعجب، ووضعها في أماكنها الصحيحة، مع مراعاة أن تكون ملاصقة للكلمة التي تسبقها، ومفصولة بمسافة واحدة عن الكلمة التي تليها.'] },
+      text: ['استخدام علامات الترقيم بدقة، مثل: النقطة، الفاصلة، الفاصلة المنقوطة، علامات الاقتباس، الاستفهام، والتعجب، ووضعها في أماكنها الصحيحة، مع مراعاة أن تكون ملاصقة للكلمة التي تسبقها، ومفصولة بمسافة واحدة عن الكلمة التي تليها.'],
+      tool: 'تصحيحات المسافات قبل علامات الترقيم وبعدها، والمسافات الزائدة، والفاصلة المنقوطة العربية (؛) تُطبَّق تلقائياً عند فتح المستند، لأنها آلية لا تحتاج إلى رأي، ويستطيع المدقق رفض أي منها.' },
     { no: 8, title: 'الشرطتان والشرطة بين كلمتين أو رقمين', status: 'auto',
       text: ['بالنسبة للجمل المعترضة، والتي عادةً توضع بين شرطتين (– –)، تكون هاتان الشرطتان ملتصقتين بالجملة من اليمين واليسار، وليستا مفصولتين بمسافة، وعلامة الشرطة (–) في لوحة المفاتيح (الكيبورد) تكون في الزر الذي يسبق الرقم (0)، وتستخدم من دون زر (شفت).',
-        'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'] },
+        'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'],
+      tool: 'الشرطة بين رقمين تُصحَّح تلقائياً عند فتح المستند. أما الشرطتان حول الجملة المعترضة فتنتظر قرار المدقق.' },
     { no: 9, title: 'الشرطة المائلة', status: 'auto',
-      text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'] },
+      text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'],
+      tool: 'تُصحَّح تلقائياً عند فتح المستند، ويستطيع المدقق رفض أي تصحيح منها.' },
     { no: 10, title: 'توحيد الأقواس وعلامات الاقتباس', status: 'auto',
       text: ['توحيد استخدام الأقواس وعلامات الاقتباس، بحيث تُستخدم علامة الاقتباس العربية " " للنصوص المقتبسة التي تتطلب توثيقاً أو إحالة مرجعية، سواء أُذكر المصدر في المتن أم في الهامش. أما الأقواس الاعتيادية ( ) فتُخصص للإيضاحات أو الشروحات داخل النص.',
         'ويُراعى –خصوصاً في النصوص المترجمة– الالتزام بما وضعه المترجم من علامات اقتباس أو أقواس، دون تعديل أو حذف، حرصاً على أمانة النقل، وكما في توضيحات النقاط اللاحقة.',
-        'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'] },
+        'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'],
+      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند. أما القوس المقلوب والتحويل بين الأقواس وعلامات التنصيص فينتظران قرار المدقق.' },
     { no: 11, title: 'إغلاق الأقواس وعلامات الاقتباس', status: 'auto',
       text: ['الانتباه إلى إغلاق الأقواس الاعتيادية ( ) وعلامات الاقتباس " " عند استخدامها، والتأكد من عدم نسيان أحد طرفيها؛ إذ يُعدّ هذا من أكثر الأخطاء الشكلية شيوعاً التي تؤثر في وضوح النص وسلامة تركيبه.'],
       tool: 'تنبّه الأداة في الشريط السفلي إلى الفقرة التي فيها قوس أو علامة غير مغلقة، ويحدّد المدقق موضع الإغلاق.' },
@@ -1475,7 +1485,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '1- إذا كان المصدر المكرر متصلاً مباشرة بالمصدر الذي سبقه، فلا يُعاد ذكر المرجع كاملاً، بل يُكتفى بكتابة (المصدر نفسه) متبوعاً بفارزة (،) ثم رقم الصفحة الجديدة. مثال: المصدر نفسه، ص75.',
         '2- أما إذا كان المصدر قد ورد سابقاً لكنه ليس الهامش المباشر السابق (بل قبل عدة هوامش: 4 أو 5 مثلاً)، فيُذكر اسم الكتاب، متبوعاً بفاصلة، ثم عبارة (مصدر سابق)، ثم رقم الصفحة أو الجزء. مثال: الكلمات والأشياء، مصدر سابق، ص214.',
         '3- إذا كان المصدر قد ورد كالتالي: المصدر نفسه، ص70، ثم جاء الاقتباس أو الهامش التالي من المصدر نفسه والصفحة نفسها يكون الهامش كالتالي: المصدر نفسه (دون وضع رقم الصفحة).'],
-      tool: 'يطبّق المحرك: موضع رقم الهامش قبل النقطة، وكتابة (ص22)، والاختصارات (ط، مج)، و(المصدر نفسه) و(مصدر سابق). أما تسلسل الهوامش وعودتها إلى موضعها وإشارة (المترجم) فتأتي لاحقاً.' },
+      tool: 'يطبّق المحرك: موضع رقم الهامش قبل النقطة، وكتابة (ص22)، والاختصارات (ط، مج)، و(المصدر نفسه) و(مصدر سابق). وهذه كلها ما عدا (المصدر نفسه) و(مصدر سابق) تُطبَّق تلقائياً عند فتح المستند. أما تسلسل الهوامش وعودتها إلى موضعها وإشارة (المترجم) فتأتي لاحقاً.' },
     { no: 30, title: 'التوثيق بنظام شيكاغو', status: 'deferred',
       text: ['استعمال نظام شيكاغو (Chicago) في ترتيب المصادر والمراجع وتنسيقها بأسلوب (End Notes) ولضرب مثال على ذلك نورد بعض الحالات: في حال التوثيق من كتاب: اسم المؤلف، عنوان الكتاب، اسم المترجم (إن كان الكتاب مترجماً)، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ذكر الجزء أو المجلد (إن كان الكتاب على عدة أجزاء)، ورقم الصفحة. في حال التوثيق من مجلة: اسم المؤلف؛ عنوان البحث أو المقال أو الدراسة، اسم المجلة، العدد، تاريخ النشر، الطبعة، ورقم الصفحة. في حال التوثيق من كتاب جماعي: اسم كاتب البحث أو المقال () في ضمن كتاب () عنوان الكتاب، اسم المحرر أو المشرف، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ورقم الصفحة. في حال التوثيق من رسالة أو أطروحة: اسم الباحث؛ عنوان الرسالة أو الأطروحة، الجامعة والكلية، تاريخ المناقشة، ورقم الصفحة.',
         'ملاحظة: ما تم ذكره في أعلاه من مصادر إن كانت إلكترونية فيُتم إدراج الرابط بعد رقم الصفحة في الأسفل.',
@@ -1497,7 +1507,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '• العناوين داخل المقال: العنوان الرئيس الداخلي: حجم الخط (13)، ونوع الخط (Arabic UI Display Heavy). والعنوان الفرعي الأول (التابع له مباشرة): حجم الخط (12)، ونفس نوع الخط (Arabic UI Display Heavy). أما العنوان الفرعي الثاني (التابع للفرعي الأول): فحجم الخط (16)، ونوعه (Tajdid Bold).',
         '• الهوامش السفلية: نوع الخط: (Tajdid Regular) بحجم (12).',
         '• نقطة بعد (المترجم).'],
-      tool: 'يطبّق المحرك كتابة اللقب العلمي بمسافة (أ. د.). أما فحص الخطوط وأحجامها فمؤجّل بطلب المركز.' }
+      tool: 'يطبّق المحرك كتابة اللقب العلمي بمسافة (أ. د.) تلقائياً عند فتح المستند. أما فحص الخطوط وأحجامها فمؤجّل بطلب المركز.' }
   ];
 
   // قرارات «القرارات المعتمدة في التدقيق اللغوي»، أجاب عنها رئيس المدققين، وأكّدها بشار في 5 تشرين الثاني/ نوفمبر 2026
@@ -1552,18 +1562,24 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const store = { get(k, d) { try { const v = localStorage.getItem('tajdid-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
-    off: new Set(store.get('off', [])), noHarakat: false, hideAcc: true };
+    off: new Set(store.get('off', [])), autoSet: store.get('auto', {}), noHarakat: false, hideAcc: true };
+  // Purely mechanical rules (auto: true in the engine) are accepted on their own when a document is opened.
+  // The guide page can switch any rule to automatic or manual; only the choices that differ from the default are stored.
+  const isAuto = id => id in st.autoSet ? st.autoSet[id] : !!(E.RULES.find(r => r.id === id) || {}).auto;
   const HARAKA = /[\u064B-\u0652\u0670]/, HARAKA_ALL = /[\u064B-\u0652\u0670]/g;
   // Rules are switched on and off from the checking-options table; (عليه السلام) ← (ع) is one of the centre's rules.
   const opts = () => ({ translated: false });
 
   // ---------------- model
   const sig = g => g.rule.id + '|' + g.edits.map(e => e.start + ':' + e.end + ':' + e.repl).join(',');
-  function scan(para, keep) {
+  // fresh: the document is being opened, so a correction met for the first time from an automatic rule is accepted at once
+  function scan(para, keep, fresh) {
     const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
     para.groups = r.groups.filter(g => !st.off.has(g.rule.id)).map(g => {
       const old = keep && keep.get(sig(g));
-      return Object.assign(g, { id: 'g' + (++st.gid), status: old ? old.status : 'pending', reason: old ? old.reason : '' });
+      if (old) return Object.assign(g, { id: 'g' + (++st.gid), status: old.status, reason: old.reason || '', auto: !!old.auto });
+      const auto = !!fresh && isAuto(g.rule.id);
+      return Object.assign(g, { id: 'g' + (++st.gid), status: auto ? 'accepted' : 'pending', reason: '', auto });
     });
     para.quran = r.quran; para.warnings = r.warnings;
   }
@@ -1577,8 +1593,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       st.paras.forEach(p => {
         const s = keep && keep.get(p.key);
         if (s) { p.base = s.base; p.manual = s.manual; }
-        scan(p, s && s.g ? new Map(s.g.map(([k, status, reason]) => [k, { status, reason }])) : null);
+        scan(p, s && s.g ? new Map(s.g.map(([k, status, reason, auto]) => [k, { status, reason, auto }])) : null, true);
       });
+      st.cat = 'all';
       renderAll();
       say(res.paras.length ? '' : 'لم أجد نصاً عربياً في هذا الملف.', !res.paras.length);
     });
@@ -1708,9 +1725,25 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       const off = k === 'style', on = st.cat === k;
       const acc = !off && c[k] ? `<button type="button" class="link" data-accept="${k}">قبول الكل</button>` : '';
       return `<div class="sum-row c-${k}${on ? ' on' : ''}${off ? ' off' : ''}"><button type="button" class="pick" data-cat="${k}" title="${k === 'all' ? 'كل التصحيحات' : CATS[k]}" ${off ? 'disabled title="يأتي مع طبقة الذكاء الاصطناعي"' : ''} aria-pressed="${on}">${k === 'all' ? '<span class="dot" style="background:var(--ink)"></span>' : '<span class="dot"></span>'}<span class="nm">${k === 'all' ? 'كل التصحيحات' : CATS[k]}</span><b>${off ? 'لاحقاً' : c[k]}</b></button>${acc}</div>`;
-    }).join('');
-    $('page').className = 'page' + (st.cat !== 'all' ? ' focus-' + st.cat : '');
+    }).join('') + autoRow();
+    $('page').className = 'page' + (CATS[st.cat] ? ' focus-' + st.cat : '');
   }
+  // the corrections the engine applied on its own: shown, and taken back, together
+  const autoDone = () => allGroups().filter(([, g]) => g.auto && g.status === 'accepted');
+  function autoRow() {
+    const n = autoDone().length; if (!n) return '';
+    return `<div class="auto-row${st.cat === 'auto' ? ' on' : ''}"><span>⚡ طُبّق تلقائياً <b>${n.toLocaleString('ar')}</b> تصحيحاً آلياً</span>
+      <button type="button" class="link" data-auto-act="show">${st.cat === 'auto' ? 'إخفاؤها' : 'عرضها'}</button><button type="button" class="link" data-auto-act="undo">التراجع عنها</button></div>`;
+  }
+  function undoAuto() {
+    const list = autoDone(); if (!list.length) return;
+    snapshot();
+    list.forEach(([, g]) => { g.status = 'pending'; });
+    if (st.cat === 'auto') st.cat = 'all';
+    renderAll();
+    say(`أُعيد ${list.length.toLocaleString('ar')} تصحيحاً آلياً إلى «بانتظار القرار» (Ctrl+Z للتراجع).`);
+  }
+  const autoTag = g => g.auto ? '<span class="tag auto-tag" title="قاعدة آلية: طبّقها المحرك دون انتظار القرار">تلقائي</span>' : '';
   const rnoTag = (r, rno) => r.id === 'manual' ? `<span class="rno">${rno}</span>` : `<button type="button" class="rno" data-act="guide" title="افتح القاعدة في دليل التدقيق">${rno}</button>`;
   function cardHTML(p, g) {
     const b = g.before, a = g.after, cat = g.rule.cat || 'punct';
@@ -1722,12 +1755,13 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       if (g.status === 'rejected') foot += `<input class="reason" id="reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
     }
     return `<div class="card c-${cat}${st.sel === g.id ? ' sel' : ''}${g.status !== 'pending' ? ' decided' : ''}" data-g="${g.id}" tabindex="0">
-      <div class="card-h"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${rnoTag(g.rule, rno)}</div>
+      <div class="card-h"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${autoTag(g)}${rnoTag(g.rule, rno)}</div>
       <div class="ba"><div><span class="k">قبل</span><span class="t">${showChars(b.pre)}<mark class="d">${vis(b.mid) || '&#8203;'}</mark>${showChars(b.post)}</span></div>
       <div><span class="k">بعد</span><span class="t">${showChars(a.pre)}<mark class="i">${vis(a.mid)}</mark>${showChars(a.post)}</span></div></div>
       <p class="why">${esc(g.rule.why)}${p.inNotes ? ' <span class="tag">في الهوامش</span>' : ''}</p>${foot}</div>`;
   }
   function visibleGroups() {
+    if (st.cat === 'auto') return autoDone();
     return allGroups().filter(([, g]) => (st.cat === 'all' || g.rule.cat === st.cat) && (st.show === 'all' || g.status === 'pending'));
   }
   function renderCards() {
@@ -1810,7 +1844,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       foot = `<div class="acts"><span class="state ${g.status === 'accepted' ? 'ok' : 'no'}">${g.status === 'accepted' ? '✓ مقبول' : '✕ مرفوض'}</span><button class="link" type="button" data-act="reset">تغيير القرار</button></div>`;
       if (g.status === 'rejected') foot += `<input class="reason" id="pop-reason-${g.id}" data-act="reason" placeholder="سبب الرفض (اختياري، تتعلم منه الأداة لاحقاً)" value="${esc(g.reason || '')}">`;
     }
-    return `<div class="pg" data-id="${g.id}"><div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${rnoTag(g.rule, rno)}</div>
+    return `<div class="pg" data-id="${g.id}"><div class="card-h c-${g.rule.cat}"><span class="dot"></span><span class="name">${esc(g.rule.name)}</span>${autoTag(g)}${rnoTag(g.rule, rno)}</div>
       <div class="chgline">${line}</div><p class="why">${esc(g.rule.why)}</p>${foot}</div>`;
   }
   function placePop(anchor) {
@@ -1999,7 +2033,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     let skipped = 0;
     // each accepted correction carries its explanation, which becomes a Word comment
     const noteOf = g => (g.rule.no ? 'القاعدة ' + g.rule.no + ': ' : '') + g.rule.name + (g.rule.why ? '\n' + g.rule.why : '');
-    const accEdits = p => p.groups.filter(g => g.status === 'accepted').flatMap(g => { const note = noteOf(g); return g.edits.map(e => Object.assign({}, e, { note })); });
+    // automatic (mechanical) corrections stay tracked but carry no comment, so the margin is kept for real decisions
+    const accEdits = p => p.groups.filter(g => g.status === 'accepted').flatMap(g => { const note = g.auto ? null : noteOf(g); return g.edits.map(e => Object.assign({}, e, { note })); });
     const bad = (p, es) => es.some(e => /[￼]/.test(e.repl + p.orig.slice(e.start, e.end)));
     const decideFn = (key, text) => {
       const p = st.byKey.get(key);
@@ -2069,6 +2104,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   });
   $('cats').addEventListener('click', ev => {
     const acc = ev.target.closest('[data-accept]'); if (acc) return acceptCat(acc.dataset.accept);
+    const aa = ev.target.closest('[data-auto-act]');
+    if (aa) { if (aa.dataset.autoAct === 'undo') return undoAuto(); st.cat = st.cat === 'auto' ? 'all' : 'auto'; st.sel = null; if (st.cat === 'auto' && $('cards').hidden) $('listToggle').click(); return renderCards(); }
     const b = ev.target.closest('[data-cat]'); if (!b || b.disabled) return;
     st.cat = st.cat === b.dataset.cat ? 'all' : b.dataset.cat; renderCards();
   });
@@ -2199,9 +2236,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const decOf = no => G.decisions.filter(d => d.rules.includes(no));
   const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
   const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
+  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : ''} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
+  const autoMark = r => isAuto(r.id) ? ' <span class="tag auto-tag" title="تُطبَّق تلقائياً عند فتح المستند، ويستطيع المدقق رفضها">تلقائي</span>' : '';
   const exHTML = id => { const ex = EX[id]; return ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''; };
   function engTable(list) {
-    return `<table class="otable"><tbody>${list.map(r => `<tr class="${st.off.has(r.id) ? 'off' : ''}"><td><div class="rn">${hl(r.name)}</div>${r.scope === 'notes' ? '<span class="tag">في الهوامش</span>' : ''}</td><td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td></tr>`).join('')}</tbody></table>`;
+    return `<table class="otable"><tbody>${list.map(r => `<tr class="${st.off.has(r.id) ? 'off' : ''}"><td><div class="rn">${hl(r.name)}${autoMark(r)}</div>${r.scope === 'notes' ? '<span class="tag">في الهوامش</span>' : ''}</td><td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td></tr>`).join('')}</tbody></table>`;
   }
   function textHTML(lines) {
     let out = '', ul = false;
@@ -2251,17 +2290,18 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   function renderAuto() {
     const rules = optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || '')));
-    const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length;
+    const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length, nAuto = rs.filter(r => !st.off.has(r.id) && isAuto(r.id)).length;
     const body = ['punct', 'spell', 'conv'].map(cat => {
       const rows = rules.filter(r => r.cat === cat).map(r => {
         const rno = r.no ? 'القاعدة ' + r.no : (r.label || 'قائمة الكلمات');
         return `<tr class="${st.off.has(r.id) ? 'off' : ''}"><td><div class="rn">${hl(r.name)}</div><button type="button" class="rno" data-rule-go="${r.no || ''}" data-rid="${r.id}">${rno}</button>${r.scope === 'notes' ? ' <span class="tag">في الهوامش</span>' : ''}</td>
-          <td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td></tr>`;
+          <td>${hl(r.why)}</td><td class="ex">${exHTML(r.id)}</td><td class="sw">${swHTML(r)}</td><td class="sw">${autoSwHTML(r)}</td></tr>`;
       }).join('');
-      return rows ? `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th></tr></thead><tbody>${rows}</tbody></table>` : '';
+      return rows ? `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th><th title="تُقبل تصحيحاتها وحدها عند فتح المستند">تلقائي</th></tr></thead><tbody>${rows}</tbody></table>` : '';
     }).join('');
-    return `<div class="opts-h g-tools"><p>${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة. القاعدة المطفأة لا يقترح المحرك تصحيحاتها، ويُعاد فحص المستند المفتوح عند الرجوع إلى المحرر. يُحفظ الاختيار في هذا المتصفح.</p>
-      <button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button></div>
+    return `<div class="opts-h g-tools"><p>${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة. القاعدة المطفأة لا يقترح المحرك تصحيحاتها، ويُعاد فحص المستند المفتوح عند الرجوع إلى المحرر.
+      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يُحفظ الاختيار في هذا المتصفح.</p>
+      <button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button></div>
       <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
   }
   function renderGuide() {
@@ -2294,9 +2334,16 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
     const rg = ev.target.closest('[data-rule-go]');
     if (rg) { const no = +rg.dataset.ruleGo; if (!no && rg.dataset.rid === 'words') return gTab('words'); gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
     if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
   });
   $('gWrap').addEventListener('change', ev => {
+    const aid = ev.target.dataset.autorule;
+    if (aid) {
+      const def = !!(E.RULES.find(r => r.id === aid) || {}).auto;
+      if (ev.target.checked === def) delete st.autoSet[aid]; else st.autoSet[aid] = ev.target.checked;
+      store.set('auto', st.autoSet); renderGuide(); return;
+    }
     const id = ev.target.dataset.rule; if (!id) return;
     if (ev.target.checked) st.off.delete(id); else st.off.add(id);
     store.set('off', [...st.off]); optsDirty = true;
@@ -2330,7 +2377,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const docs = new Map();
   const ds = { q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
   const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason).map(g => [sig(g), g.status, g.reason]) }));
+  const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason || g.auto).map(g => g.auto ? [sig(g), g.status, g.reason, 1] : [sig(g), g.status, g.reason]) }));
   function docStats() {
     const { s } = counts();
     return { pending: s.pending, accepted: s.accepted, rejected: s.rejected, total: s.pending + s.accepted + s.rejected, words: st.words || 0, manual: st.paras.some(p => p.manual) };
