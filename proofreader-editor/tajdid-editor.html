@@ -379,6 +379,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 .g-dtable .w.good { color: var(--good); font-weight: 700; }
 .g-dtable .w.bad { color: var(--spell); text-decoration: line-through; }
 .g-dtable .src { color: var(--muted); font-size: 12.5px; }
+.d-foot { margin-top: 14px; }
 .g-sw { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
 .g-sw label { display: inline-flex; align-items: center; gap: 8px; }
 
@@ -401,7 +402,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <a href="#" data-view="editor" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
       <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
       <a href="#" data-view="guide" class="nav-item" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span></a>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" data-view="dict" class="nav-item" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
       <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
@@ -510,7 +511,6 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     <div class="seg g-tabs" role="group" aria-label="أقسام الدليل" id="gTabs">
       <button type="button" data-t="rules" aria-pressed="true">القواعد<b></b></button>
       <button type="button" data-t="decisions" aria-pressed="false">القرارات المعتمدة<b></b></button>
-      <button type="button" data-t="words" aria-pressed="false">الكلمات المعتمدة<b></b></button>
       <button type="button" data-t="auto" aria-pressed="false">تشغيل القواعد<b></b></button>
     </div>
     <span class="grow"></span>
@@ -519,9 +519,77 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   </header>
   <div class="docs-body" id="guideBody"><div class="g-wrap" id="gWrap"></div></div>
 </div>
+<div class="app docs guide" id="dictView" hidden>
+  <header class="top docs-top">
+    <h1>القاموس <small>كيف يكتب المركز كلمات وأسماء ومصطلحات بعينها</small></h1>
+    <div class="seg g-tabs" role="group" aria-label="أقسام القاموس" id="dTabs">
+      <button type="button" data-t="words" aria-pressed="true">الكلمات المعتمدة<b></b></button>
+      <button type="button" data-t="names" aria-pressed="false">الأعلام<b></b></button>
+      <button type="button" data-t="terms" aria-pressed="false">المصطلحات<b></b></button>
+      <button type="button" data-t="except" aria-pressed="false">الاستثناءات<b></b></button>
+      <button type="button" data-t="rej" aria-pressed="false">تصحيحات تكرّر رفضها<b></b></button>
+    </div>
+    <span class="grow"></span>
+    <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input type="search" id="dQ" placeholder="ابحث في القاموس" aria-label="ابحث في القاموس"></label>
+  </header>
+  <div class="docs-body" id="dictBody"><div class="g-wrap" id="dWrap"></div></div>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// قاموس مركز تجديد: كيف يكتب المركز كلمات وأسماء ومصطلحات بعينها. تقرؤه شاشة «القاموس»، ويقرؤه المحرك:
+// الكلمات المعتمدة والأعلام يصحّحها آلياً، والاستثناءات لا يلمسها، والمصطلحات للعرض فقط.
+// إلى أن تجهز الحسابات، يُعدَّل هذا الملف بطلب من مسؤول الدليل، فيصل التعديل إلى كل المدققين مع تحديث الأداة.
+//
+// words: good (تُكتب)، bad (لا تُكتب)، from/to (جذع الكلمة الخاطئ وصوابه؛ يصحّحه المحرك مع (ال) وحروف العطف والجر
+//        ولواحق الكلمة)، special (يصحّحه المحرك بقاعدة خاصة به)، src، added (تاريخ الإضافة).
+// names: name (الصيغة المعتمدة)، variants (صيغ تُصحَّح إليها، كلمة كاملة)، note، src، added.
+// terms: term، def (تعريف قصير)، src، added.
+// exceptions: word (كلمة كاملة لا يقترح المحرك فيها أي تصحيح)، note، src، added.
+(function (root) {
+  'use strict';
+  const GUIDE = 'الدليل', CORPUS = 'تحليل المقالات', SAMPLE = 'مثال مؤقت';
+  const words = [
+    { good: 'إفريقيا', bad: 'أفريقيا', from: 'أفريقي', to: 'إفريقي', src: GUIDE, added: '2026-11-02' },
+    { good: 'رئيس، رئيسة', bad: 'رئيسي، رئيسية', special: true, src: GUIDE, added: '2026-11-02' },
+    { good: 'أيديولوجيا', bad: 'إيديولوجيا', from: 'إيديولوج', to: 'أيديولوج', src: GUIDE, added: '2026-11-02' },
+    { good: 'أنثروبولوجيا', bad: 'إنثروبولوجيا', from: 'إنثروبولوج', to: 'أنثروبولوج', src: GUIDE, added: '2026-11-02' },
+    { good: 'إثنولوجيا', bad: 'أثنولوجيا', from: 'أثنولوج', to: 'إثنولوج', src: GUIDE, added: '2026-11-02' },
+    { good: 'إبستمولوجيا', bad: 'أبستمولوجيا', from: 'أبستمولوج', to: 'إبستمولوج', src: GUIDE, added: '2026-11-02' },
+    { good: 'إنترنت', bad: 'أنترنت', from: 'أنترنت', to: 'إنترنت', src: GUIDE, added: '2026-11-02' },
+    { good: 'ليبرالية', bad: 'ليبيرالية', from: 'ليبيرالي', to: 'ليبرالي', src: GUIDE, added: '2026-11-02' },
+    { good: 'ق.م', bad: 'ق.م.', special: true, src: GUIDE, added: '2026-11-02' },
+    { good: 'مسؤول', bad: 'مسئول', from: 'مسئول', to: 'مسؤول', src: CORPUS, added: '2026-11-04' }
+  ];
+
+  // أمثلة مؤقتة إلى أن تُستخرج القائمة الكاملة من تحليل المقالات وتعتمدها الإدارة.
+  // الصيغة المعتمدة هي الأكثر وروداً في المقالات بعد التدقيق.
+  const names = [
+    { name: 'أفلاطون', variants: ['افلاطون'], note: 'همزة القطع.', src: SAMPLE, added: '2026-11-11' },
+    { name: 'أرسطو', variants: ['ارسطو'], note: 'همزة القطع.', src: SAMPLE, added: '2026-11-11' },
+    { name: 'أركون', variants: ['اركون'], note: 'محمد أركون. همزة القطع.', src: SAMPLE, added: '2026-11-11' },
+    { name: 'ابن سينا', variants: ['ابن سيناء'], note: 'بلا همزة في آخره.', src: SAMPLE, added: '2026-11-11' },
+    { name: 'هيغل', variants: ['هيجل'], note: 'وردت «هيغل» في المقالات أكثر من «هيجل».', src: SAMPLE, added: '2026-11-11' },
+    { name: 'هايدغر', variants: ['هيدغر', 'هيدجر', 'هايدجر'], note: 'الصيغة الأكثر وروداً في المقالات.', src: SAMPLE, added: '2026-11-11' },
+    { name: 'دوركايم', variants: ['دوركهايم'], note: 'الصيغة الأكثر وروداً في المقالات.', src: SAMPLE, added: '2026-11-11' }
+  ];
+
+  const terms = [
+    { term: 'الحداثة', def: 'مرحلة فكرية وحضارية نشأت في أوروبا، تقوم على مركزية العقل والإنسان والعلم.', src: SAMPLE, added: '2026-11-11' },
+    { term: 'العلمانية', def: 'فصل الدين عن الدولة ومؤسساتها وعن الشأن العام.', src: SAMPLE, added: '2026-11-11' },
+    { term: 'الهرمنيوطيقا', def: 'علم تأويل النصوص وفهمها.', src: SAMPLE, added: '2026-11-11' }
+  ];
+
+  const exceptions = [];
+
+  const api = { words, names, terms, exceptions };
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+  root.TajdidDict = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
 <script>
 /* Tajdid proofreading engine: tier-1 (deterministic) rules applied to a .docx as tracked changes. */
 (function (root) {
@@ -601,10 +669,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
   // نسبة إلى كلمة من حرفين (طبّ، فنّ...): لا يكفيها شرط الجذع الثلاثي، فتُذكر هنا بأسمائها
   const NISBA_SHORT = new Set(['طبي', 'فني', 'حسي', 'كمي', 'جوي', 'بري', 'سري', 'ذري', 'خطي', 'كلي', 'ظني']);
-  const WORDS = [
-    ['أفريقي', 'إفريقي'], ['إيديولوج', 'أيديولوج'], ['إنثروبولوج', 'أنثروبولوج'], ['أثنولوج', 'إثنولوج'],
-    ['أبستمولوج', 'إبستمولوج'], ['أنترنت', 'إنترنت'], ['ليبيرالي', 'ليبرالي'], ['مسئول', 'مسؤول']
-  ];
+  // the centre's dictionary (dictionary.js): preferred words and names are corrected, exceptions are never touched
+  const DICT = root.TajdidDict || (typeof require === 'function' && typeof __dirname !== 'undefined' ? (() => { try { return require(require('path').join(__dirname, 'dictionary.js')); } catch (e) { return null; } })() : null) || { words: [], names: [], exceptions: [] };
+  const WORDS = DICT.words.filter(w => w.from && w.to).map(w => [w.from, w.to]);
+  const NAMES = DICT.names.flatMap(n => n.variants.map(v => [v, n.name])).sort((a, b) => b[0].length - a[0].length);
+  const EXCEPT = (DICT.exceptions || []).map(x => x.word).filter(Boolean);
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
@@ -889,7 +958,13 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'words', no: 0, name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
+    { id: 'names', no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
+      find: text => {
+        const out = [];
+        for (const [bad, good] of NAMES) out.push(...simple(re('(?<![{LH}])([وف]?[بلك]?)' + fuzzy(bad) + '(?![{LH}])'), m => m[1] + good)(text));
+        return out;
+      } },
+    { id: 'words', no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of WORDS) out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)' + bad), m => m[1] + good)(text));
@@ -901,7 +976,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 
   const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
+    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -1029,6 +1104,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     // parentheses) is the author's own wording and gets them
     pr.longQuotes = pr.quotes.filter(([a, b]) => text.slice(a + 1, b).trim().split(/\s+/).length > 4);
     const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon };
+    // dictionary exceptions: whole words the engine must leave as written
+    const exRanges = [];
+    for (const w of EXCEPT) for (const m of text.matchAll(re('(?<![{LH}])[وف]?[بلك]?(?:ال)?' + fuzzy(w) + '(?![{LH}])'))) exRanges.push([m.index, m.index + m[0].length - 1]);
     const accepted = [], groups = [];
     const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
     for (const rule of RULES) {
@@ -1045,6 +1123,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
+          if (exRanges.length && overlaps(e.start, e.end, exRanges)) ok = false;
           if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
           if (busy(e.start, e.end)) ok = false;
         }
@@ -1384,14 +1463,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     return { data: out, changes: ctx.changes, warnings: ctx.warnings, paragraphs };
   }
 
-  const api = { processDocx, loadDocx, exportDocx, findGroups, buildLexicon, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
+  const api = { DICT, processDocx, loadDocx, exportDocx, findGroups, buildLexicon, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.TajdidEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
 <script>
 // دليل المدققين في مركز تجديد: نص القواعد الـ31 كما في الدليل، وحالة كل قاعدة في الأداة،
-// والقرارات المعتمدة من رئيس المدققين، وقائمة الكلمات المعتمدة. تقرؤه صفحة «دليل التدقيق».
+// والقرارات المعتمدة من رئيس المدققين. تقرؤه صفحة «دليل التدقيق». (قائمة الكلمات المعتمدة في القاموس: dictionary.js)
 // status: auto (يطبّقها المحرك) · partial (المحرك يطبّق جزءاً منها) · ai (مع طبقة الذكاء الاصطناعي)
 //         comment (اقتراح في تعليق فقط) · decision (لا تُطبَّق بقرار معتمد) · deferred (مؤجّلة)
 // text: فقرات الدليل؛ السطر الذي يبدأ بـ«• » بند في قائمة، والذي يبدأ بـ«مثال» أو «ملاحظة» يظهر مميّزاً.
@@ -1467,8 +1546,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['في حالة وجود مثل هكذا عبارات: "أو (متحدة)"، يتم تعديلها لتكون: أو (متحدة).'] },
     { no: 19, title: 'الأعوام لا توضع بين قوسين', status: 'auto',
       text: ['لا توضع أرقام الأعوام بين قوسين: وُلد عام 1900م. لكن نضع القوسين في الحالة التالية: وُلد عام (1900م–1340هـ) أو في الحالة: كان الملا صدرا (1572م–1641م) مقيماً في ....'] },
-    { no: 20, title: 'توحيد أسماء الأعلام والأماكن', status: 'ai',
-      text: ['التحقق من توحيد أسماء الأعلام والأماكن في النص؛ إذ قد يَرِد الاسم الواحد بأكثر من صورة داخل المقال أو الكتاب، رغم الإشارة إلى المعنى نفسه، مثل: (غورباتشوف) و(غورباتشيف)، أو (ناجورني كاراباخ) و(نكورني كاراباغ)، أو (أمريكا) و(أميركا). يُراعى اعتماد صيغة واحدة ثابتة في جميع المواضع.'] },
+    { no: 20, title: 'توحيد أسماء الأعلام والأماكن', status: 'partial',
+      text: ['التحقق من توحيد أسماء الأعلام والأماكن في النص؛ إذ قد يَرِد الاسم الواحد بأكثر من صورة داخل المقال أو الكتاب، رغم الإشارة إلى المعنى نفسه، مثل: (غورباتشوف) و(غورباتشيف)، أو (ناجورني كاراباخ) و(نكورني كاراباغ)، أو (أمريكا) و(أميركا). يُراعى اعتماد صيغة واحدة ثابتة في جميع المواضع.'],
+      tool: 'يصحّح المحرك الأعلام المسجّلة في القاموس إلى صيغتها المعتمدة، ولا يمكن إطفاء ذلك. أما توحيد الأعلام غير المسجّلة داخل النص فيأتي مع طبقة الذكاء الاصطناعي.' },
     { no: 21, title: 'أسماء الأشهر', status: 'auto',
       text: ['في كتابة أسماء الأشهر، يُعتمد الأسلوب المزدوج، بذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: (تموز/ يوليو) و(شباط/ فبراير)، ولا تُستخدم تسميات أخرى معتمدة في بعض الدول العربية كبدائل. أما النص المترجَم فيبقى كما الأصل.'] },
     { no: 22, title: 'فصل (ما) و(لا) عمّا بعدهما', status: 'auto',
@@ -1542,21 +1622,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { rules: [19], title: 'حرف (م) بعد السنة الميلادية', text: 'إذا كان النص يتحدث عن السنة الميلادية تُوضع (م) بعد رقم السنة، و(هـ) و(م) معاً إذا ذُكرت السنتان.', effect: 'بانتظار جواب الإدارة عن الحالات التي يشملها، ولا يطبّقه المحرك بعد.', pending: true }
   ];
 
-  // «طرق استعمال بعض الكلمات في إصدارات المركز» في آخر الدليل
-  const words = [
-    { good: 'إفريقيا', bad: 'أفريقيا' },
-    { good: 'رئيس، رئيسة', bad: 'رئيسي، رئيسية' },
-    { good: 'أيديولوجيا', bad: 'إيديولوجيا' },
-    { good: 'أنثروبولوجيا', bad: 'إنثروبولوجيا' },
-    { good: 'إثنولوجيا', bad: 'أثنولوجيا' },
-    { good: 'إبستمولوجيا', bad: 'أبستمولوجيا' },
-    { good: 'إنترنت', bad: 'أنترنت' },
-    { good: 'ليبرالية', bad: 'ليبيرالية' },
-    { good: 'ق.م', bad: 'ق.م.' },
-    { good: 'مسؤول', bad: 'مسئول', extra: true }
-  ];
+  // «طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل صارت في القاموس (dictionary.js)
 
-  const api = { rules, decisions, words };
+  const api = { rules, decisions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   root.TajdidGuide = api;
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -1570,6 +1638,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const E = TajdidEngine, FN = E.FN, OB = E.OB;
   const xml = { parse: s => new DOMParser().parseFromString(s, 'application/xml'), serialize: d => new XMLSerializer().serializeToString(d) };
   const CATS = { punct: 'ترقيم ومسافات', spell: 'إملاء ورسم', conv: 'أعراف المركز', style: 'أسلوب' };
+  // dictionary rules (preferred words, names) always run: they have no switch
+  const DICT_IDS = new Set(E.RULES.filter(r => r.dict).map(r => r.id));
   const MANUAL_RULE = { id: 'manual', no: 0, name: 'تعديل المدقق', author: 'تعديل المدقق' };
   const MK_FN = '⟦هامش⟧', MK_OB = '⟦عنصر⟧';
   const $ = id => document.getElementById(id);
@@ -1593,7 +1663,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   // fresh: the document is being opened, so a correction met for the first time from an automatic rule is accepted at once
   function scan(para, keep, fresh) {
     const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
-    para.groups = r.groups.filter(g => !st.off.has(g.rule.id)).map(g => {
+    para.groups = r.groups.filter(g => DICT_IDS.has(g.rule.id) || !st.off.has(g.rule.id)).map(g => {
       const old = keep && keep.get(sig(g));
       if (old) return Object.assign(g, { id: 'g' + (++st.gid), status: old.status, reason: old.reason || '', auto: !!old.auto });
       const auto = !!fresh && isAuto(g.rule.id);
@@ -2234,7 +2304,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const SF = { all: null, engine: ['auto', 'partial'], later: ['ai', 'comment'], off: ['decision', 'deferred'] };
   const gs = { tab: store.get('guideTab', 'rules'), q: '', sf: 'all' };
   let optsDirty = false;
-  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
+  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style' && !r.dict);
   const gNorm = s => s.replace(/[ً-ْٰـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
   // a search that ignores tashkeel, hamza forms and ta marbuta, and marks what it finds
   function gRx(q) {
@@ -2249,8 +2319,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     while ((m = rx.exec(s))) { if (!m[0]) { rx.lastIndex++; continue; } out += esc(s.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>'; last = m.index + m[0].length; }
     return out + esc(s.slice(last));
   }
-  const engineOf = no => optRules().filter(r => r.no === no && r.id !== 'words');
-  const extras = () => optRules().filter(r => !r.no && r.id !== 'words');
+  const engineOf = no => optRules().filter(r => r.no === no);
+  const extras = () => optRules().filter(r => !r.no);
   const decOf = no => G.decisions.filter(d => d.rules.includes(no));
   const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
   const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
@@ -2298,14 +2368,6 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <div class="g-cards">${list.map(d => `<article class="g-dcard"><h2>${hl(d.title)}${d.rules.map(n => `<button type="button" class="g-chip" data-rule-go="${n}">القاعدة ${n}</button>`).join('')}${d.pending ? '<span class="wait">بانتظار الإدارة</span>' : ''}</h2>
         <p>${hl(d.text)}</p><p class="eff">${hl(d.effect)}</p></article>`).join('') || '<div class="g-empty">لا يوجد قرار يطابق البحث.</div>'}</div>`;
   }
-  function renderWords() {
-    const w = E.RULES.find(r => r.id === 'words');
-    const list = G.words.filter(x => hit(x.good + ' ' + x.bad));
-    return `<p class="g-intro">«طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل. يصحّحها المحرك آلياً، ومعها صيغها بـ(ال) وحروف العطف والجر.</p>
-      ${w ? `<div class="g-sw"><label>${swHTML(w)} تصحيح هذه الكلمات آلياً</label></div>` : ''}
-      ${list.length ? `<table class="g-dtable"><thead><tr><th>تُكتب</th><th>لا تُكتب</th><th>المصدر</th></tr></thead><tbody>${list.map(x => `<tr><td class="w good">${hl(x.good)}</td><td class="w bad">${hl(x.bad)}</td><td class="src">${x.extra ? 'أُضيفت بعد تحليل المقالات' : 'الدليل'}</td></tr>`).join('')}</tbody></table>` : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}
-      <p class="g-intro" style="margin-top:12px">إضافة الكلمات واقتراحها من المدققين تأتي مع الحسابات.</p>`;
-  }
   function renderAuto() {
     const rules = optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || '')));
     const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length, nAuto = rs.filter(r => !st.off.has(r.id) && isAuto(r.id)).length;
@@ -2323,10 +2385,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
   }
   function renderGuide() {
+    if (!['rules', 'decisions', 'auto'].includes(gs.tab)) gs.tab = 'rules';
     const counts = { rules: G.rules.filter(r => hit(ruleHay(r))).length, decisions: G.decisions.filter(d => hit(d.title + ' ' + d.text + ' ' + d.effect)).length,
-      words: G.words.filter(x => hit(x.good + ' ' + x.bad)).length, auto: optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || ''))).length };
+      auto: optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || ''))).length };
     $('gTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === gs.tab)); b.querySelector('b').textContent = counts[b.dataset.t].toLocaleString('ar'); });
-    $('gWrap').innerHTML = { rules: renderRules, decisions: renderDecisions, words: renderWords, auto: renderAuto }[gs.tab]();
+    $('gWrap').innerHTML = { rules: renderRules, decisions: renderDecisions, auto: renderAuto }[gs.tab]();
   }
   function gTab(t) { gs.tab = t; store.set('guideTab', t); renderGuide(); $('guideBody').scrollTo({ top: 0, behavior: 'instant' }); }
   function gGo(id) {
@@ -2337,10 +2400,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   // from a correction in the editor: open its rule in the guide
   function openGuideAt(rule) {
+    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' ? 'names' : 'words'); return; }
     gs.q = ''; $('gQ').value = ''; gs.sf = 'all';
-    gs.tab = rule.id === 'words' ? 'words' : 'rules'; store.set('guideTab', gs.tab);
+    gs.tab = 'rules'; store.set('guideTab', gs.tab);
     setView('guide');
-    if (gs.tab === 'rules') requestAnimationFrame(() => gGo(rule.no ? 'g-rule-' + rule.no : 'g-extra'));
+    requestAnimationFrame(() => gGo(rule.no ? 'g-rule-' + rule.no : 'g-extra'));
   }
   $('gTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (b) gTab(b.dataset.t); });
   let gT = null;
@@ -2351,7 +2415,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const sf = ev.target.closest('[data-sf]');
     if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
     const rg = ev.target.closest('[data-rule-go]');
-    if (rg) { const no = +rg.dataset.ruleGo; if (!no && rg.dataset.rid === 'words') return gTab('words'); gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    if (rg) { const no = +rg.dataset.ruleGo; gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
     if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
     if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
   });
@@ -2369,6 +2433,81 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (gs.tab === 'auto') renderGuide();
   });
   $('optsBtn').addEventListener('click', () => { gs.q = ''; $('gQ').value = ''; gs.tab = 'auto'; store.set('guideTab', 'auto'); setView('guide'); });
+
+  // ---------------- dictionary page: preferred words, names, terms, exceptions (dictionary.js), and the corrections
+  // proofreaders keep rejecting (read from the saved documents), which are candidates for the exceptions list
+  const DCT = window.TajdidDict || { words: [], names: [], terms: [], exceptions: [] };
+  const dsx = { tab: store.get('dictTab', 'words'), q: '' };
+  const dDate = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+  const dHit = s => !dsx.q || gNorm(s).includes(gNorm(dsx.q));
+  function dHl(s) { const q = gs.q; gs.q = dsx.q; const out = hl(s); gs.q = q; return out; }
+  const D_NOTE = '<p class="g-intro d-foot">يُعدَّل القاموس الآن بطلب من مسؤول الدليل، فيصل التعديل إلى كل المدققين مع تحديث الأداة. واقتراح الإضافة من داخل الأداة واعتمادها من المسؤول يأتيان مع الحسابات.</p>';
+  // a rejected correction, read back from a saved document: the whole word before and after it
+  function rejectedWords() {
+    const LW = /[ء-يً-ٰٟـ]/;
+    const map = new Map();
+    for (const rec of docs.values()) {
+      for (const p of (rec.state || [])) {
+        for (const [sg, status, reason] of (p.g || [])) {
+          if (status !== 'rejected' || !p.base) continue;
+          const bar = sg.indexOf('|'), rid = sg.slice(0, bar);
+          const rule = E.RULES.find(r => r.id === rid);
+          if (!rule || rule.cat === 'punct') continue;
+          const edits = sg.slice(bar + 1).split(/,(?=\d+:\d+:)/).map(x => { const m = x.match(/^(\d+):(\d+):([\s\S]*)$/); return m && { start: +m[1], end: +m[2], repl: m[3] }; });
+          if (!edits.length || edits.some(e => !e || e.end > p.base.length)) continue;
+          let a = Math.min(...edits.map(e => e.start)), b = Math.max(...edits.map(e => e.end));
+          while (a > 0 && LW.test(p.base[a - 1])) a--;
+          while (b < p.base.length && LW.test(p.base[b])) b++;
+          const before = p.base.slice(a, b);
+          if (!/[ء-ي]/.test(before) || /\s/.test(before.trim())) continue;
+          const delta = edits.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0);
+          const after = E.applyEdits(p.base, edits).slice(a, b + delta);
+          const k = rid + '|' + before + '|' + after;
+          const o = map.get(k) || { rule, before, after, n: 0, docs: new Map(), reasons: [] };
+          o.n++; o.docs.set(rec.id, rec.name); if (reason && !o.reasons.includes(reason)) o.reasons.push(reason);
+          map.set(k, o);
+        }
+      }
+    }
+    return [...map.values()].filter(o => o.n >= 2).sort((x, y) => y.n - x.n || y.docs.size - x.docs.size);
+  }
+  const dTable = (heads, rows) => `<table class="g-dtable"><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  const D_TABS = {
+    words: {
+      list: () => DCT.words.filter(x => dHit(x.good + ' ' + x.bad)),
+      html: list => `<p class="g-intro">«طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل، وما أُضيف بعد تحليل المقالات. يصحّحها المحرك آلياً في كل المستندات، ومعها صيغها بـ(ال) وحروف العطف والجر، ولا يمكن إطفاؤها.</p>
+        ${list.length ? dTable(['تُكتب', 'لا تُكتب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w good">${dHl(x.good)}</td><td class="w bad">${dHl(x.bad)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}` },
+    names: {
+      list: () => DCT.names.filter(x => dHit(x.name + ' ' + x.variants.join(' ') + ' ' + (x.note || ''))),
+      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. القائمة الآن أمثلة مؤقتة، والقائمة الكاملة تُستخرج من تحليل المقالات.</p>
+        ${list.length ? dTable(['الصيغة المعتمدة', 'تُصحَّح منها', 'ملاحظة', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w good">${dHl(x.name)}</td><td class="w bad">${x.variants.map(dHl).join('، ')}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد علم يطابق البحث.</div>'}` },
+    terms: {
+      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + x.def)),
+      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. القائمة الآن أمثلة مؤقتة.</p>
+        ${list.length ? dTable(['المصطلح', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
+    except: {
+      list: () => DCT.exceptions.filter(x => dHit(x.word + ' ' + (x.note || ''))),
+      html: list => `<p class="g-intro">كلمات يخطئ فيها المحرك، فلا يقترح فيها أي تصحيح، ومعها صيغها بـ(ال) وحروف العطف والجر. تُضاف إليها عادةً التصحيحات التي يتكرر رفضها.</p>
+        ${list.length ? dTable(['الكلمة', 'السبب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w">${dHl(x.word)}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`))
+          : `<div class="g-empty">${DCT.exceptions.length ? 'لا توجد كلمة تطابق البحث.' : 'لا توجد استثناءات بعد.'}</div>`}` },
+    rej: {
+      list: () => rejectedWords().filter(o => dHit(o.before + ' ' + o.after + ' ' + o.rule.name)),
+      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فأرسله إلى مسؤول الدليل ليُضاف إلى الاستثناءات. لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
+        ${list.length ? dTable(['الكلمة في النص', 'تصحيح المحرك', 'القاعدة', 'رُفض', 'أسباب الرفض'], list.map(o => `<tr><td class="w">${dHl(o.before)}</td><td class="w bad">${dHl(o.after)}</td><td class="src">${esc(o.rule.name)}${o.rule.no ? ' (القاعدة ' + o.rule.no + ')' : ''}</td><td class="src" title="${esc([...o.docs.values()].join('\n'))}">${o.n === 2 ? 'مرتان' : o.n.toLocaleString('ar') + ' مرات'} ${o.docs.size === 1 ? 'في مستند واحد' : o.docs.size === 2 ? 'في مستندين' : 'في ' + o.docs.size.toLocaleString('ar') + ' مستندات'}</td><td class="src">${o.reasons.map(esc).join('<br>') || '—'}</td></tr>`))
+          : `<div class="g-empty">${dsx.q ? 'لا يوجد تصحيح يطابق البحث.' : 'لم يُرفض أي تصحيح مرتين بعد.'}</div>`}` }
+  };
+  function renderDict() {
+    if (!D_TABS[dsx.tab]) dsx.tab = 'words';
+    const lists = {};
+    for (const k of Object.keys(D_TABS)) lists[k] = D_TABS[k].list();
+    $('dTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === dsx.tab)); b.querySelector('b').textContent = lists[b.dataset.t].length.toLocaleString('ar'); });
+    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE;
+  }
+  function dTab(t) { dsx.tab = t; store.set('dictTab', t); renderDict(); $('dictBody').scrollTo({ top: 0, behavior: 'instant' }); }
+  function openDictAt(t) { dsx.q = ''; $('dQ').value = ''; dsx.tab = t; store.set('dictTab', t); setView('dict'); }
+  $('dTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (b) dTab(b.dataset.t); });
+  let dT = null;
+  $('dQ').addEventListener('input', e => { clearTimeout(dT); dT = setTimeout(() => { dsx.q = e.target.value.trim(); renderDict(); }, 150); });
 
   // ---------------- documents: every file opened in the tool, saved in this browser (IndexedDB) with its decisions
   const DB = (() => {
@@ -2570,10 +2709,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (v === 'editor' && !st.docId) v = 'docs';
     if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
     if (v === 'guide') { hidePop(true); commitDirty(); renderGuide(); }
+    if (v === 'dict') { hidePop(true); commitDirty(); saveNow(); renderDict(); }
     if (v === 'editor' && optsDirty) { optsDirty = false; recheck(); say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.'); }
-    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide';
+    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide'; $('dictView').hidden = v !== 'dict';
     document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : 'محرر تجديد';
+    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : v === 'dict' ? 'القاموس · مدقق تجديد' : 'محرر تجديد';
     store.set('view', v);
   }
   $('nav').addEventListener('click', ev => {
@@ -2597,7 +2737,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
       const last = store.get('lastDoc', null);
       if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
-      else setView(store.get('view', 'docs') === 'guide' ? 'guide' : 'docs');
+      else setView(['guide', 'dict'].includes(store.get('view', 'docs')) ? store.get('view', 'docs') : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
   })();
 })();
