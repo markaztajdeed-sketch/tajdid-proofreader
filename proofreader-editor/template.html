@@ -379,6 +379,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 .g-dtable .w.good { color: var(--good); font-weight: 700; }
 .g-dtable .w.bad { color: var(--spell); text-decoration: line-through; }
 .g-dtable .src { color: var(--muted); font-size: 12.5px; }
+.d-foot { margin-top: 14px; }
 .g-sw { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
 .g-sw label { display: inline-flex; align-items: center; gap: 8px; }
 
@@ -401,7 +402,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <a href="#" data-view="editor" class="nav-item" title="المحرر"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13 7l4 4"/></svg><span class="lbl">المحرر</span></a>
       <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
       <a href="#" data-view="guide" class="nav-item" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span></a>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" data-view="dict" class="nav-item" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
       <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
@@ -510,7 +511,6 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     <div class="seg g-tabs" role="group" aria-label="أقسام الدليل" id="gTabs">
       <button type="button" data-t="rules" aria-pressed="true">القواعد<b></b></button>
       <button type="button" data-t="decisions" aria-pressed="false">القرارات المعتمدة<b></b></button>
-      <button type="button" data-t="words" aria-pressed="false">الكلمات المعتمدة<b></b></button>
       <button type="button" data-t="auto" aria-pressed="false">تشغيل القواعد<b></b></button>
     </div>
     <span class="grow"></span>
@@ -519,9 +519,28 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   </header>
   <div class="docs-body" id="guideBody"><div class="g-wrap" id="gWrap"></div></div>
 </div>
+<div class="app docs guide" id="dictView" hidden>
+  <header class="top docs-top">
+    <h1>القاموس <small>كيف يكتب المركز كلمات وأسماء ومصطلحات بعينها</small></h1>
+    <div class="seg g-tabs" role="group" aria-label="أقسام القاموس" id="dTabs">
+      <button type="button" data-t="words" aria-pressed="true">الكلمات المعتمدة<b></b></button>
+      <button type="button" data-t="names" aria-pressed="false">الأعلام<b></b></button>
+      <button type="button" data-t="terms" aria-pressed="false">المصطلحات<b></b></button>
+      <button type="button" data-t="except" aria-pressed="false">الاستثناءات<b></b></button>
+      <button type="button" data-t="rej" aria-pressed="false">تصحيحات تكرّر رفضها<b></b></button>
+    </div>
+    <span class="grow"></span>
+    <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+      <input type="search" id="dQ" placeholder="ابحث في القاموس" aria-label="ابحث في القاموس"></label>
+  </header>
+  <div class="docs-body" id="dictBody"><div class="g-wrap" id="dWrap"></div></div>
+</div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+/*__DICT__*/
+</script>
 <script>
 /*__ENGINE__*/
 </script>
@@ -536,6 +555,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const E = TajdidEngine, FN = E.FN, OB = E.OB;
   const xml = { parse: s => new DOMParser().parseFromString(s, 'application/xml'), serialize: d => new XMLSerializer().serializeToString(d) };
   const CATS = { punct: 'ترقيم ومسافات', spell: 'إملاء ورسم', conv: 'أعراف المركز', style: 'أسلوب' };
+  // dictionary rules (preferred words, names) always run: they have no switch
+  const DICT_IDS = new Set(E.RULES.filter(r => r.dict).map(r => r.id));
   const MANUAL_RULE = { id: 'manual', no: 0, name: 'تعديل المدقق', author: 'تعديل المدقق' };
   const MK_FN = '⟦هامش⟧', MK_OB = '⟦عنصر⟧';
   const $ = id => document.getElementById(id);
@@ -559,7 +580,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   // fresh: the document is being opened, so a correction met for the first time from an automatic rule is accepted at once
   function scan(para, keep, fresh) {
     const r = E.findGroups(para.base, { opts: opts(), where: para.where, inNotes: para.inNotes, lexicon: st.lexicon });
-    para.groups = r.groups.filter(g => !st.off.has(g.rule.id)).map(g => {
+    para.groups = r.groups.filter(g => DICT_IDS.has(g.rule.id) || !st.off.has(g.rule.id)).map(g => {
       const old = keep && keep.get(sig(g));
       if (old) return Object.assign(g, { id: 'g' + (++st.gid), status: old.status, reason: old.reason || '', auto: !!old.auto });
       const auto = !!fresh && isAuto(g.rule.id);
@@ -1200,7 +1221,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const SF = { all: null, engine: ['auto', 'partial'], later: ['ai', 'comment'], off: ['decision', 'deferred'] };
   const gs = { tab: store.get('guideTab', 'rules'), q: '', sf: 'all' };
   let optsDirty = false;
-  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style');
+  const optRules = () => E.RULES.filter(r => CATS[r.cat] && r.cat !== 'style' && !r.dict);
   const gNorm = s => s.replace(/[ً-ْٰـ]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
   // a search that ignores tashkeel, hamza forms and ta marbuta, and marks what it finds
   function gRx(q) {
@@ -1215,8 +1236,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     while ((m = rx.exec(s))) { if (!m[0]) { rx.lastIndex++; continue; } out += esc(s.slice(last, m.index)) + '<mark>' + esc(m[0]) + '</mark>'; last = m.index + m[0].length; }
     return out + esc(s.slice(last));
   }
-  const engineOf = no => optRules().filter(r => r.no === no && r.id !== 'words');
-  const extras = () => optRules().filter(r => !r.no && r.id !== 'words');
+  const engineOf = no => optRules().filter(r => r.no === no);
+  const extras = () => optRules().filter(r => !r.no);
   const decOf = no => G.decisions.filter(d => d.rules.includes(no));
   const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
   const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
@@ -1264,14 +1285,6 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <div class="g-cards">${list.map(d => `<article class="g-dcard"><h2>${hl(d.title)}${d.rules.map(n => `<button type="button" class="g-chip" data-rule-go="${n}">القاعدة ${n}</button>`).join('')}${d.pending ? '<span class="wait">بانتظار الإدارة</span>' : ''}</h2>
         <p>${hl(d.text)}</p><p class="eff">${hl(d.effect)}</p></article>`).join('') || '<div class="g-empty">لا يوجد قرار يطابق البحث.</div>'}</div>`;
   }
-  function renderWords() {
-    const w = E.RULES.find(r => r.id === 'words');
-    const list = G.words.filter(x => hit(x.good + ' ' + x.bad));
-    return `<p class="g-intro">«طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل. يصحّحها المحرك آلياً، ومعها صيغها بـ(ال) وحروف العطف والجر.</p>
-      ${w ? `<div class="g-sw"><label>${swHTML(w)} تصحيح هذه الكلمات آلياً</label></div>` : ''}
-      ${list.length ? `<table class="g-dtable"><thead><tr><th>تُكتب</th><th>لا تُكتب</th><th>المصدر</th></tr></thead><tbody>${list.map(x => `<tr><td class="w good">${hl(x.good)}</td><td class="w bad">${hl(x.bad)}</td><td class="src">${x.extra ? 'أُضيفت بعد تحليل المقالات' : 'الدليل'}</td></tr>`).join('')}</tbody></table>` : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}
-      <p class="g-intro" style="margin-top:12px">إضافة الكلمات واقتراحها من المدققين تأتي مع الحسابات.</p>`;
-  }
   function renderAuto() {
     const rules = optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || '')));
     const rs = optRules(), on = rs.filter(r => !st.off.has(r.id)).length, nAuto = rs.filter(r => !st.off.has(r.id) && isAuto(r.id)).length;
@@ -1289,10 +1302,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
   }
   function renderGuide() {
+    if (!['rules', 'decisions', 'auto'].includes(gs.tab)) gs.tab = 'rules';
     const counts = { rules: G.rules.filter(r => hit(ruleHay(r))).length, decisions: G.decisions.filter(d => hit(d.title + ' ' + d.text + ' ' + d.effect)).length,
-      words: G.words.filter(x => hit(x.good + ' ' + x.bad)).length, auto: optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || ''))).length };
+      auto: optRules().filter(r => hit(r.name + ' ' + r.why + ' ' + (r.no || ''))).length };
     $('gTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === gs.tab)); b.querySelector('b').textContent = counts[b.dataset.t].toLocaleString('ar'); });
-    $('gWrap').innerHTML = { rules: renderRules, decisions: renderDecisions, words: renderWords, auto: renderAuto }[gs.tab]();
+    $('gWrap').innerHTML = { rules: renderRules, decisions: renderDecisions, auto: renderAuto }[gs.tab]();
   }
   function gTab(t) { gs.tab = t; store.set('guideTab', t); renderGuide(); $('guideBody').scrollTo({ top: 0, behavior: 'instant' }); }
   function gGo(id) {
@@ -1303,10 +1317,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   // from a correction in the editor: open its rule in the guide
   function openGuideAt(rule) {
+    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' ? 'names' : 'words'); return; }
     gs.q = ''; $('gQ').value = ''; gs.sf = 'all';
-    gs.tab = rule.id === 'words' ? 'words' : 'rules'; store.set('guideTab', gs.tab);
+    gs.tab = 'rules'; store.set('guideTab', gs.tab);
     setView('guide');
-    if (gs.tab === 'rules') requestAnimationFrame(() => gGo(rule.no ? 'g-rule-' + rule.no : 'g-extra'));
+    requestAnimationFrame(() => gGo(rule.no ? 'g-rule-' + rule.no : 'g-extra'));
   }
   $('gTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (b) gTab(b.dataset.t); });
   let gT = null;
@@ -1317,7 +1332,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const sf = ev.target.closest('[data-sf]');
     if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
     const rg = ev.target.closest('[data-rule-go]');
-    if (rg) { const no = +rg.dataset.ruleGo; if (!no && rg.dataset.rid === 'words') return gTab('words'); gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    if (rg) { const no = +rg.dataset.ruleGo; gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
     if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
     if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
   });
@@ -1335,6 +1350,81 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (gs.tab === 'auto') renderGuide();
   });
   $('optsBtn').addEventListener('click', () => { gs.q = ''; $('gQ').value = ''; gs.tab = 'auto'; store.set('guideTab', 'auto'); setView('guide'); });
+
+  // ---------------- dictionary page: preferred words, names, terms, exceptions (dictionary.js), and the corrections
+  // proofreaders keep rejecting (read from the saved documents), which are candidates for the exceptions list
+  const DCT = window.TajdidDict || { words: [], names: [], terms: [], exceptions: [] };
+  const dsx = { tab: store.get('dictTab', 'words'), q: '' };
+  const dDate = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+  const dHit = s => !dsx.q || gNorm(s).includes(gNorm(dsx.q));
+  function dHl(s) { const q = gs.q; gs.q = dsx.q; const out = hl(s); gs.q = q; return out; }
+  const D_NOTE = '<p class="g-intro d-foot">يُعدَّل القاموس الآن بطلب من مسؤول الدليل، فيصل التعديل إلى كل المدققين مع تحديث الأداة. واقتراح الإضافة من داخل الأداة واعتمادها من المسؤول يأتيان مع الحسابات.</p>';
+  // a rejected correction, read back from a saved document: the whole word before and after it
+  function rejectedWords() {
+    const LW = /[ء-يً-ٰٟـ]/;
+    const map = new Map();
+    for (const rec of docs.values()) {
+      for (const p of (rec.state || [])) {
+        for (const [sg, status, reason] of (p.g || [])) {
+          if (status !== 'rejected' || !p.base) continue;
+          const bar = sg.indexOf('|'), rid = sg.slice(0, bar);
+          const rule = E.RULES.find(r => r.id === rid);
+          if (!rule || rule.cat === 'punct') continue;
+          const edits = sg.slice(bar + 1).split(/,(?=\d+:\d+:)/).map(x => { const m = x.match(/^(\d+):(\d+):([\s\S]*)$/); return m && { start: +m[1], end: +m[2], repl: m[3] }; });
+          if (!edits.length || edits.some(e => !e || e.end > p.base.length)) continue;
+          let a = Math.min(...edits.map(e => e.start)), b = Math.max(...edits.map(e => e.end));
+          while (a > 0 && LW.test(p.base[a - 1])) a--;
+          while (b < p.base.length && LW.test(p.base[b])) b++;
+          const before = p.base.slice(a, b);
+          if (!/[ء-ي]/.test(before) || /\s/.test(before.trim())) continue;
+          const delta = edits.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0);
+          const after = E.applyEdits(p.base, edits).slice(a, b + delta);
+          const k = rid + '|' + before + '|' + after;
+          const o = map.get(k) || { rule, before, after, n: 0, docs: new Map(), reasons: [] };
+          o.n++; o.docs.set(rec.id, rec.name); if (reason && !o.reasons.includes(reason)) o.reasons.push(reason);
+          map.set(k, o);
+        }
+      }
+    }
+    return [...map.values()].filter(o => o.n >= 2).sort((x, y) => y.n - x.n || y.docs.size - x.docs.size);
+  }
+  const dTable = (heads, rows) => `<table class="g-dtable"><thead><tr>${heads.map(h => `<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  const D_TABS = {
+    words: {
+      list: () => DCT.words.filter(x => dHit(x.good + ' ' + x.bad)),
+      html: list => `<p class="g-intro">«طرق استعمال بعض الكلمات في إصدارات المركز» من آخر الدليل، وما أُضيف بعد تحليل المقالات. يصحّحها المحرك آلياً في كل المستندات، ومعها صيغها بـ(ال) وحروف العطف والجر، ولا يمكن إطفاؤها.</p>
+        ${list.length ? dTable(['تُكتب', 'لا تُكتب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w good">${dHl(x.good)}</td><td class="w bad">${dHl(x.bad)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}` },
+    names: {
+      list: () => DCT.names.filter(x => dHit(x.name + ' ' + x.variants.join(' ') + ' ' + (x.note || ''))),
+      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. القائمة الآن أمثلة مؤقتة، والقائمة الكاملة تُستخرج من تحليل المقالات.</p>
+        ${list.length ? dTable(['الصيغة المعتمدة', 'تُصحَّح منها', 'ملاحظة', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w good">${dHl(x.name)}</td><td class="w bad">${x.variants.map(dHl).join('، ')}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد علم يطابق البحث.</div>'}` },
+    terms: {
+      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + x.def)),
+      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. القائمة الآن أمثلة مؤقتة.</p>
+        ${list.length ? dTable(['المصطلح', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
+    except: {
+      list: () => DCT.exceptions.filter(x => dHit(x.word + ' ' + (x.note || ''))),
+      html: list => `<p class="g-intro">كلمات يخطئ فيها المحرك، فلا يقترح فيها أي تصحيح، ومعها صيغها بـ(ال) وحروف العطف والجر. تُضاف إليها عادةً التصحيحات التي يتكرر رفضها.</p>
+        ${list.length ? dTable(['الكلمة', 'السبب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w">${dHl(x.word)}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`))
+          : `<div class="g-empty">${DCT.exceptions.length ? 'لا توجد كلمة تطابق البحث.' : 'لا توجد استثناءات بعد.'}</div>`}` },
+    rej: {
+      list: () => rejectedWords().filter(o => dHit(o.before + ' ' + o.after + ' ' + o.rule.name)),
+      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فأرسله إلى مسؤول الدليل ليُضاف إلى الاستثناءات. لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
+        ${list.length ? dTable(['الكلمة في النص', 'تصحيح المحرك', 'القاعدة', 'رُفض', 'أسباب الرفض'], list.map(o => `<tr><td class="w">${dHl(o.before)}</td><td class="w bad">${dHl(o.after)}</td><td class="src">${esc(o.rule.name)}${o.rule.no ? ' (القاعدة ' + o.rule.no + ')' : ''}</td><td class="src" title="${esc([...o.docs.values()].join('\n'))}">${o.n === 2 ? 'مرتان' : o.n.toLocaleString('ar') + ' مرات'} ${o.docs.size === 1 ? 'في مستند واحد' : o.docs.size === 2 ? 'في مستندين' : 'في ' + o.docs.size.toLocaleString('ar') + ' مستندات'}</td><td class="src">${o.reasons.map(esc).join('<br>') || '—'}</td></tr>`))
+          : `<div class="g-empty">${dsx.q ? 'لا يوجد تصحيح يطابق البحث.' : 'لم يُرفض أي تصحيح مرتين بعد.'}</div>`}` }
+  };
+  function renderDict() {
+    if (!D_TABS[dsx.tab]) dsx.tab = 'words';
+    const lists = {};
+    for (const k of Object.keys(D_TABS)) lists[k] = D_TABS[k].list();
+    $('dTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === dsx.tab)); b.querySelector('b').textContent = lists[b.dataset.t].length.toLocaleString('ar'); });
+    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE;
+  }
+  function dTab(t) { dsx.tab = t; store.set('dictTab', t); renderDict(); $('dictBody').scrollTo({ top: 0, behavior: 'instant' }); }
+  function openDictAt(t) { dsx.q = ''; $('dQ').value = ''; dsx.tab = t; store.set('dictTab', t); setView('dict'); }
+  $('dTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (b) dTab(b.dataset.t); });
+  let dT = null;
+  $('dQ').addEventListener('input', e => { clearTimeout(dT); dT = setTimeout(() => { dsx.q = e.target.value.trim(); renderDict(); }, 150); });
 
   // ---------------- documents: every file opened in the tool, saved in this browser (IndexedDB) with its decisions
   const DB = (() => {
@@ -1536,10 +1626,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (v === 'editor' && !st.docId) v = 'docs';
     if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
     if (v === 'guide') { hidePop(true); commitDirty(); renderGuide(); }
+    if (v === 'dict') { hidePop(true); commitDirty(); saveNow(); renderDict(); }
     if (v === 'editor' && optsDirty) { optsDirty = false; recheck(); say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.'); }
-    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide';
+    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide'; $('dictView').hidden = v !== 'dict';
     document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : 'محرر تجديد';
+    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : v === 'dict' ? 'القاموس · مدقق تجديد' : 'محرر تجديد';
     store.set('view', v);
   }
   $('nav').addEventListener('click', ev => {
@@ -1563,7 +1654,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
       const last = store.get('lastDoc', null);
       if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
-      else setView(store.get('view', 'docs') === 'guide' ? 'guide' : 'docs');
+      else setView(['guide', 'dict'].includes(store.get('view', 'docs')) ? store.get('view', 'docs') : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
   })();
 })();

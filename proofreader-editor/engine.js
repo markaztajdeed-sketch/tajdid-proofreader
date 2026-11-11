@@ -76,10 +76,11 @@
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
   // نسبة إلى كلمة من حرفين (طبّ، فنّ...): لا يكفيها شرط الجذع الثلاثي، فتُذكر هنا بأسمائها
   const NISBA_SHORT = new Set(['طبي', 'فني', 'حسي', 'كمي', 'جوي', 'بري', 'سري', 'ذري', 'خطي', 'كلي', 'ظني']);
-  const WORDS = [
-    ['أفريقي', 'إفريقي'], ['إيديولوج', 'أيديولوج'], ['إنثروبولوج', 'أنثروبولوج'], ['أثنولوج', 'إثنولوج'],
-    ['أبستمولوج', 'إبستمولوج'], ['أنترنت', 'إنترنت'], ['ليبيرالي', 'ليبرالي'], ['مسئول', 'مسؤول']
-  ];
+  // the centre's dictionary (dictionary.js): preferred words and names are corrected, exceptions are never touched
+  const DICT = root.TajdidDict || (typeof require === 'function' && typeof __dirname !== 'undefined' ? (() => { try { return require(require('path').join(__dirname, 'dictionary.js')); } catch (e) { return null; } })() : null) || { words: [], names: [], exceptions: [] };
+  const WORDS = DICT.words.filter(w => w.from && w.to).map(w => [w.from, w.to]);
+  const NAMES = DICT.names.flatMap(n => n.variants.map(v => [v, n.name])).sort((a, b) => b[0].length - a[0].length);
+  const EXCEPT = (DICT.exceptions || []).map(x => x.word).filter(Boolean);
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
@@ -364,7 +365,13 @@
         }
         return out;
       } },
-    { id: 'words', no: 0, name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
+    { id: 'names', no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
+      find: text => {
+        const out = [];
+        for (const [bad, good] of NAMES) out.push(...simple(re('(?<![{LH}])([وف]?[بلك]?)' + fuzzy(bad) + '(?![{LH}])'), m => m[1] + good)(text));
+        return out;
+      } },
+    { id: 'words', no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of WORDS) out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)' + bad), m => m[1] + good)(text));
@@ -376,7 +383,7 @@
 
   const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad'] };
+    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -504,6 +511,9 @@
     // parentheses) is the author's own wording and gets them
     pr.longQuotes = pr.quotes.filter(([a, b]) => text.slice(a + 1, b).trim().split(/\s+/).length > 4);
     const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon };
+    // dictionary exceptions: whole words the engine must leave as written
+    const exRanges = [];
+    for (const w of EXCEPT) for (const m of text.matchAll(re('(?<![{LH}])[وف]?[بلك]?(?:ال)?' + fuzzy(w) + '(?![{LH}])'))) exRanges.push([m.index, m.index + m[0].length - 1]);
     const accepted = [], groups = [];
     const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
     for (const rule of RULES) {
@@ -520,6 +530,7 @@
           const del = text.slice(e.start, e.end);
           if (del.includes(OB) || del.includes(FN)) ok = false;
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
+          if (exRanges.length && overlaps(e.start, e.end, exRanges)) ok = false;
           if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
           if (busy(e.start, e.end)) ok = false;
         }
@@ -859,6 +870,6 @@
     return { data: out, changes: ctx.changes, warnings: ctx.warnings, paragraphs };
   }
 
-  const api = { processDocx, loadDocx, exportDocx, findGroups, buildLexicon, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
+  const api = { DICT, processDocx, loadDocx, exportDocx, findGroups, buildLexicon, diffEdits, applyEdits, RULES, FN, OB, _processParagraph: processParagraph };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.TajdidEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis);
