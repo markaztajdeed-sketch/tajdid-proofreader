@@ -81,6 +81,12 @@
   const WORDS = DICT.words.filter(w => w.from && w.to).map(w => [w.from, w.to]);
   const NAMES = DICT.names.flatMap(n => n.variants.map(v => [v, n.name])).sort((a, b) => b[0].length - a[0].length);
   const EXCEPT = (DICT.exceptions || []).map(x => x.word).filter(Boolean);
+  // the dictionary's names (approved forms and variants), harakat stripped: text between quotes or brackets that is only a
+  // registered name (or only one-word registered names, ستيفن بيبر) is a name, so rule 17 drops the marks instead of rule 13 changing them
+  const noH = s => s.replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/\s+/g, ' ').trim();
+  const NAME_FULL = new Set(DICT.names.flatMap(n => [n.name, ...n.variants]).map(noH));
+  const NAME_ONE = new Set([...NAME_FULL].filter(n => !n.includes(' ')));
+  const isName = s => { const t = noH(s); return !!t && (NAME_FULL.has(t) || t.split(' ').every(w => NAME_ONE.has(w))); };
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
@@ -362,11 +368,30 @@
         for (const [a, b, kind] of pairs) {
           const inner = text.slice(a + 1, b).trim();
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
-          if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner)) continue;
+          if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner) || isName(inner)) continue;
           const words = inner.split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
           if (kind === '"' && op === '"') continue;
           out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
+        }
+        return out;
+      } },
+    { id: 'name-marks', no: 17, dict: true, name: 'لا أقواس حول الأعلام', why: 'لا يوضع اسم العلم أو المكان بين قوسين ولا بين علامتي التنصيص، وإن وُجدت في الأصل تُزال (القاعدة 17). يشمل الأعلام المسجّلة في القاموس فقط.',
+      find: (text, ctx) => {
+        const out = [];
+        const pairs = ctx.straightPairs.map(p => [p[0], p[1]]);
+        for (const [o, c] of [['(', ')'], ['“', '”'], ['«', '»']]) {
+          const st = [];
+          for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i]); }
+        }
+        for (const [a, b] of pairs) {
+          if (!isName(text.slice(a + 1, b))) continue;
+          // لـ(هيوم) → لهيوم: the tatweel only joined the letter to the bracket (rule 24)
+          const tat = a > 1 && text[a - 1] === '\u0640' && re('[{L}]').test(text[a - 2]);
+          // a space that would be left at the start or end inside the marks goes with them
+          let s0 = a + 1; while (text[s0] === ' ') s0++;
+          let e0 = b; while (e0 > s0 && text[e0 - 1] === ' ') e0--;
+          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: '' }, { start: e0, end: b + 1, repl: '' }] });
         }
         return out;
       } },
@@ -388,7 +413,7 @@
 
   const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'names'] };
+    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
