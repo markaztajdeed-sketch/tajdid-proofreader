@@ -1305,7 +1305,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     // a zero-width insertion glued to the edge of another edit inside the same word (e.g. shadda-common adding «ّ» right after
     //  the «أن» that inna already turns into «إنّ») would apply twice: «إنّّها». A letter/haraka insertion touching
     //  another edit on its word side counts as overlapping.
-    const WO = re('^[{LH}\u0640]+$', ''), WC = re('[{LH}\u0640]', '');
+    // (re() always adds the g flag, so build fresh regexes: a cached one keeps lastIndex between test() calls)
+    const WO = { test: x => re('^[{LH}\u0640]+$').test(x) }, WC = { test: x => re('[{LH}\u0640]').test(x) };
     const glued = (k, ins, a) => a.end > a.start && WO.test(ins) && ((k === a.end && WC.test(text[k - 1] || '')) || (k === a.start && WC.test(text[k] || '')));
     const busy = (s, e, ins) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e)
       || (e === s && glued(s, ins, a)) || (e > s && a.end === a.start && glued(a.start, a.repl, { start: s, end: e })));
