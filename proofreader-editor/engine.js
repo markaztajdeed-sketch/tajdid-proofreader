@@ -143,6 +143,7 @@
           if (!/[-–—]/.test(text[i])) continue;
           const sl = /[  ]/.test(text[i - 1]), sr = /[  ]/.test(text[i + 1]);
           if (!sl && !sr) continue;                                   // a hyphen inside a word
+          if (re('^[ \\u00A0]*([{D}]+|[{L}])[ \\u00A0]*$').test(text.slice(0, i))) continue; // a heading number or letter: 2 – الفرد المسؤول، أ - ...
           if (re('[{D}]').test(text[i - 1] + text[i + 1])) continue;          // a range glued to a number: 1918- نهاية
           if (re('[{D}]').test(text.slice(0, i).trimEnd().slice(-1)) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970
           if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
@@ -159,6 +160,7 @@
           if (!re('[{L}]').test(inner) || /[A-Za-z]/.test(inner) && (inner.match(/[A-Za-z]/g).length * 2 > inner.replace(/\s/g, '').length)) continue; // Latin text
           if (/[:.؛!؟]\s*$/.test(text.slice(0, a)) || /:$/.test(inner)) continue;      // a list dash after a full stop or colon
           if (!/\s/.test(inner) && !/[ \u00A0]/.test(text[a - 1])) continue;        // للوجود- في- العالم
+          if (!/\s/.test(inner) && text.length < 300 && re('(^|[ \u00A0،(])(دار|ط[{D}]|مطبعة|منشورات|مكتبة)[ \u00A0،]').test(text)) continue; // a reference: بيروت - لبنان، ط1
           let a0 = a; while (a0 > 0 && /[  ]/.test(text[a0 - 1])) a0--;
           let a1 = a + 1; while (/[  ]/.test(text[a1])) a1++;
           let b0 = b; while (/[  ]/.test(text[b0 - 1])) b0--;
