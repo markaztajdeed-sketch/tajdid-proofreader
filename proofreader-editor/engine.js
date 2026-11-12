@@ -545,7 +545,14 @@
     const exRanges = [];
     for (const w of EXCEPT) for (const m of text.matchAll(re('(?<![{LH}])[وف]?[بلك]?(?:ال)?' + fuzzy(w) + '(?![{LH}])'))) exRanges.push([m.index, m.index + m[0].length - 1]);
     const accepted = [], groups = [];
-    const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
+    // a zero-width insertion glued to the edge of another edit inside the same word (e.g. shadda-common adding «ّ» right after
+    //  the «أن» that inna already turns into «إنّ») would apply twice: «إنّّها». A letter/haraka insertion touching
+    //  another edit on its word side counts as overlapping.
+    // (re() always adds the g flag, so build fresh regexes: a cached one keeps lastIndex between test() calls)
+    const WO = { test: x => re('^[{LH}\u0640]+$').test(x) }, WC = { test: x => re('[{LH}\u0640]').test(x) };
+    const glued = (k, ins, a) => a.end > a.start && WO.test(ins) && ((k === a.end && WC.test(text[k - 1] || '')) || (k === a.start && WC.test(text[k] || '')));
+    const busy = (s, e, ins) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e)
+      || (e === s && glued(s, ins, a)) || (e > s && a.end === a.start && glued(a.start, a.repl, { start: s, end: e })));
     for (const rule of RULES) {
       if (rule.scope === 'notes' && !ctx.inNotes) continue;
       if (rule.translatedOff && ctx.opts.translated) continue;
@@ -562,7 +569,7 @@
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
           if (exRanges.length && overlaps(e.start, e.end, exRanges)) ok = false;
           if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
-          if (busy(e.start, e.end)) ok = false;
+          if (busy(e.start, e.end, e.repl)) ok = false;
         }
         if (!ok) continue;
         const ruleTag = { id: rule.id, no: rule.no, label: rule.label, name: rule.name, why: rule.why, cat: rule.cat };
