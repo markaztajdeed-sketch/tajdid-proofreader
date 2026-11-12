@@ -546,11 +546,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 // words: good (تُكتب)، bad (لا تُكتب)، from/to (جذع الكلمة الخاطئ وصوابه؛ يصحّحه المحرك مع (ال) وحروف العطف والجر
 //        ولواحق الكلمة)، special (يصحّحه المحرك بقاعدة خاصة به)، src، added (تاريخ الإضافة).
 // names: name (الصيغة المعتمدة)، variants (صيغ تُصحَّح إليها، كلمة كاملة)، note، src، added.
-// terms: term، def (تعريف قصير)، src، added.
+// terms: term، field (الحقل)، def (تعريف قصير)، src، added.
 // exceptions: word (كلمة كاملة لا يقترح المحرك فيها أي تصحيح)، note، src، added.
 (function (root) {
   'use strict';
-  const GUIDE = 'الدليل', CORPUS = 'تحليل المقالات', SAMPLE = 'مثال مؤقت';
+  const GUIDE = 'الدليل', CORPUS = 'تحليل المقالات', CENTER = 'قرار المركز';
   const words = [
     { good: 'إفريقيا', bad: 'أفريقيا', from: 'أفريقي', to: 'إفريقي', src: GUIDE, added: '2026-11-02' },
     { good: 'رئيس، رئيسة', bad: 'رئيسي، رئيسية', special: true, src: GUIDE, added: '2026-11-02' },
@@ -561,28 +561,217 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { good: 'إنترنت', bad: 'أنترنت', from: 'أنترنت', to: 'إنترنت', src: GUIDE, added: '2026-11-02' },
     { good: 'ليبرالية', bad: 'ليبيرالية', from: 'ليبيرالي', to: 'ليبرالي', src: GUIDE, added: '2026-11-02' },
     { good: 'ق.م', bad: 'ق.م.', special: true, src: GUIDE, added: '2026-11-02' },
-    { good: 'مسؤول', bad: 'مسئول', from: 'مسئول', to: 'مسؤول', src: CORPUS, added: '2026-11-04' }
+    { good: 'مسؤول', bad: 'مسئول', from: 'مسئول', to: 'مسؤول', src: CORPUS, added: '2026-11-04' },
+  // قرار المركز في 12 تشرين الثاني/ نوفمبر 2026 على صيغ الأماكن والمصطلحات المتعارضة في المقالات
+    { good: 'أمريكا، أمريكي', bad: 'أميركا، أميركي', from: 'أميرك', to: 'أمريك', src: CENTER, added: '2026-11-12' },
+    { good: 'أوروبا، أوروبي', bad: 'أوربا، أوربي', from: 'أورب', to: 'أوروب', src: CENTER, added: '2026-11-12' },
+    { good: 'إنجليزي', bad: 'إنكليزي', from: 'إنكليز', to: 'إنجليز', src: CENTER, added: '2026-11-12' },
+    { good: 'إنجليزي', bad: 'انجليزي', from: 'انجليز', to: 'إنجليز', src: CENTER, added: '2026-11-12' },
+    { good: 'إنجلترا', bad: 'انجلترا', from: 'انجلتر', to: 'إنجلتر', src: CENTER, added: '2026-11-12' },
+    { good: 'إندونيسيا، إندونيسي', bad: 'أندونيسيا', from: 'أندونيسي', to: 'إندونيسي', src: CENTER, added: '2026-11-12' },
+    { good: 'أستراليا، أسترالي', bad: 'استراليا', from: 'استرالي', to: 'أسترالي', src: CENTER, added: '2026-11-12' },
+    { good: 'إيران، إيراني', bad: 'ايران', from: 'ايران', to: 'إيران', src: CENTER, added: '2026-11-12' },
+    { good: 'إسرائيل، إسرائيلي', bad: 'اسرائيل', from: 'اسرائيل', to: 'إسرائيل', src: CENTER, added: '2026-11-12' },
+    { good: 'ألماني، ألمانيا', bad: 'الماني، المانيا', from: 'الماني', to: 'ألماني', src: CENTER, added: '2026-11-12' },
+    { good: 'إيطاليا، إيطالي', bad: 'ايطاليا', from: 'ايطالي', to: 'إيطالي', src: CENTER, added: '2026-11-12' },
+    { good: 'إبستمولوجيا', bad: 'إبيستمولوجيا', from: 'إبيستمولوج', to: 'إبستمولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'إبستمولوجيا', bad: 'ابستمولوجيا', from: 'ابستمولوج', to: 'إبستمولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'إبستمولوجيا', bad: 'إبستيمولوجيا', from: 'إبستيمولوج', to: 'إبستمولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'إبستيمي، إبستيمية', bad: 'إبستمي، إبستمية', from: 'إبستمي', to: 'إبستيمي', src: CENTER, added: '2026-11-12' },
+    { good: 'أنثروبولوجيا', bad: 'أنثربولوجيا', from: 'أنثربولوج', to: 'أنثروبولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'أنثروبولوجيا', bad: 'انثروبولوجيا', from: 'انثروبولوج', to: 'أنثروبولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'أنطولوجيا، أنطولوجي', bad: 'أونطولوجيا، أونطولوجي', from: 'أونطولوج', to: 'أنطولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'هرمنيوطيقا', bad: 'هيرمينوطيقا', from: 'هيرمينوطيق', to: 'هرمنيوطيق', src: CENTER, added: '2026-11-12' },
+    { good: 'هرمنيوطيقا', bad: 'هرمينوطيقا', from: 'هرمينوطيق', to: 'هرمنيوطيق', src: CENTER, added: '2026-11-12' },
+    { good: 'هرمنيوطيقا', bad: 'هرمنوطيقا', from: 'هرمنوطيق', to: 'هرمنيوطيق', src: CENTER, added: '2026-11-12' },
+    { good: 'ميتافيزيقا', bad: 'ميتافيزيقيا', from: 'ميتافيزيقيا', to: 'ميتافيزيقا', src: CENTER, added: '2026-11-12' },
+    { good: 'الميتاأخلاق (موصولة)', bad: 'الميتا أخلاق', from: 'ميتا أخلاق', to: 'ميتاأخلاق', src: CENTER, added: '2026-11-12' },
+    { good: 'براغماتية، براغماتي', bad: 'براجماتية، براجماتي', from: 'براجمات', to: 'براغمات', src: CENTER, added: '2026-11-12' },
+    { good: 'فينومينولوجيا', bad: 'فنومينولوجيا', from: 'فنومينولوج', to: 'فينومينولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'إسكاتولوجيا', bad: 'إسخاتولوجيا', from: 'إسخاتولوج', to: 'إسكاتولوج', src: CENTER, added: '2026-11-12' },
+    { good: 'لوغوس', bad: 'لوجوس', from: 'لوجوس', to: 'لوغوس', src: CENTER, added: '2026-11-12' },
+    { good: 'السايبورغ', bad: 'السايبورج', from: 'سايبورج', to: 'سايبورغ', src: CENTER, added: '2026-11-12' },
+    { good: 'ديمقراطية', bad: 'ديموقراطية', from: 'ديموقراط', to: 'ديمقراط', src: CENTER, added: '2026-11-12' },
+    { good: 'استراتيجية', bad: 'إستراتيجية', from: 'إستراتيج', to: 'استراتيج', src: CENTER, added: '2026-11-12' },
+    { good: 'إنفلونزا', bad: 'أنفلونزا', from: 'أنفلونز', to: 'إنفلونز', src: CENTER, added: '2026-11-12' },
+    { good: 'إمبراطورية', bad: 'امبراطورية', from: 'امبراطور', to: 'إمبراطور', src: CENTER, added: '2026-11-12' },
+    { good: 'برجوازية', bad: 'بورجوازية', from: 'بورجواز', to: 'برجواز', src: CENTER, added: '2026-11-12' }
   ];
 
-  // أمثلة مؤقتة إلى أن تُستخرج القائمة الكاملة من تحليل المقالات وتعتمدها الإدارة.
-  // الصيغة المعتمدة هي الأكثر وروداً في المقالات بعد التدقيق.
+  // names: قرار المركز في 12 تشرين الثاني/ نوفمبر 2026. يصحّح المحرك الكلمة نفسها فقط ولا يكمّل الاسم:
+  // يتكرر العلم كما ذكره المؤلف (كانط يبقى كانط، ولا يصير إيمانويل كانط).
   const names = [
-    { name: 'أفلاطون', variants: ['افلاطون'], note: 'همزة القطع.', src: SAMPLE, added: '2026-11-11' },
-    { name: 'أرسطو', variants: ['ارسطو'], note: 'همزة القطع.', src: SAMPLE, added: '2026-11-11' },
-    { name: 'أركون', variants: ['اركون'], note: 'محمد أركون. همزة القطع.', src: SAMPLE, added: '2026-11-11' },
-    { name: 'ابن سينا', variants: ['ابن سيناء'], note: 'بلا همزة في آخره.', src: SAMPLE, added: '2026-11-11' },
-    { name: 'هيغل', variants: ['هيجل'], note: 'وردت «هيغل» في المقالات أكثر من «هيجل».', src: SAMPLE, added: '2026-11-11' },
-    { name: 'هايدغر', variants: ['هيدغر', 'هيدجر', 'هايدجر'], note: 'الصيغة الأكثر وروداً في المقالات.', src: SAMPLE, added: '2026-11-11' },
-    { name: 'دوركايم', variants: ['دوركهايم'], note: 'الصيغة الأكثر وروداً في المقالات.', src: SAMPLE, added: '2026-11-11' }
+    { name: 'أمينة ودود', variants: ['آمنة ودود'], note: 'اسمها الصحيح.', src: CENTER, added: '2026-11-12' },
+    { name: 'هايدغر', variants: ['هيدغر', 'هيدجر', 'هايدجر'], note: 'حرف G الأجنبي غين.', src: CENTER, added: '2026-11-12' },
+    { name: 'هيغل', variants: ['هيجل'], note: 'حرف G الأجنبي غين.', src: CENTER, added: '2026-11-12' },
+    { name: 'دوركايم', variants: ['دوركهايم'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'فتغنشتاين', variants: ['فتجنشتين', 'فيتجنشتاين', 'فتجنشتاين'], note: 'حرف G الأجنبي غين.', src: CENTER, added: '2026-11-12' },
+    { name: 'غادامر', variants: ['جادامر'], note: 'حرف G الأجنبي غين.', src: CENTER, added: '2026-11-12' },
+    { name: 'هاردينغ', variants: ['هاردنغ', 'هاردينج', 'هاردنج'], note: 'ساندرا هاردينغ.', src: CENTER, added: '2026-11-12' },
+    { name: 'يونغ', variants: ['يونج'], note: 'كارل يونغ.', src: CENTER, added: '2026-11-12' },
+    { name: 'مورغان', variants: ['مورجان'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'مارغريت', variants: ['مارجريت'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'أوغست', variants: ['أوجست', 'أوجيست'], note: 'أوغست كونت.', src: CENTER, added: '2026-11-12' },
+    { name: 'بنثام', variants: ['بنتام'], note: 'جيريمي بنثام.', src: CENTER, added: '2026-11-12' },
+    { name: 'رولز', variants: ['راولز'], note: 'جون رولز.', src: CENTER, added: '2026-11-12' },
+    { name: 'ستيوارت مل', variants: ['ستيوارت ميل', 'ستوارت ميل', 'ستوارت مل'], note: 'جون ستيوارت مل. «ميل» وحدها لا تُصحَّح لأنها كلمة عربية.', src: CENTER, added: '2026-11-12' },
+    { name: 'ستيوارت', variants: ['ستوارت'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'بتلر', variants: ['بطلر'], note: 'جوديث بتلر.', src: CENTER, added: '2026-11-12' },
+    { name: 'هيل كولينز', variants: ['هيل كولنز'], note: 'باتريشيا هيل كولينز. أما «ج. ج. كولنز» فشخص آخر، فلا تُصحَّح «كولنز» وحدها.', src: CENTER, added: '2026-11-12' },
+    { name: 'داروين', variants: ['دارون'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'توما', variants: ['طوما'], note: 'توما الإكويني.', src: CENTER, added: '2026-11-12' },
+    { name: 'الإكويني', variants: ['الأكويني', 'الاكويني'], note: 'توما الإكويني.', src: CENTER, added: '2026-11-12' },
+    { name: 'أوغسطين', variants: ['أوغسطينوس', 'أوغسطينس', 'اغسطين'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'إيمانويل', variants: ['إيمانيوال', 'إمانويل', 'إيمانوئيل', 'أيمانويل'], note: 'إيمانويل كانط.', src: CENTER, added: '2026-11-12' },
+    { name: 'كانط', variants: ['كنط'], note: 'إذا ورد «كانط» وحده لا يُضاف إليه اسمه الأول.', src: CENTER, added: '2026-11-12' },
+    { name: 'سقراط', variants: ['سقرط'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'سبينوزا', variants: ['إسبينوزا'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'هوبز', variants: ['هوبس'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'ماكنتاير', variants: ['ماكينتاير'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'بوفوار', variants: ['بفوار'], note: 'سيمون دي بوفوار.', src: CENTER, added: '2026-11-12' },
+    { name: 'إيريغاراي', variants: ['إريغاراي'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'كيمليكا', variants: ['كيميلكا', 'كيميليكا'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'ويليامز', variants: ['وليامز'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'ستيفن', variants: ['ستيفين'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'ليسلي', variants: ['ليسلى'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'فريدريك', variants: ['فردريك', 'فريديريك'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'أينشتاين', variants: ['آينشتاين'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'جيوبيليني', variants: ['جوبيليني'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'داود', variants: ['داوود', 'داؤود'], note: 'رسم المصحف.', src: CENTER, added: '2026-11-12' },
+    { name: 'إشعياء', variants: ['إشعيا', 'أشعيا', 'اشعياء'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'شاول', variants: ['شاؤول'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'صموئيل', variants: ['صمويل'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'إبراهيم', variants: ['ابراهيم'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
+    { name: 'إسماعيل', variants: ['اسماعيل'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
+    { name: 'إسحاق', variants: ['إسحق'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'عبد الرحمن', variants: ['عبد الرحمان', 'عبدالرحمن'], note: 'ومنه طه عبد الرحمن.', src: CENTER, added: '2026-11-12' },
+    { name: 'محيي الدين', variants: ['محي الدين'], note: 'محيي الدين ابن عربي، غير «ابن العربي» الفقيه المالكي.', src: CENTER, added: '2026-11-12' },
+    { name: 'مصطفى', variants: ['مصطفي'], note: 'الألف المقصورة.', src: CENTER, added: '2026-11-12' },
+    { name: 'سوريا', variants: ['سورية'], note: 'اسم البلد. إذا كانت «سورية» صفة (نازحة سورية) فيُرفض التصحيح، و«السورية» لا يلمسها المحرك.', src: CENTER, added: '2026-11-12' },
+    { name: 'كامبريدج', variants: ['كمبردج', 'كمبريدج'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'هارفارد', variants: ['هارفرد'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'أكسفورد', variants: ['اكسفورد'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
+    { name: 'أبو ظبي', variants: ['أبوظبي'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'نزوى', variants: ['نزوي'], note: 'نزوى في عُمان.', src: CENTER, added: '2026-11-12' },
+    { name: 'الأندلس', variants: ['الاندلس'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
+    { name: 'الإمارات العربية', variants: ['الامارات العربية'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
+  // أعلام وردت بصيغة واحدة بعد التدقيق: للعرض في شاشة القاموس (بلا صيغ تُصحَّح إلا ما ذُكر)
+    { name: 'أفلاطون', variants: ['افلاطون'], note: 'همزة القطع.', src: CORPUS, added: '2026-11-12' },
+    { name: 'أرسطو', variants: ['ارسطو'], note: 'همزة القطع.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن سينا', variants: ['ابن سيناء'], note: 'بلا همزة في آخره.', src: CORPUS, added: '2026-11-12' },
+    { name: 'أركون', variants: ['اركون'], note: 'محمد أركون. همزة القطع.', src: CORPUS, added: '2026-11-12' },
+    { name: 'نيتشه', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'روسو', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'هيوم', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'سارتر', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'هابرماس', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ديكارت', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'بيبر', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'فرويد', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ستيفنسون', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'آير', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'فوكو', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'جون لوك', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ماركس', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'أبيقور', variants: [], note: 'فيلسوف غربي.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الغزالي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الشاطبي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'فخر الدين الرازي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'القاضي عبد الجبار', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الطبري', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الشيخ المفيد', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن ميمون', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'القرطبي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الزمخشري', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الجويني', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'القرافي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'السيوطي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الطاهر بن عاشور', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن مسكويه', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الفارابي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن حزم', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'أبو حيان الأندلسي', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن كثير', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن خلدون', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن رشد', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن عطية', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن عباس', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'الجاحظ', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'مقاتل بن سليمان', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'ابن تيمية', variants: [], note: 'من أعلام التراث.', src: CORPUS, added: '2026-11-12' },
+    { name: 'محمد أركون', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'إيفلين فوكس كيلر', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'طه عبد الرحمن', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'محمد عابد الجابري', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'نصر حامد أبو زيد', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'نوال السعداوي', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'محمد عبده', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'فاطمة المرنيسي', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'محمد باقر الصدر', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
+    { name: 'كونفوشيوس', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' },
+    { name: 'حاييم فيتال', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' },
+    { name: 'إسحاق لوريا', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' }
   ];
 
+  // مصطلحات من أكثر ما ورد في المقالات، والتعريفات للعرض فقط ولا يغيّر بها المحرك شيئاً
   const terms = [
-    { term: 'الحداثة', def: 'مرحلة فكرية وحضارية نشأت في أوروبا، تقوم على مركزية العقل والإنسان والعلم.', src: SAMPLE, added: '2026-11-11' },
-    { term: 'العلمانية', def: 'فصل الدين عن الدولة ومؤسساتها وعن الشأن العام.', src: SAMPLE, added: '2026-11-11' },
-    { term: 'الهرمنيوطيقا', def: 'علم تأويل النصوص وفهمها.', src: SAMPLE, added: '2026-11-11' }
+    { term: 'النفعية', field: 'أخلاق', def: 'مذهب يقيس صواب الفعل بما ينتجه من أكبر نفع لأكبر عدد.', src: CORPUS, added: '2026-11-12' },
+    { term: 'أخلاق الواجب', field: 'أخلاق', def: 'مذهب يجعل قيمة الفعل في موافقته للواجب لا في نتائجه.', src: CORPUS, added: '2026-11-12' },
+    { term: 'أخلاق الفضيلة', field: 'أخلاق', def: 'مذهب يبدأ من شخصية الفاعل وفضائله لا من القواعد.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الميتاأخلاق', field: 'أخلاق', def: 'بحث في طبيعة الأحكام الأخلاقية ومعانيها ومصدرها، لا في ما يجب فعله.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأخلاق المعيارية', field: 'أخلاق', def: 'البحث في المعايير التي تحدد الصواب والخطأ في السلوك.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأخلاق التطبيقية', field: 'أخلاق', def: 'تطبيق النظريات الأخلاقية على قضايا بعينها كالطب والبيئة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الانفعالية', field: 'أخلاق', def: 'نظرية ترى الأحكام الأخلاقية تعبيراً عن مشاعر لا وصفاً لوقائع.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الحدسية', field: 'أخلاق', def: 'نظرية ترى أن الحقائق الأخلاقية تُدرك مباشرة بالحدس.', src: CORPUS, added: '2026-11-12' },
+    { term: 'النسبية الأخلاقية', field: 'أخلاق', def: 'القول بأن صحة الحكم الأخلاقي تتبع الثقافة أو الفرد، لا معياراً كلياً.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الضمير الأخلاقي', field: 'أخلاق', def: 'قوة باطنة يحكم بها الإنسان على فعله بالحسن أو القبح.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الحسن والقبح', field: 'كلام', def: 'مسألة كون الحسن والقبح ذاتيين يُدركان بالعقل (المعتزلة) أو شرعيين (الأشاعرة).', src: CORPUS, added: '2026-11-12' },
+    { term: 'نظرية الأمر الإلهي', field: 'أخلاق', def: 'نظرية تجعل الفعل خيراً لأن الله أمر به.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأمر القطعي (المطلق)', field: 'أخلاق', def: 'مبدأ كانط: افعل ما تريد أن يصير قانوناً عاماً، بلا شرط.', src: CORPUS, added: '2026-11-12' },
+    { term: 'العقل العملي', field: 'فلسفة', def: 'العقل من جهة توجيهه للسلوك والاختيار.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الوسط الذهبي', field: 'أخلاق', def: 'فكرة أرسطو أن الفضيلة وسط بين رذيلتين.', src: CORPUS, added: '2026-11-12' },
+    { term: 'السعادة (يودايمونيا)', field: 'أخلاق', def: 'الازدهار الإنساني بتحقيق الفضيلة، غاية الحياة عند أرسطو.', src: CORPUS, added: '2026-11-12' },
+    { term: 'القتل الرحيم', field: 'أخلاق الطب', def: 'إنهاء حياة مريض بناءً على طلبه لتخليصه من ألم لا يُرجى زواله.', src: CORPUS, added: '2026-11-12' },
+    { term: 'البيوإتيقا (الأخلاقيات الحيوية)', field: 'أخلاق الطب', def: 'النظر الأخلاقي في مسائل الطب وعلوم الحياة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الكرامة الإنسانية', field: 'أخلاق', def: 'قيمة ذاتية للإنسان توجب احترامه لذاته لا لمنفعته.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأنطولوجيا', field: 'فلسفة', def: 'مبحث الوجود، أي ما الموجود وما أقسامه.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الإبستمولوجيا', field: 'فلسفة', def: 'نظرية المعرفة: مصادرها وحدودها وما يبرّرها.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الميتافيزيقا', field: 'فلسفة', def: 'البحث فيما وراء الطبيعة: الوجود والعلل الأولى.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الفينومينولوجيا (الظاهراتية)', field: 'فلسفة', def: 'منهج يصف الظواهر كما تظهر للوعي قبل أي تفسير.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الوجودية', field: 'فلسفة', def: 'مذهب يقدّم وجود الإنسان وحريته على أي ماهية مسبقة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الدازاين', field: 'فلسفة', def: 'مصطلح هايدغر للوجود الإنساني، أي «الوجود هنا».', src: CORPUS, added: '2026-11-12' },
+    { term: 'الوضعية المنطقية', field: 'فلسفة', def: 'مذهب لا يقبل قضية ذات معنى إلا ما يمكن تحقيقه تجريبياً أو منطقياً.', src: CORPUS, added: '2026-11-12' },
+    { term: 'البنيوية', field: 'فلسفة ولغة', def: 'منهج يدرس الظواهر بوصفها أنظمة من العلاقات.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الحداثة', field: 'فكر', def: 'مرحلة فكرية وحضارية نشأت في أوروبا تقوم على مركزية العقل والإنسان والعلم.', src: CORPUS, added: '2026-11-12' },
+    { term: 'ما بعد الحداثة', field: 'فكر', def: 'تيار ينتقد يقينيات الحداثة والسرديات الكبرى.', src: CORPUS, added: '2026-11-12' },
+    { term: 'العلمانية', field: 'فكر', def: 'فصل الدين عن الدولة والشأن العام.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأنسنة', field: 'فكر', def: 'جعل الإنسان مركز النظر، ومنه قراءة النص الديني بمعايير إنسانية.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الاستشراق', field: 'فكر', def: 'دراسة الغربيين للشرق وثقافته وأديانه، وما حملته من صور عنه.', src: CORPUS, added: '2026-11-12' },
+    { term: 'ما بعد الاستعمار', field: 'فكر', def: 'دراسات تحلل أثر الاستعمار في ثقافات الشعوب ومعارفها بعد زواله.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الهرمنيوطيقا', field: 'تأويل', def: 'علم تأويل النصوص وفهمها.', src: CORPUS, added: '2026-11-12' },
+    { term: 'التداولية', field: 'لغة', def: 'دراسة المعنى في سياق الاستعمال ومقاصد المتكلم.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الحجاج', field: 'لغة', def: 'تقديم الحجج لإقناع المخاطَب، ودراسة طرق ذلك في الخطاب.', src: CORPUS, added: '2026-11-12' },
+    { term: 'المقاصد (مقاصد الشريعة)', field: 'أصول الفقه', def: 'الغايات التي وُضعت الشريعة لتحقيقها، كحفظ الدين والنفس والعقل.', src: CORPUS, added: '2026-11-12' },
+    { term: 'المصلحة المرسلة', field: 'أصول الفقه', def: 'مصلحة لم يرد نص باعتبارها أو إلغائها، يُبنى عليها الحكم.', src: CORPUS, added: '2026-11-12' },
+    { term: 'أسباب النزول', field: 'علوم القرآن', def: 'الوقائع التي نزلت الآيات بسببها أو في أعقابها.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الغيب والشهادة', field: 'علوم القرآن', def: 'ما غاب عن الحس من الوجود وما يُدرك به.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الإسكاتولوجيا', field: 'أديان', def: 'علم الآخرة ونهاية العالم في التصور الديني.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الحاكمية', field: 'فكر إسلامي', def: 'القول بأن الحكم والتشريع لله وحده.', src: CORPUS, added: '2026-11-12' },
+    { term: 'القوامة', field: 'فقه', def: 'ولاية الرجل على شؤون الأسرة والمرأة بتفسيراتها المختلفة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'النسوية', field: 'دراسات المرأة', def: 'تيارات فكرية واجتماعية تدافع عن حقوق المرأة وتنتقد التمييز ضدها.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الجندر (النوع الاجتماعي)', field: 'دراسات المرأة', def: 'الأدوار والفروق بين الجنسين التي يبنيها المجتمع لا الطبيعة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'الأبوية (البطريركية)', field: 'دراسات المرأة', def: 'نظام اجتماعي يمنح الرجال السلطة في الأسرة والمجتمع.', src: CORPUS, added: '2026-11-12' },
+    { term: 'التمكين', field: 'دراسات المرأة', def: 'زيادة قدرة النساء على الاختيار والمشاركة في القرار.', src: CORPUS, added: '2026-11-12' },
+    { term: 'التقاطعية', field: 'دراسات المرأة', def: 'تحليل يرى أن أشكال التمييز (الجنس والعرق والطبقة) تتشابك ولا تُفهم منفصلة.', src: CORPUS, added: '2026-11-12' },
+    { term: 'نظرية الموقف', field: 'دراسات المرأة', def: 'نظرية ترى أن موقع العارف الاجتماعي يشكّل ما يعرفه، وأن مواقع المهمّشين تكشف ما يغيب عن غيرهم.', src: CORPUS, added: '2026-11-12' },
+    { term: 'المعرفة المتموضعة', field: 'دراسات المرأة', def: 'معرفة مرتبطة بموقع صاحبها وتجربته، لا من موقع محايد مجرد.', src: CORPUS, added: '2026-11-12' },
+    { term: 'المجتمعات الأمومية', field: 'أنثروبولوجيا', def: 'مجتمعات يُنسب فيها النسب أو الإرث أو السلطة إلى الأم.', src: CORPUS, added: '2026-11-12' },
+    { term: 'القبالة', field: 'أديان', def: 'تيار صوفي باطني في اليهودية، أشهر كتبه «الزوهار».', src: CORPUS, added: '2026-11-12' }
   ];
 
-  const exceptions = [];
+  const exceptions = [
+    { word: 'ميتافيزيقياً', note: 'صفة منصوبة (بحثاً ميتافيزيقياً)، لا اسم العلم، فلا تُصحَّح إلى «ميتافيزيقا».', src: CENTER, added: '2026-11-12' }
+  ];
 
   const api = { words, names, terms, exceptions };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -609,6 +798,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   // Each rule: id, no (guide rule number), auto (a purely mechanical fix, applied without asking unless switched to manual), name, why, scope ('all'|'notes'), word (skip inside quotes), find(text, ctx) -> edits
   // a parenthesis typed the wrong way round: an unmatched «)» after a space and right before a word, or an
   // unmatched «(» right after a word and before a space or punctuation
+  // a straight-quote pair whose opening mark is glued to the word before it, or whose closing mark is glued to the word
+  // after it, is mispaired (nested "…"…"…" or a stray mark shifts the pairing): rules that move marks leave it alone
+  const gluedPair = (text, a, b) => /[\u0621-\u063F\u0641-\u064A\u064B-\u065F\u0670A-Za-z]/.test(text[a - 1] || '') || /[\u0621-\u063F\u0641-\u064A\u064B-\u065F\u0670A-Za-z]/.test(text[b + 1] || '');
   function unmatchedParens(text) {
     const st = [], bad = [];
     for (let i = 0; i < text.length; i++) {
@@ -674,10 +866,62 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const WORDS = DICT.words.filter(w => w.from && w.to).map(w => [w.from, w.to]);
   const NAMES = DICT.names.flatMap(n => n.variants.map(v => [v, n.name])).sort((a, b) => b[0].length - a[0].length);
   const EXCEPT = (DICT.exceptions || []).map(x => x.word).filter(Boolean);
+  // the dictionary's names (approved forms and variants), harakat stripped: text between quotes or brackets that is only a
+  // registered name (or only one-word registered names, ستيفن بيبر) is a name, so rule 17 drops the marks instead of rule 13 changing them
+  const noH = s => s.replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/\s+/g, ' ').trim();
+  const NAME_FULL = new Set(DICT.names.flatMap(n => [n.name, ...n.variants]).map(noH));
+  const NAME_ONE = new Set([...NAME_FULL].filter(n => !n.includes(' ')));
+  const isName = s => { const t = noH(s); return !!t && (NAME_FULL.has(t) || t.split(' ').every(w => NAME_ONE.has(w))); };
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
   const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
+
+  // الشدة في الأدوات الشائعة: want=true gives only the forms that are right in every case (أنّه، إلّا، إنّما، كلّ، ممّا، ثمّ...),
+  //  applied automatically; want=false gives the rest (أنّ/إنّ before a word), which can be the light أنْ/إنْ
+  function shaddaCommon(text, want) {
+        const out = [];
+        // match on the text without harakat except the tanween (so «وإن كلّ» or «أن الإنسانَ» still match), then map back;
+        //  a letter that already has a shadda in the original is left alone
+        const map = [], st = [];
+        for (let i = 0; i < text.length; i++) if (!/[\u064E-\u065F\u0670\u0640]/.test(text[i])) { map.push(i); st.push(text[i]); }
+        const plain = st.join('');
+        const add = (rx, posOf, sure) => { if (!!sure !== want) return; rx.lastIndex = 0; let m; while ((m = rx.exec(plain))) {
+          const k = posOf(m); if (k < 1) continue;
+          const p = map[k - 1] + 1, end = k < map.length ? map[k] : text.length;
+          if (/[\u0651\u0652]/.test(text.slice(p, end))) continue;          // a shadda or a sukun is already there (وإنْ في)
+          // a shadda put on a neighbouring letter (إلاّ، لأّنه، مّما): do not add a second one
+          let ws = p; while (ws > 0 && re('[{LH}\u0640]', '').test(text[ws - 1])) ws--;
+          let ne = end + 1; while (ne < text.length && /[\u064B-\u065F\u0670]/.test(text[ne])) ne++;
+          if (text.slice(ws, ne).includes('\u0651')) continue;
+          if (/^[ \u00A0]+من[\u064B-\u0650]*\u0651/.test(text.slice(p))) continue;   // «إنْ منّ الله» (a verb)
+          out.push({ start: p, end: p, repl: '\u0651' }); } };
+        // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
+        // أنّ/إنّ/لكنّ/كأنّ before a definite noun
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=[ \u00A0]+ال)', 'g'), m => m.index + m[0].length);
+        // أنّ/إنّ/كأنّ before a word that cannot follow the light أنْ/إنْ (فإنّ ما، أنّ هذا، أنّ هناك...);
+        //  not لكن, which is often the light لكنْ here, and not before a later «إلا/لما» (negative إنْ: إنْ هذا إلا...)
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
+        // أنّ/إنّ/كأنّ before a word that cannot be a verb (the light أنْ/إنْ is followed by a verb): one with
+        //  a tanween (إنّ عدداً) or a final ة (أنّ دراسةً)، one that starts with م and has no verb ending (فإنّ موقف; not «وإنْ مرضن») or has the shape
+        //  تفعيل (فإنّ تنظيم، فإنّ تصنيفه), one ending in اء (أنّ ثراء), the shapes فُعول (أنّ شيوع) and فواعل
+        //  (بأنّ فوائده), لل+noun (أنّ للإنسان), plurals in ات, and the masdar/plural shapes افتعال، انفعال،
+        //  استفعال، إفعال، فِعال، فعيل، أفعال (أنّ ارتباط، أنّ أخلاقه), فوعل (إنّ جوهر); again not before a later «إلا/لما» in the clause
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?!أ[{L}]اء(?![{LH}])|است|[يتن])[{L}]{2,}اء|(?![يتنأا])[{L}][^\sا{H}]و[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]وا[{L}]{2}(?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]و[^\sاوي{H}][^\sاويهك{H}]|لل[{L}]{2,}|(?![يتن])[{L}]{3,}ات|ا[^\sاوي{H}]ت[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ان[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|است[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|إ[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ي(?:[^\sاويتن{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ت(?:ه|ها|هم|هما|هن|نا|كم))|أ[^\sاوي{H}](?![تدط])[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
+        // إنّما، أنّما، كأنّما
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=ما(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
+        // كلّ (with prefixes and pronouns)
+        add(re('(?<![{LH}])([وفبلك]?كل)(?=(?:ه|ها|هم|هما|نا|كم)?(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
+        // إلّا
+        add(re('(?<![{LH}])([وف]?إل)(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
+        // ممّا، عمّا، أمّا، إمّا، ثمّ
+        add(re('(?<![{LH}])([وف]?(?:مم|عم|إم))(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
+        // أمّا: «أَمَا» (أما علمت) also exists, so it stays a suggestion
+        add(re('(?<![{LH}])([وف]?أم)(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length);
+        add(re('(?<![{LH}])([وف]?ثم)(?![{LH}])', 'g'), m => m.index + m[0].length, true);
+        return out;
+  }
 
   const RULES = [
     { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
@@ -720,6 +964,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
         ].filter(e => !flippedParens(text).includes(e.end)); // a reversed «)» opens: the space before it stays
         for (const [a, b] of ctx.straightPairs) {
+          if (gluedPair(text, a, b)) continue;
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
           if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
           let j = b; while (j - 1 > a && (text[j - 1] === ' ' || text[j - 1] === '\u00A0')) j--;
@@ -727,7 +972,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'dash-pair', no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
+    { id: 'dash-pair', auto: true, no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
       find: text => {
         const out = [];
         // dashes (- – —) with a space on at least one side and not between two digits or at the paragraph edge
@@ -736,6 +981,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           if (!/[-–—]/.test(text[i])) continue;
           const sl = /[  ]/.test(text[i - 1]), sr = /[  ]/.test(text[i + 1]);
           if (!sl && !sr) continue;                                   // a hyphen inside a word
+          if (re('^[ \\u00A0]*([{D}]+|[{L}])[ \\u00A0]*$').test(text.slice(0, i))) continue; // a heading number or letter: 2 – الفرد المسؤول، أ - ...
           if (re('[{D}]').test(text[i - 1] + text[i + 1])) continue;          // a range glued to a number: 1918- نهاية
           if (re('[{D}]').test(text.slice(0, i).trimEnd().slice(-1)) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970
           if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
@@ -752,6 +998,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           if (!re('[{L}]').test(inner) || /[A-Za-z]/.test(inner) && (inner.match(/[A-Za-z]/g).length * 2 > inner.replace(/\s/g, '').length)) continue; // Latin text
           if (/[:.؛!؟]\s*$/.test(text.slice(0, a)) || /:$/.test(inner)) continue;      // a list dash after a full stop or colon
           if (!/\s/.test(inner) && !/[ \u00A0]/.test(text[a - 1])) continue;        // للوجود- في- العالم
+          if (!/\s/.test(inner) && text.length < 300 && re('(^|[ \u00A0،(])(دار|ط[{D}]|مطبعة|منشورات|مكتبة)[ \u00A0،]').test(text)) continue; // a reference: بيروت - لبنان، ط1
           let a0 = a; while (a0 > 0 && /[  ]/.test(text[a0 - 1])) a0--;
           let a1 = a + 1; while (/[  ]/.test(text[a1])) a1++;
           let b0 = b; while (/[  ]/.test(text[b0 - 1])) b0--;
@@ -769,6 +1016,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     // قرار المركز (10 تشرين الثاني/ نوفمبر 2026): الشرطة موحّدة قصيرة (-)، فتُستبدل بها الطويلة (– أو —) الملتصقة بكلمتين
     { id: 'dash-short', auto: true, no: 8, name: 'الشرطة بين كلمتين', why: 'تُكتب الشرطة بين كلمتين قصيرة (-) دون مسافة: الاجتماعية-السياسية.',
       find: simple(re('(?<=[{L}][{H}]*)[–—](?=[{L}])'), () => '-') },
+    // قرار المركز (12 تشرين الثاني/ نوفمبر 2026): الشرطة بعد رقم العنوان أو حرفه قصيرة ملتصقة به، وبعدها مسافة: 2- الفرد المسؤول، ب- أما
+    { id: 'dash-head', auto: true, no: 8, name: 'الشرطة بعد رقم العنوان', why: 'تلتصق الشرطة القصيرة (-) برقم العنوان أو حرفه، وتُفصل بمسافة عمّا بعدها: 2- الفرد المسؤول.',
+      find: simple(re('(?<=^[ \\u00A0]*(?:[{D}]+|[{L}]))[ \\u00A0]*[-–—][ \\u00A0]*(?=[{L}«“"(])'), () => '- ') },
     { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
@@ -780,7 +1030,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         for (let i = 0; i < text.length - 1; i++) {
           if (text[i] !== '.' || text[i - 1] === '.') continue;
           const c = text[i + 1];
-          if (/[A-Za-z]/.test(text[i - 1] || '') || /[A-Za-z]/.test(text.slice(Math.max(0, i - 3), i))) continue;   // English citation style keeps ." inside
+          // English citation style keeps ." inside: the nearest letter before the dot is Latin (… 1990–1996.” or (2012).”)
+          const lastLetter = (text.slice(Math.max(0, i - 60), i).match(/[A-Za-z\u0621-\u063F\u0641-\u064A](?=[^A-Za-z\u0621-\u063F\u0641-\u064A]*$)/) || [''])[0];
+          if (/[A-Za-z]/.test(lastLetter)) continue;
           if (c === ')' || c === '»' || c === '”' || (c === '"' && closers.has(i + 1))) {
             out.push({ start: i, end: i + 1, repl: '' }, { start: i + 2, end: i + 2, repl: '.' });
           }
@@ -791,14 +1043,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
     { id: 'year-paren', no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
       find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
-    { id: 'ma-la', no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
+    { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
         ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text)
       ] },
     { id: 'ma-shadda', no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
       find: simple(re('(?<=\\s)م[\\u064E]?\\u0651[\\u064E]?ا(?![{LH}])'), () => 'ما') },
-    { id: 'sun-shadda', no: 5, name: 'شدة الحرف الشمسي', word: true, why: 'لا توضع الشدة على الحرف الشمسي بعد (أل) التعريف.',
+    { id: 'sun-shadda', auto: true, no: 5, name: 'شدة الحرف الشمسي', word: true, why: 'لا توضع الشدة على الحرف الشمسي بعد (أل) التعريف.',
       find: text => {
         const out = [];
         const rx = re('(?<![{LH}])(?:[وف]?[بكل]?ال|[وف]?لل)([تثدذرزسشصضطظلن])([{H}]*)', 'g');
@@ -812,7 +1064,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'nisba-shadda', no: 5, name: 'شدة ياء النسبة', word: true, why: 'لا توضع الشدة على ياء النسبة: عراقي، مصري، إسلامي.',
+    { id: 'nisba-shadda', auto: true, no: 5, name: 'شدة ياء النسبة', word: true, why: 'لا توضع الشدة على ياء النسبة: عراقي، مصري، إسلامي.',
       find: text => {
         const out = [];
         const rx = re('(?<![{LH}])[{LH}]+(?![{LH}])', 'g');
@@ -831,12 +1083,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'tanween', no: 6, name: 'موضع تنوين الفتح', word: true, why: 'تنوين الفتح يُكتب على الألف (كتاباً)، وفي المقصورة على الحرف الذي قبلها (معنًى).',
+    { id: 'tanween', auto: true, no: 6, name: 'موضع تنوين الفتح', word: true, why: 'تنوين الفتح يُكتب على الألف (كتاباً)، وفي المقصورة على الحرف الذي قبلها (معنًى).',
       find: text => [
         ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text),
         ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text)
       ] },
-    { id: 'months', no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
+    { id: 'months', auto: true, no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
       find: text => {
         const out = [];
         const greg = new Map(LEVANT.map(([a, b]) => [b, a]));
@@ -864,7 +1116,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
     { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
       find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
-    { id: 'ibid', no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
+    { id: 'ibid', auto: true, no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
         ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
@@ -878,7 +1130,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         while ((m = rx.exec(text))) out.push({ group: [{ start: m.index, end: m.index + 1, repl: '' }, { start: m.index + m[0].length, end: m.index + m[0].length, repl: '.' }] });
         return out;
       } },
-    { id: 'ya-dots', no: 0, label: 'الياء المنقوطة', name: 'الياء في آخر الكلمة', word: true, why: 'تُكتب الياء منقوطة (في، التي، الأخلاقي)، ولا تُكتب ألفاً مقصورة إلا في الكلمات التي آخرها ألف.',
+    { id: 'ya-dots', auto: true, no: 0, label: 'الياء المنقوطة', name: 'الياء في آخر الكلمة', word: true, why: 'تُكتب الياء منقوطة (في، التي، الأخلاقي)، ولا تُكتب ألفاً مقصورة إلا في الكلمات التي آخرها ألف.',
       find: (text, ctx) => {
         const out = [];
         const rx = re('(?<![{LH}])([وفبلك]?)([{L}]+ى)(?![{LH}])', 'g');
@@ -894,55 +1146,17 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'inna', no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
+    { id: 'inna', auto: true, no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
-    { id: 'shadda-common', no: 4, name: 'الشدة في الأدوات الشائعة', word: true, quotes: true, why: 'توضع الشدة في الأدوات التي يلتبس معناها دونها: أنّ، إنّ، لكنّ، كلّ، إلّا، ممّا، ثمّ، أمّا.',
-      find: text => {
-        const out = [];
-        // match on the text without harakat except the tanween (so «وإن كلّ» or «أن الإنسانَ» still match), then map back;
-        //  a letter that already has a shadda in the original is left alone
-        const map = [], st = [];
-        for (let i = 0; i < text.length; i++) if (!/[\u064E-\u065F\u0670\u0640]/.test(text[i])) { map.push(i); st.push(text[i]); }
-        const plain = st.join('');
-        const add = (rx, posOf) => { rx.lastIndex = 0; let m; while ((m = rx.exec(plain))) {
-          const k = posOf(m); if (k < 1) continue;
-          const p = map[k - 1] + 1, end = k < map.length ? map[k] : text.length;
-          if (/[\u0651\u0652]/.test(text.slice(p, end))) continue;          // a shadda or a sukun is already there (وإنْ في)
-          // a shadda put on a neighbouring letter (إلاّ، لأّنه، مّما): do not add a second one
-          let ws = p; while (ws > 0 && re('[{LH}\u0640]', '').test(text[ws - 1])) ws--;
-          let ne = end + 1; while (ne < text.length && /[\u064B-\u065F\u0670]/.test(text[ne])) ne++;
-          if (text.slice(ws, ne).includes('\u0651')) continue;
-          if (/^[ \u00A0]+من[\u064B-\u0650]*\u0651/.test(text.slice(p))) continue;   // «إنْ منّ الله» (a verb)
-          out.push({ start: p, end: p, repl: '\u0651' }); } };
-        // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length);
-        // أنّ/إنّ/لكنّ/كأنّ before a definite noun
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=[ \u00A0]+ال)', 'g'), m => m.index + m[0].length);
-        // أنّ/إنّ/كأنّ before a word that cannot follow the light أنْ/إنْ (فإنّ ما، أنّ هذا، أنّ هناك...);
-        //  not لكن, which is often the light لكنْ here, and not before a later «إلا/لما» (negative إنْ: إنْ هذا إلا...)
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
-        // أنّ/إنّ/كأنّ before a word that cannot be a verb (the light أنْ/إنْ is followed by a verb): one with
-        //  a tanween (إنّ عدداً) or a final ة (أنّ دراسةً)، one that starts with م and has no verb ending (فإنّ موقف; not «وإنْ مرضن») or has the shape
-        //  تفعيل (فإنّ تنظيم، فإنّ تصنيفه), one ending in اء (أنّ ثراء), the shapes فُعول (أنّ شيوع) and فواعل
-        //  (بأنّ فوائده), لل+noun (أنّ للإنسان), plurals in ات, and the masdar/plural shapes افتعال، انفعال،
-        //  استفعال، إفعال، فِعال، فعيل، أفعال (أنّ ارتباط، أنّ أخلاقه), فوعل (إنّ جوهر); again not before a later «إلا/لما» in the clause
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:[وفبلك]?[{L}][{LH}]*(?:\u064B|\u064C|\u064D|ة[{H}]*)|م(?!ا)(?:[{L}]{2}[^\sتنها{H}]|[{L}]{4}(?<!هم|ها|نا|تم|وا|تن|كم)|[{L}]{5,})|ت[^\sاويت{H}][^\sاوي{H}]ي[^\sاويه{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?!أ[{L}]اء(?![{LH}])|است|[يتن])[{L}]{2,}اء|(?![يتنأا])[{L}][^\sا{H}]و[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]وا[{L}]{2}(?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}]و[^\sاوي{H}][^\sاويهك{H}]|لل[{L}]{2,}|(?![يتن])[{L}]{3,}ات|ا[^\sاوي{H}]ت[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ان[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|است[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|إ[^\sاوي{H}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|(?![يتنأا])[{L}][^\sاوي{H}]ي(?:[^\sاويتن{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?|ت(?:ه|ها|هم|هما|هن|نا|كم))|أ[^\sاوي{H}](?![تدط])[^\sاوي{H}]ا[^\sاوي{H}](?:ه|ها|هم|هما|هن|نا|ك|كم|كما)?)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
-        // إنّما، أنّما، كأنّما
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=ما(?![{LH}]))', 'g'), m => m.index + m[0].length);
-        // كلّ (with prefixes and pronouns)
-        add(re('(?<![{LH}])([وفبلك]?كل)(?=(?:ه|ها|هم|هما|نا|كم)?(?![{LH}]))', 'g'), m => m.index + m[0].length);
-        // إلّا
-        add(re('(?<![{LH}])([وف]?إل)(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length);
-        // ممّا، عمّا، أمّا، إمّا، ثمّ
-        add(re('(?<![{LH}])([وف]?(?:مم|عم|أم|إم))(?=ا(?![{LH}]))', 'g'), m => m.index + m[0].length);
-        add(re('(?<![{LH}])([وف]?ثم)(?![{LH}])', 'g'), m => m.index + m[0].length);
-        return out;
-      } },
-    { id: 'quote-type', no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
+    { id: 'shadda-sure', auto: true, no: 4, name: 'الشدة المؤكدة في الأدوات', word: true, quotes: true, why: 'توضع الشدة حيث لا تكون الأداة إلا مشددة: أنّه، إنّها، لكنّهم، إلّا، إنّما، كلّ، ممّا، عمّا، إمّا، ثمّ.',
+      find: text => shaddaCommon(text, true) },
+    { id: 'shadda-common', no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
+      find: text => shaddaCommon(text, false) },
+    { id: 'quote-type', auto: true, no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
       find: (text, ctx) => {
         const out = [];
-        const pairs = ctx.straightPairs.map(p => [...p, '"']);
+        const pairs = ctx.straightPairs.filter(p => !gluedPair(text, p[0], p[1])).map(p => [...p, '"']);
         for (const [o, c] of [['“', '”'], ['«', '»']]) {
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i, o]); }
@@ -950,11 +1164,30 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         for (const [a, b, kind] of pairs) {
           const inner = text.slice(a + 1, b).trim();
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
-          if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner)) continue;
+          if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner) || isName(inner)) continue;
           const words = inner.split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
           if (kind === '"' && op === '"') continue;
           out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
+        }
+        return out;
+      } },
+    { id: 'name-marks', auto: true, no: 17, dict: true, name: 'لا أقواس حول الأعلام', why: 'لا يوضع اسم العلم أو المكان بين قوسين ولا بين علامتي التنصيص، وإن وُجدت في الأصل تُزال (القاعدة 17). يشمل الأعلام المسجّلة في القاموس فقط.',
+      find: (text, ctx) => {
+        const out = [];
+        const pairs = ctx.straightPairs.map(p => [p[0], p[1]]);
+        for (const [o, c] of [['(', ')'], ['“', '”'], ['«', '»']]) {
+          const st = [];
+          for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i]); }
+        }
+        for (const [a, b] of pairs) {
+          if (!isName(text.slice(a + 1, b))) continue;
+          // لـ(هيوم) → لهيوم: the tatweel only joined the letter to the bracket (rule 24)
+          const tat = a > 1 && text[a - 1] === '\u0640' && re('[{L}]').test(text[a - 2]);
+          // a space that would be left at the start or end inside the marks goes with them
+          let s0 = a + 1; while (text[s0] === ' ') s0++;
+          let e0 = b; while (e0 > s0 && text[e0 - 1] === ' ') e0--;
+          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: '' }, { start: e0, end: b + 1, repl: '' }] });
         }
         return out;
       } },
@@ -974,9 +1207,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
-    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'names'] };
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
+    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
+    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -1033,6 +1266,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     for (let i = 0; i < text.length; i++) {
       if (text[i] === '{') brace.push(i);
       else if (text[i] === '}' && brace.length) { const a = brace.pop(); if (AR.test(text.slice(a, i))) quran.push([a, i]); }
+    }
+    // in right-to-left Word text the braces are often typed the other way round: }قُلْ مَا كُنتُ بِدْعًا{
+    const rbrace = [];
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] === '}') rbrace.push(i);
+      else if (text[i] === '{' && rbrace.length) { const a = rbrace.pop(); if (AR.test(text.slice(a, i))) quran.push([a, i]); }
     }
     const INTRO_RE = /(تعالى|تعالي|عز ?و ?جل|جل ?و ?علا|سبحانه)\s*[:：]?\s*$/;
     const INTRO = { test: t => INTRO_RE.test(t.replace(/[ً-ْٰ]/g, '')) };
@@ -1108,7 +1347,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const exRanges = [];
     for (const w of EXCEPT) for (const m of text.matchAll(re('(?<![{LH}])[وف]?[بلك]?(?:ال)?' + fuzzy(w) + '(?![{LH}])'))) exRanges.push([m.index, m.index + m[0].length - 1]);
     const accepted = [], groups = [];
-    const busy = (s, e) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e));
+    // a zero-width insertion glued to the edge of another edit inside the same word (e.g. shadda-common adding «ّ» right after
+    //  the «أن» that inna already turns into «إنّ») would apply twice: «إنّّها». A letter/haraka insertion touching
+    //  another edit on its word side counts as overlapping.
+    // (re() always adds the g flag, so build fresh regexes: a cached one keeps lastIndex between test() calls)
+    const WO = { test: x => re('^[{LH}\u0640]+$').test(x) }, WC = { test: x => re('[{LH}\u0640]').test(x) };
+    const glued = (k, ins, a) => a.end > a.start && WO.test(ins) && ((k === a.end && WC.test(text[k - 1] || '')) || (k === a.start && WC.test(text[k] || '')));
+    const busy = (s, e, ins) => accepted.some(a => (e > s ? s < a.end && e > a.start : false) || (e === s && a.start === s && a.end === s) || (e === s && s > a.start && s < a.end) || (e > s && a.end === a.start && a.start > s && a.start < e)
+      || (e === s && glued(s, ins, a)) || (e > s && a.end === a.start && glued(a.start, a.repl, { start: s, end: e })));
     for (const rule of RULES) {
       if (rule.scope === 'notes' && !ctx.inNotes) continue;
       if (rule.translatedOff && ctx.opts.translated) continue;
@@ -1125,7 +1371,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
           if (exRanges.length && overlaps(e.start, e.end, exRanges)) ok = false;
           if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
-          if (busy(e.start, e.end)) ok = false;
+          if (busy(e.start, e.end, e.repl)) ok = false;
         }
         if (!ok) continue;
         const ruleTag = { id: rule.id, no: rule.no, label: rule.label, name: rule.name, why: rule.why, cat: rule.cat };
@@ -1489,7 +1735,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 4, title: 'همزات الوصل والقطع، وتشكيل ما يلتبس معناه', status: 'partial',
       text: ['التحقق من سلامة كتابة همزات الوصل والقطع، وتشكيل الكلمات التي قد يتغير معناها بغياب الحركات، مع الاهتمام بوضع الشدّات حيث يجب، وبالأخص في المواضع التي يُؤدي غيابها إلى التباس في المعنى. ويشمل ذلك الكلمات المشتقة، والأفعال.',
         'أمثلة: أصل = أصّل، عبر = عبّر، عبد = عبّد، عَلِم = عَلَّم ...إلخ.'],
-      tool: 'يضع المحرك الشدة في الأدوات الشائعة (إنّ، أنّ، كلّ، إلّا، ممّا، ثمّ، إنّما...)، ومنها (أنّ/إنّ) قبل الضمير والمعرّف بـ(ال) وأسماء الإشارة والظروف، وقبل الأسماء التي لا تكون أفعالاً بأوزانها (المنوّن، وما آخره تاء مربوطة، وتفعيل، وافتعال، وفُعول، وفواعل، وأفعال...)، ولو كان في الكلمة التالية تشكيل (وإنّ كلّ). ويعمل داخل الاقتباسات أيضاً، ويترك (إنْ) الشرطية والنافية و(أنْ) الناصبة للفعل. أما همزات الوصل والقطع وتشكيل ما يلتبس فيأتيان مع طبقة الذكاء الاصطناعي.' },
+      tool: 'يضع المحرك الشدة في الأدوات الشائعة (إنّ، أنّ، كلّ، إلّا، ممّا، ثمّ، إنّما...)، ومنها (أنّ/إنّ) قبل الضمير والمعرّف بـ(ال) وأسماء الإشارة والظروف، وقبل الأسماء التي لا تكون أفعالاً بأوزانها (المنوّن، وما آخره تاء مربوطة، وتفعيل، وافتعال، وفُعول، وفواعل، وأفعال...)، ولو كان في الكلمة التالية تشكيل (وإنّ كلّ). ويعمل داخل الاقتباسات أيضاً، ويترك (إنْ) الشرطية والنافية و(أنْ) الناصبة للفعل. وما لا يكون إلا مشدداً يُطبَّق تلقائياً عند فتح المستند: (أنّ/إنّ/لكنّ/كأنّ) المتصلة بضمير (أنّه، إنّها، لكنّهم)، وإلّا، وإنّما، وكلّ، وممّا، وعمّا، وإمّا، وثمّ. أما (أنّ/إنّ) قبل كلمة، و(أمّا)، فتبقى اقتراحاً يراجعه المدقق لأنها قد تكون خفيفة. أما همزات الوصل والقطع وتشكيل ما يلتبس فيأتيان مع طبقة الذكاء الاصطناعي.' },
     { no: 5, title: 'لا شدة على الحرف الشمسي ولا على ياء النسبة', status: 'auto',
       text: ['لا تُوضع الشدّة على الحروف الشمسية التي تلي (أل) التعريف في الكتابة، رغم نطقها مشددة، مثل: الضلال، التلال، السماء، الشمس. ولا توضع على ياء النسبة: عراقيّ، مصريّ، إسلاميّ، ...'] },
     { no: 6, title: 'موضع تنوين الفتح', status: 'auto',
@@ -1500,7 +1746,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 8, title: 'الشرطتان والشرطة بين كلمتين أو رقمين', status: 'auto',
       text: ['بالنسبة للجمل المعترضة، والتي عادةً توضع بين شرطتين (– –)، تكون هاتان الشرطتان ملتصقتين بالجملة من اليمين واليسار، وليستا مفصولتين بمسافة، وعلامة الشرطة (–) في لوحة المفاتيح (الكيبورد) تكون في الزر الذي يسبق الرقم (0)، وتستخدم من دون زر (شفت).',
         'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'],
-      tool: 'قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). أما الشرطتان حول الجملة المعترضة فتنتظران قرار المدقق.' },
+      tool: 'قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). والشرطتان حول الجملة المعترضة تُصحَّحان تلقائياً أيضاً. والشرطة بعد رقم العنوان أو حرفه في أول الفقرة تُكتب قصيرة ملتصقة به وبعدها مسافة (2- الفرد المسؤول، ب- أما...)، وتُصحَّح تلقائياً، ولا تُعدّ طرفاً في جملة معترضة، ولا تُقترح الشرطتان حول كلمة واحدة في سطر المرجع (بيروت - لبنان، ط1).' },
     { no: 9, title: 'الشرطة المائلة', status: 'auto',
       text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'],
       tool: 'تُصحَّح تلقائياً عند فتح المستند، ويستطيع المدقق رفض أي تصحيح منها.' },
@@ -1508,7 +1754,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['توحيد استخدام الأقواس وعلامات الاقتباس، بحيث تُستخدم علامة الاقتباس العربية " " للنصوص المقتبسة التي تتطلب توثيقاً أو إحالة مرجعية، سواء أُذكر المصدر في المتن أم في الهامش. أما الأقواس الاعتيادية ( ) فتُخصص للإيضاحات أو الشروحات داخل النص.',
         'ويُراعى –خصوصاً في النصوص المترجمة– الالتزام بما وضعه المترجم من علامات اقتباس أو أقواس، دون تعديل أو حذف، حرصاً على أمانة النقل، وكما في توضيحات النقاط اللاحقة.',
         'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'],
-      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند. أما القوس المقلوب والتحويل بين الأقواس وعلامات التنصيص فينتظران قرار المدقق.' },
+      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند، والتحويل بين الأقواس وعلامات التنصيص كذلك (القاعدة 13). ولا يلمس المحرك علامة تنصيص ملتصقة بالكلمة من خارجها، لأن ذلك يدل على اقتباس متداخل. أما القوس المقلوب فينتظر قرار المدقق.' },
     { no: 11, title: 'إغلاق الأقواس وعلامات الاقتباس', status: 'auto',
       text: ['الانتباه إلى إغلاق الأقواس الاعتيادية ( ) وعلامات الاقتباس " " عند استخدامها، والتأكد من عدم نسيان أحد طرفيها؛ إذ يُعدّ هذا من أكثر الأخطاء الشكلية شيوعاً التي تؤثر في وضوح النص وسلامة تركيبه.'],
       tool: 'تنبّه الأداة في الشريط السفلي إلى الفقرة التي فيها قوس أو علامة غير مغلقة، ويحدّد المدقق موضع الإغلاق.' },
@@ -1525,7 +1771,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '• يشير إلى تيارات مثل (الليبرالية) و(العدمية) و(ما بعد الحداثة).',
         '• وتدل العبارة (الذات في مواجهة النظام) على هذا التوتر الفلسفي.',
         '• أما العبارات الطويلة أو التوضيحات، فتوضع بين أقواس تنصيص. (طويلة أي أكثر من أربع كلمات مثلاً).'],
-      tool: 'يطبّق المحرك حدّ الكلمات الأربع: ما كان أربع كلمات أو أقل يوضع بين ( )، وما زاد بين " ". ولا يمسّ ما فيه رقم هامش أو كلام أجنبي.' },
+      tool: 'يطبّق المحرك حدّ الكلمات الأربع: ما كان أربع كلمات أو أقل يوضع بين ( )، وما زاد بين " ". ولا يمسّ ما فيه رقم هامش أو كلام أجنبي، ولا اسم علم مسجّلاً في القاموس (القاعدة 17). ويُطبَّق تلقائياً عند فتح المستند.' },
     { no: 14, title: 'علامة الترقيم خارج القوس الختامي', status: 'auto',
       text: ['عند استخدام علامات الاقتباس " " أو الأقواس الاعتيادية ( )، توضع علامة النقطة أو غيرها من علامات الترقيم خارج العلامة الختامية، وليس قبلها، ما لم تكن العلامة جزءاً من النص المقتبس أو المضمَّن.',
         'مثال صحيح: وقال له: "تعال إليّ". (انظر التفاصيل في الملحق).',
@@ -1537,18 +1783,19 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 16, title: 'التوضيح بعد الكلمة', status: 'ai',
       text: ['عند الحاجة إلى توضيح اسم أو مصطلح أو معنى ضمن السياق، يُوضع التوضيح بين شرطتين مباشرة بعد الكلمة المراد توضيحها، دون علامات اقتباس أو فواصل. مثال: نزل به جبرائيل (أحد الملائكة) على النبي...، مرّ ببلاد السند (منطقة في شبه القارة الهندية).'],
       tool: 'قرار المركز: يوضع التوضيح بين قوسين ( ) كما في المثالين، لا بين شرطتين.' },
-    { no: 17, title: 'لا أقواس حول الأعلام والأماكن', status: 'ai',
+    { no: 17, title: 'لا أقواس حول الأعلام والأماكن', status: 'partial',
       text: ['يُتجنّب وضع أسماء الأعلام العربية، أو أسماء المدن والمناطق والدول، داخل أقواس ( ) أو علامات اقتباس " " حتى لو كانت الأقواس موجودة في النص الأصلي نزيلها.',
         'ملاحظة: فيما يتعلق بالمصطلحات: نضع القوسين للمصطلح باللغة العربية، ونزيل القوسين عن المصطلح بالأجنبية في حال كانا موجودَين، مثال:',
         'لقد وضع جيريمي بنثام ما عُرف باسم "حساب السعادة" (Felicific Calculus).',
-        'لتكون هكذا: لقد وضع جيريمي بنثام ما عُرف باسم (حساب السعادة) Felicific Calculus.'] },
+        'لتكون هكذا: لقد وضع جيريمي بنثام ما عُرف باسم (حساب السعادة) Felicific Calculus.'],
+      tool: 'يزيل المحرك تلقائياً الأقواس وعلامات التنصيص عن الأعلام والأماكن المسجّلة في القاموس، عربية وغربية كما يفعل المدققون: "ستيفن بيبر" ← ستيفن بيبر، ولـ(هيوم) ← لهيوم، ولا يحوّلها إلى أقواس. أما الأعلام غير المسجّلة فتأتي مع طبقة الذكاء الاصطناعي.' },
     { no: 18, title: 'عبارة "أو (...)"', status: 'auto',
       text: ['في حالة وجود مثل هكذا عبارات: "أو (متحدة)"، يتم تعديلها لتكون: أو (متحدة).'] },
     { no: 19, title: 'الأعوام لا توضع بين قوسين', status: 'auto',
       text: ['لا توضع أرقام الأعوام بين قوسين: وُلد عام 1900م. لكن نضع القوسين في الحالة التالية: وُلد عام (1900م–1340هـ) أو في الحالة: كان الملا صدرا (1572م–1641م) مقيماً في ....'] },
     { no: 20, title: 'توحيد أسماء الأعلام والأماكن', status: 'partial',
       text: ['التحقق من توحيد أسماء الأعلام والأماكن في النص؛ إذ قد يَرِد الاسم الواحد بأكثر من صورة داخل المقال أو الكتاب، رغم الإشارة إلى المعنى نفسه، مثل: (غورباتشوف) و(غورباتشيف)، أو (ناجورني كاراباخ) و(نكورني كاراباغ)، أو (أمريكا) و(أميركا). يُراعى اعتماد صيغة واحدة ثابتة في جميع المواضع.'],
-      tool: 'يصحّح المحرك الأعلام المسجّلة في القاموس إلى صيغتها المعتمدة، ولا يمكن إطفاء ذلك. أما توحيد الأعلام غير المسجّلة داخل النص فيأتي مع طبقة الذكاء الاصطناعي.' },
+      tool: 'يقترح المحرك تصحيح الأعلام والأماكن المسجّلة في القاموس إلى صيغتها المعتمدة بقرار المركز، ولا يمكن إطفاء ذلك. يصحّح الكلمة نفسها فقط ولا يكمّل الاسم: يبقى «كانط» كما كتبه المؤلف ولا يصير «إيمانويل كانط». أما توحيد الأعلام غير المسجّلة داخل النص فيأتي مع طبقة الذكاء الاصطناعي.' },
     { no: 21, title: 'أسماء الأشهر', status: 'auto',
       text: ['في كتابة أسماء الأشهر، يُعتمد الأسلوب المزدوج، بذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: (تموز/ يوليو) و(شباط/ فبراير)، ولا تُستخدم تسميات أخرى معتمدة في بعض الدول العربية كبدائل. أما النص المترجَم فيبقى كما الأصل.'] },
     { no: 22, title: 'فصل (ما) و(لا) عمّا بعدهما', status: 'auto',
@@ -1566,7 +1813,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['تُكتب (إذن) بالنون إذا كانت أداة نصب وجاء بعدها فعل مضارع منصوب، مثل: سأزورك، إذن أكرمَك. أمّا إذا لم يأتِ بعدها فعل مضارع، أو استُعملت حرفَ جواب وجزاء، فإنها تُكتب بالتنوين (إذاً)، التنوين هنا تنوين عِوَض عن مفردة أو جملة محذوفة.'] },
     { no: 28, title: 'توثيق الآيات والكتاب المقدس', status: 'ai',
       text: ['في توثيق الآيات أو النصوص المقتبسة من القرآن الكريم أو الكتاب المقدس، يُراعى اعتماد أسلوب مختصر وواضح دون حشو، وذلك على النحو الآتي: في القرآن الكريم يكون التخريج على وفقاً للمثالين التاليين: [البقرة: الآية 3]، في حال كانت الآية المقتبسة كاملة، وأمّا إذا كان جزء آية فيكون على النحو التالي: [البقرة: من الآية 3]. وفي الكتاب المقدس: يُذكر اسم السفر متبوعاً برقم الإصحاح والعدد مفصولين بشرطة مائلة (/)، دون نقطتين أو فواصل. مثال: (متى 4/5) وليس (متى: 4/5) أو (متى، 4/5).'],
-      tool: 'الآيات محمية الآن: لا يعدّلها المحرك. أما التحقق من التخريج ومطابقة الآية فيأتي لاحقاً.' },
+      tool: 'الآيات محمية الآن: لا يعدّلها المحرك، سواء كُتبت بين ﴿ ﴾ أو { } أو بالأقواس المعكوسة } { كما تظهر في وورد. أما التحقق من التخريج ومطابقة الآية فيأتي لاحقاً.' },
     { no: 29, title: 'الهوامش', status: 'partial',
       text: ['• يُوضع رقم الهامش بين قوسين ( ) ملاصقَين للرقم دون فراغ: (1)، ويُلصق الرقم كاملاً بالكلمة التي يسبقه دون ترك مسافة، سواء أكان النص المسبوق نصاً عادياً أو بين علامات تنصيص. كما يُراعى أن تكون جميع الهوامش مُدرجة بطريقة تلقائية (أوتوماتيكية) باستخدام خاصية إدراج الهوامش في برنامج الـ word، وليس بإدخال الأرقام أو النصوص يدوياً. مثال: المؤمن كيّس فطن(1). "المؤمن كيّس فطن"(1).',
         '• في حال ورود علامة هامش غير رقمية (مثل النجمة * أو غيرها)، يجب تحويلها إلى رقم يتماشى مع تسلسل الهوامش في النص، بحيث تأخذ الرقم المناسب بين ما قبلها وما بعدها. مثال: إذا ورد في النص هامش برقم (1)، تلاه هامش بعلامة *، ثم هامش برقم (2)، فإن العلامة * تُحوَّل إلى الرقم (2)، ويُصبح الهامش الذي كان (2) هو (3)، وهكذا. ويُراعى دائماً أن تكون جميع الهوامش مرقّمة ترقيماً متسلسلاً ومنسّقاً بشكل تلقائي.',
@@ -1582,7 +1829,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '1- إذا كان المصدر المكرر متصلاً مباشرة بالمصدر الذي سبقه، فلا يُعاد ذكر المرجع كاملاً، بل يُكتفى بكتابة (المصدر نفسه) متبوعاً بفارزة (،) ثم رقم الصفحة الجديدة. مثال: المصدر نفسه، ص75.',
         '2- أما إذا كان المصدر قد ورد سابقاً لكنه ليس الهامش المباشر السابق (بل قبل عدة هوامش: 4 أو 5 مثلاً)، فيُذكر اسم الكتاب، متبوعاً بفاصلة، ثم عبارة (مصدر سابق)، ثم رقم الصفحة أو الجزء. مثال: الكلمات والأشياء، مصدر سابق، ص214.',
         '3- إذا كان المصدر قد ورد كالتالي: المصدر نفسه، ص70، ثم جاء الاقتباس أو الهامش التالي من المصدر نفسه والصفحة نفسها يكون الهامش كالتالي: المصدر نفسه (دون وضع رقم الصفحة).'],
-      tool: 'يطبّق المحرك: موضع رقم الهامش قبل النقطة، وكتابة (ص22)، والاختصارات (ط، مج)، و(المصدر نفسه) و(مصدر سابق). وهذه كلها ما عدا (المصدر نفسه) و(مصدر سابق) تُطبَّق تلقائياً عند فتح المستند. أما تسلسل الهوامش وعودتها إلى موضعها وإشارة (المترجم) فتأتي لاحقاً.' },
+      tool: 'يطبّق المحرك: موضع رقم الهامش قبل النقطة، وكتابة (ص22)، والاختصارات (ط، مج)، و(المصدر نفسه) و(مصدر سابق). وهذه كلها تُطبَّق تلقائياً عند فتح المستند. أما تسلسل الهوامش وعودتها إلى موضعها وإشارة (المترجم) فتأتي لاحقاً.' },
     { no: 30, title: 'التوثيق بنظام شيكاغو', status: 'deferred',
       text: ['استعمال نظام شيكاغو (Chicago) في ترتيب المصادر والمراجع وتنسيقها بأسلوب (End Notes) ولضرب مثال على ذلك نورد بعض الحالات: في حال التوثيق من كتاب: اسم المؤلف، عنوان الكتاب، اسم المترجم (إن كان الكتاب مترجماً)، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ذكر الجزء أو المجلد (إن كان الكتاب على عدة أجزاء)، ورقم الصفحة. في حال التوثيق من مجلة: اسم المؤلف؛ عنوان البحث أو المقال أو الدراسة، اسم المجلة، العدد، تاريخ النشر، الطبعة، ورقم الصفحة. في حال التوثيق من كتاب جماعي: اسم كاتب البحث أو المقال () في ضمن كتاب () عنوان الكتاب، اسم المحرر أو المشرف، دار النشر، مكان النشر، الطبعة، تاريخ النشر، ورقم الصفحة. في حال التوثيق من رسالة أو أطروحة: اسم الباحث؛ عنوان الرسالة أو الأطروحة، الجامعة والكلية، تاريخ المناقشة، ورقم الصفحة.',
         'ملاحظة: ما تم ذكره في أعلاه من مصادر إن كانت إلكترونية فيُتم إدراج الرابط بعد رقم الصفحة في الأسفل.',
@@ -1619,6 +1866,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { rules: [29], title: 'هامش النجمة (*)', text: 'تُستعمل النجمة للتعريف بالكاتب أو المترجم فقط، في الصفحة الأولى. وهذا استثناء من تحويل النجمة إلى رقم.', effect: 'لا يحتاج إلى تعديل في المحرك.' },
     { rules: [30], title: 'ترتيب التوثيق', text: 'يُتّبع ترتيب الدليل في توثيق الكتب، وتُعدَّل قواعد النشر لتوافقه.', effect: 'مع القاعدة 30 المؤجّلة.' },
     { rules: [31], title: 'سطر الكاتب والمترجم', text: 'يبقى الشكل الحالي في المجلة، وتُكتب الصفات (إعداد، مراجعة...) كما وردت في كل مقال.', effect: 'لا يحتاج إلى تعديل في المحرك.' },
+    { rules: [20], title: 'أسماء المفكرين والعلماء الغربيين', text: 'يرد اسم المفكر أو العالم الغربي بالعربية والإنجليزية مرة واحدة في بداية المقالة: كانط Kant، وإذا تكرر بعد ذلك يُذكر الاسم العربي وحده دون الإنجليزي. ويتكرر الاسم كما ذكره المؤلف فقط: إذا كتب «كانط» بقي «كانط»، ولا يُكتب «إيمانويل كانط». قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'لا يكمّل المحرك الأسماء ولا يضيف إليها. أما حذف الاسم الإنجليزي المكرر فيأتي مع طبقة الذكاء الاصطناعي.' },
+    { rules: [20], title: 'صيغ الأعلام والأماكن والمصطلحات', text: 'اعتمد المركز صيغة واحدة لكل علم ومكان ومصطلح ورد بأكثر من صيغة في المقالات، ومنها: حرف G الأجنبي يُكتب غيناً (هايدغر، هيغل، فتغنشتاين، غادامر، براغماتية، لوغوس)، وأمريكا، وأوروبا، وإنجليزي، وسوريا، وبنثام، وتوما الإكويني. وتُترك «إتيقا» و«إيتيقا» كما اختارها المؤلف، وتبقى «ما وراء الأخلاق» كما هي، ولا تُوحَّد «الطاوية» و«التاو». قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'الصيغ كلها في القاموس، ويقترح المحرك تصحيحها.' },
+    { rules: [4, 5, 6, 8, 13, 17, 21, 22, 29], title: 'التصحيحات التلقائية', text: 'يطبّق المحرك تلقائياً عند فتح المستند ما ثبت أنه صحيح في كل حالاته فقط، ويبقى الملتبس اقتراحاً للمدقق ثم لطبقة الذكاء الاصطناعي. والمعيار قياس كل قاعدة على المقالات المدققة بالدليل الجديد. صار تلقائياً بهذا القياس: الياء المنقوطة، وفصل (ما) و(لا)، وكسر همزة إنّ بعد القول، وتنوين الفتح، وشدة الحرف الشمسي وياء النسبة، والشرطتان حول الجملة المعترضة، ونوع علامة الاقتباس، وأسماء الأشهر، و(المصدر نفسه) و(مصدر سابق)، والأقواس حول الأعلام، والشدة المؤكدة (أنّه، إلّا، إنّما، كلّ، ثمّ...). قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'يبقى كل تصحيح تلقائي ظاهراً وقابلاً للرفض، ولكل قاعدة زر «تلقائي» في صفحة «تشغيل القواعد».' },
     { rules: [19], title: 'حرف (م) بعد السنة الميلادية', text: 'إذا كان النص يتحدث عن السنة الميلادية تُوضع (م) بعد رقم السنة، و(هـ) و(م) معاً إذا ذُكرت السنتان.', effect: 'بانتظار جواب الإدارة عن الحالات التي يشملها، ولا يطبّقه المحرك بعد.', pending: true }
   ];
 
@@ -2286,7 +2536,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const EX = {
     'sp-before': ['قال الكاتب ، ثم سكت .', 'قال الكاتب، ثم سكت.'], 'sp-after': ['قال الكاتب،ثم سكت.', 'قال الكاتب، ثم سكت.'],
     'br-inner': ['كتاب ( الأخلاق )', 'كتاب (الأخلاق)'], 'dash-pair': ['وهذا - كما قلنا - صحيح', 'وهذا -كما قلنا- صحيح'],
-    'dash-num': ['الصفحات 10 – 20', 'الصفحات 10-20'], 'dash-short': ['التكليف–المسؤولية', 'التكليف-المسؤولية'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
+    'dash-num': ['الصفحات 10 – 20', 'الصفحات 10-20'], 'dash-short': ['التكليف–المسؤولية', 'التكليف-المسؤولية'], 'dash-head': ['2 – الفرد المسؤول', '2- الفرد المسؤول'], 'slash': ['الداخل/الخارج', 'الداخل/ الخارج'], 'sp-double': ['قال  الكاتب', 'قال الكاتب'],
     'semicolon': ['تأخر الموعد، لأنه مرض', 'تأخر الموعد؛ لأنه مرض'],
     'dot-out': ['(الأخلاق أساس.)', '(الأخلاق أساس).'], 'aw-quote': ['الدولة "أو (المتحدة)"', 'الدولة أو (المتحدة)'],
     'fn-space': ['نهاية الجملة.¹', 'نهاية الجملة¹.'], 'year-paren': ['في عام (1950)', 'في عام 1950'],
@@ -2294,8 +2544,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     'nisba-shadda': ['الأخلاقيّة', 'الأخلاقية'], 'tanween': ['واضحًا جدًا', 'واضحاً جداً'], 'months': ['3 مارس', '3 آذار/ مارس'],
     'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
     'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
-    'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
-    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول']
+    'shadda-sure': ['إنه، وكل إنسان، إلا', 'إنّه، وكلّ إنسان، إلّا'], 'shadda-common': ['إن الضمير', 'إنّ الضمير'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
+    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول'], 'name-marks': ['"بيبر"', 'بيبر']
   };
   // ---------------- guide page: the centre's rules with their status in the tool, approved decisions, preferred words,
   // and the rule switches (checking options). Switching a rule marks the open document for a re-check on return to the editor.
@@ -2400,7 +2650,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   // from a correction in the editor: open its rule in the guide
   function openGuideAt(rule) {
-    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' ? 'names' : 'words'); return; }
+    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' || rule.id === 'name-marks' ? 'names' : 'words'); return; }
     gs.q = ''; $('gQ').value = ''; gs.sf = 'all';
     gs.tab = 'rules'; store.set('guideTab', gs.tab);
     setView('guide');
@@ -2479,12 +2729,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ${list.length ? dTable(['تُكتب', 'لا تُكتب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w good">${dHl(x.good)}</td><td class="w bad">${dHl(x.bad)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}` },
     names: {
       list: () => DCT.names.filter(x => dHit(x.name + ' ' + x.variants.join(' ') + ' ' + (x.note || ''))),
-      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. القائمة الآن أمثلة مؤقتة، والقائمة الكاملة تُستخرج من تحليل المقالات.</p>
+      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. يصحّح المحرك الكلمة نفسها فقط ولا يكمّل الاسم: يتكرر العلم كما ذكره المؤلف، فإذا كتب «كانط» بقي «كانط». والأعلام التي ليس لها صيغ تُصحَّح منها للعرض فقط.</p>
         ${list.length ? dTable(['الصيغة المعتمدة', 'تُصحَّح منها', 'ملاحظة', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w good">${dHl(x.name)}</td><td class="w bad">${x.variants.map(dHl).join('، ')}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد علم يطابق البحث.</div>'}` },
     terms: {
-      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + x.def)),
-      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. القائمة الآن أمثلة مؤقتة.</p>
-        ${list.length ? dTable(['المصطلح', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
+      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + (x.field || '') + ' ' + x.def)),
+      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. التعريفات مسوّدة تحتاج مراجعة متخصص.</p>
+        ${list.length ? dTable(['المصطلح', 'الحقل', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td class="src">${dHl(x.field || '')}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
     except: {
       list: () => DCT.exceptions.filter(x => dHit(x.word + ' ' + (x.note || ''))),
       html: list => `<p class="g-intro">كلمات يخطئ فيها المحرك، فلا يقترح فيها أي تصحيح، ومعها صيغها بـ(ال) وحروف العطف والجر. تُضاف إليها عادةً التصحيحات التي يتكرر رفضها.</p>
