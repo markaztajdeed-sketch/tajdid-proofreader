@@ -178,6 +178,9 @@
     // قرار المركز (10 تشرين الثاني/ نوفمبر 2026): الشرطة موحّدة قصيرة (-)، فتُستبدل بها الطويلة (– أو —) الملتصقة بكلمتين
     { id: 'dash-short', auto: true, no: 8, name: 'الشرطة بين كلمتين', why: 'تُكتب الشرطة بين كلمتين قصيرة (-) دون مسافة: الاجتماعية-السياسية.',
       find: simple(re('(?<=[{L}][{H}]*)[–—](?=[{L}])'), () => '-') },
+    // قرار المركز (12 تشرين الثاني/ نوفمبر 2026): الشرطة بعد رقم العنوان أو حرفه قصيرة ملتصقة به، وبعدها مسافة: 2- الفرد المسؤول، ب- أما
+    { id: 'dash-head', auto: true, no: 8, name: 'الشرطة بعد رقم العنوان', why: 'تلتصق الشرطة القصيرة (-) برقم العنوان أو حرفه، وتُفصل بمسافة عمّا بعدها: 2- الفرد المسؤول.',
+      find: simple(re('(?<=^[ \\u00A0]*(?:[{D}]+|[{L}]))[ \\u00A0]*[-–—][ \\u00A0]*(?=[{L}«“"(])'), () => '- ') },
     { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
@@ -383,7 +386,7 @@
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
     spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-common'],
     conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
