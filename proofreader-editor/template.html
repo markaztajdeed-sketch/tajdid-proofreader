@@ -1396,12 +1396,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ${list.length ? dTable(['تُكتب', 'لا تُكتب', 'المصدر', 'أُضيفت'], list.map(x => `<tr><td class="w good">${dHl(x.good)}</td><td class="w bad">${dHl(x.bad)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا توجد كلمة تطابق البحث.</div>'}` },
     names: {
       list: () => DCT.names.filter(x => dHit(x.name + ' ' + x.variants.join(' ') + ' ' + (x.note || ''))),
-      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. القائمة الآن أمثلة مؤقتة، والقائمة الكاملة تُستخرج من تحليل المقالات.</p>
+      html: list => `<p class="g-intro">الأعلام والأماكن بصيغتها المعتمدة (القاعدة 20). يصحّح المحرك الصيغ الأخرى إليها في كل المستندات، ولا يمكن إطفاء ذلك. يصحّح المحرك الكلمة نفسها فقط ولا يكمّل الاسم: يتكرر العلم كما ذكره المؤلف، فإذا كتب «كانط» بقي «كانط». والأعلام التي ليس لها صيغ تُصحَّح منها للعرض فقط.</p>
         ${list.length ? dTable(['الصيغة المعتمدة', 'تُصحَّح منها', 'ملاحظة', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w good">${dHl(x.name)}</td><td class="w bad">${x.variants.map(dHl).join('، ')}</td><td class="src">${dHl(x.note || '')}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد علم يطابق البحث.</div>'}` },
     terms: {
-      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + x.def)),
-      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. القائمة الآن أمثلة مؤقتة.</p>
-        ${list.length ? dTable(['المصطلح', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
+      list: () => DCT.terms.filter(x => dHit(x.term + ' ' + (x.field || '') + ' ' + x.def)),
+      html: list => `<p class="g-intro">المصطلحات المعتمدة في المركز مع تعريف قصير لكل منها. لا يصحّحها المحرك، بل تظهر للمدقق حين ترد في النص. التعريفات مسوّدة تحتاج مراجعة متخصص.</p>
+        ${list.length ? dTable(['المصطلح', 'الحقل', 'التعريف', 'المصدر', 'أُضيف'], list.map(x => `<tr><td class="w">${dHl(x.term)}</td><td class="src">${dHl(x.field || '')}</td><td>${dHl(x.def)}</td><td class="src">${esc(x.src || '')}</td><td class="src">${dDate(x.added)}</td></tr>`)) : '<div class="g-empty">لا يوجد مصطلح يطابق البحث.</div>'}` },
     except: {
       list: () => DCT.exceptions.filter(x => dHit(x.word + ' ' + (x.note || ''))),
       html: list => `<p class="g-intro">كلمات يخطئ فيها المحرك، فلا يقترح فيها أي تصحيح، ومعها صيغها بـ(ال) وحروف العطف والجر. تُضاف إليها عادةً التصحيحات التي يتكرر رفضها.</p>
