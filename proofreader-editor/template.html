@@ -1212,7 +1212,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
     'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
     'shadda-common': ['إن الضمير، وكل إنسان', 'إنّ الضمير، وكلّ إنسان'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
-    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول']
+    'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول'], 'name-marks': ['"بيبر"', 'بيبر']
   };
   // ---------------- guide page: the centre's rules with their status in the tool, approved decisions, preferred words,
   // and the rule switches (checking options). Switching a rule marks the open document for a re-check on return to the editor.
@@ -1317,7 +1317,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   // from a correction in the editor: open its rule in the guide
   function openGuideAt(rule) {
-    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' ? 'names' : 'words'); return; }
+    if (DICT_IDS.has(rule.id)) { openDictAt(rule.id === 'names' || rule.id === 'name-marks' ? 'names' : 'words'); return; }
     gs.q = ''; $('gQ').value = ''; gs.sf = 'all';
     gs.tab = 'rules'; store.set('guideTab', gs.tab);
     setView('guide');
