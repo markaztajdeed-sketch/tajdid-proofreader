@@ -567,6 +567,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           <select id="docsDate">
             <option value="all">كل التواريخ</option><option value="today">اليوم</option><option value="7">آخر ٧ أيام</option><option value="30">آخر ٣٠ يوماً</option><option value="year">هذه السنة</option>
           </select></label>
+        <label class="field" id="docsOwnerF" hidden>المدقق
+          <select id="docsOwner"></select></label>
         <span class="grow"></span>
         <label class="field">الترتيب
           <select id="docsSort">
@@ -575,7 +577,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       </div>
       <div id="docsList"></div>
       <p class="msg" id="docsMsg" role="status"></p>
-      <p class="docs-note" id="docsNote">تظهر هنا مستنداتك أنت فقط. المستندات وقراراتك فيها محفوظة الآن في هذا المتصفح على هذا الجهاز، وحفظها على الخادم يأتي مع ربط الأداة به.</p>
+      <p class="docs-note" id="docsNote">يرى كل مدقق مستنداته فقط، ويرى مسؤول الدليل مستندات الجميع. المستندات وقراراتك فيها محفوظة الآن في هذا المتصفح على هذا الجهاز، وحفظها على الخادم يأتي مع ربط الأداة به.</p>
     </div>
   </div>
   <dialog class="confirm" id="delDlg" aria-labelledby="delTitle">
@@ -2927,7 +2929,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   })();
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   const docs = new Map();
-  const ds = { q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
+  const ds = { owner: 'all', q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
   const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason || g.auto).map(g => g.auto ? [sig(g), g.status, g.reason, 1] : [sig(g), g.status, g.reason]) }));
   function docStats() {
@@ -2951,7 +2953,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   ['cards', 'pop'].forEach(id => $(id).addEventListener('input', autosave));
 
   async function openDoc(id) {
-    const rec = docs.get(id); if (!rec || !mine(rec)) return;
+    const rec = docs.get(id); if (!rec || !canSee(rec)) return;
     if (st.docId && st.docId !== id) { commitDirty(); await saveNow(); }
     const f = await DB.get('files', id);
     if (!f) { say('ملف هذا المستند غير موجود في المتصفح.', true); return; }
@@ -3013,7 +3015,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'
   };
   function renderDocs() {
-    const all = [...docs.values()].filter(mine), n = s => s.toLocaleString('ar');
+    const adm = isAdmin(), all = [...docs.values()].filter(r => adm ? ds.owner === 'all' || r.owner === ds.owner : mine(r)), n = s => s.toLocaleString('ar');
+    $('docsOwnerF').hidden = !adm;
+    if (adm) {
+      const owners = AC.users().filter(u => u.id === me.id || [...docs.values()].some(r => r.owner === u.id));
+      if (ds.owner !== 'all' && !owners.some(u => u.id === ds.owner)) ds.owner = 'all';
+      $('docsOwner').innerHTML = '<option value="all">كل المدققين</option>' + owners.map(u => `<option value="${u.id}">${esc(u.id === me.id ? (u.name || u.email) + ' (أنت)' : u.name || u.email)}</option>`).join('');
+      $('docsOwner').value = ds.owner;
+    }
     $('docsCount').textContent = all.length ? countWord(all.length) : '';
     const byDate = all.filter(inDate), q = norm(ds.q.trim());
     const byQ = q ? byDate.filter(r => norm(r.name).includes(q)) : byDate;
@@ -3030,7 +3039,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       return;
     }
     if (!list.length) { box.innerHTML = '<div class="docs-empty">لا توجد مستندات تطابق البحث أو التصفية.</div>'; return; }
-    box.innerHTML = '<table class="dtable"><thead><tr><th class="c-star"><span hidden>تثبيت</span></th><th class="c-name">الاسم</th><th>الحالة</th><th class="c-prog">التقدّم</th><th>الكلمات</th><th>أُضيف</th><th>آخر تعديل</th><th class="c-act"></th></tr></thead><tbody>' +
+    box.innerHTML = '<table class="dtable"><thead><tr><th class="c-star"><span hidden>تثبيت</span></th><th class="c-name">الاسم</th>' + (adm ? '<th>المدقق</th>' : '') + '<th>الحالة</th><th class="c-prog">التقدّم</th><th>الكلمات</th><th>أُضيف</th><th>آخر تعديل</th><th class="c-act"></th></tr></thead><tbody>' +
       list.map(r => {
         const s = statusOf(r), t = r.stats, dec = t ? t.accepted + t.rejected : 0, pct = t && t.total ? Math.round(dec / t.total * 100) : (t ? 100 : 0);
         const name = ds.renaming === r.id
@@ -3040,6 +3049,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         return `<tr data-id="${r.id}" class="${r.id === st.docId ? 'cur' : ''}">
           <td class="c-star"><button type="button" class="star" data-act="pin" aria-pressed="${!!r.pinned}" title="${r.pinned ? 'إلغاء التثبيت' : 'تثبيت في الأعلى'}">${ICO.star}</button></td>
           <td class="c-name"><div class="dname">${ICO.file}${name}</div></td>
+          ${adm ? `<td class="c-date">${r.owner === me.id ? 'أنت' : esc(userName(r.owner))}</td>` : ''}
           <td><span class="status ${s}"><i></i>${ST_LBL[s]}</span></td>
           <td class="c-prog">${prog}</td>
           <td class="c-date">${t ? n(t.words) : '—'}</td>
@@ -3090,6 +3100,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   $('docsQ').addEventListener('input', e => { ds.q = e.target.value; renderDocs(); });
   $('docsStatus').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { ds.status = b.dataset.s; renderDocs(); } });
   $('docsDate').addEventListener('change', e => { ds.date = e.target.value; renderDocs(); });
+  $('docsOwner').addEventListener('change', e => { ds.owner = e.target.value; renderDocs(); });
   $('docsSort').value = ds.sort;
   $('docsSort').addEventListener('change', e => { ds.sort = e.target.value; store.set('docsSort', ds.sort); renderDocs(); });
   $('docsUpload').addEventListener('click', () => $('docsFile').click());
@@ -3113,6 +3124,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const uKey = k => k + '-' + (me ? me.id : '');
   const mine = r => !!me && r.owner === me.id;
+  // the guide admin sees every proofreader's documents; a proofreader sees their own
+  const canSee = r => mine(r) || isAdmin();
   const userName = id => { const u = AC.users().find(x => x.id === id); return u ? (u.name || u.email) : 'مستخدم محذوف'; };
   const n_ = x => x.toLocaleString('ar');
   async function hashPw(pw, salt) {
@@ -3207,7 +3220,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   async function signOut() {
     commitDirty(); await saveNow(); hidePop(true);
     clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll();
-    store.set('session', null); me = null; say(''); clearTimeout(toastT); $('toast').hidden = true;
+    store.set('session', null); me = null; ds.owner = 'all'; store.set('view', 'docs'); say(''); clearTimeout(toastT); $('toast').hidden = true;
     showAuth('login');
   }
   $('logoutBtn').addEventListener('click', signOut);
@@ -3450,7 +3463,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       store.set(uKey('seeded'), true);
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
       const last = store.get(uKey('lastDoc'), null), v = store.get('view', 'docs');
-      if (v === 'editor' && last && docs.has(last) && mine(docs.get(last))) await openDoc(last);
+      if (v === 'editor' && last && docs.has(last) && canSee(docs.get(last))) await openDoc(last);
       else setView(['guide', 'dict', 'acct', 'admin'].includes(v) ? v : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
   }
