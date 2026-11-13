@@ -383,6 +383,84 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 .g-sw { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
 .g-sw label { display: inline-flex; align-items: center; gap: 8px; }
 
+/* accounts: sign-in screens, the account page, the admin page, proposals */
+.auth { min-height: 100%; display: grid; place-items: center; padding: 32px 16px; box-sizing: border-box; direction: rtl; background: var(--bg); }
+.auth-card { width: min(400px, 100%); box-sizing: border-box; background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 10px; padding: 28px 28px 22px; display: grid; gap: 14px; box-shadow: 0 10px 32px rgba(0,0,0,.08); }
+.auth-logo { display: flex; align-items: center; gap: 12px; color: var(--brand); }
+.auth-logo img { width: 42px; height: 42px; }
+.auth-logo b { display: block; font-size: 16px; }
+.auth-logo small { color: var(--muted); font-size: 12.5px; }
+.auth-card h1 { margin: 6px 0 0; font-size: 18px; }
+.auth-sub { margin: -6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.auth-sub:empty, .auth-err:empty, .auth-foot:empty { display: none; }
+.a-fld { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.a-fld small { font-size: 11.5px; margin-inline-start: 6px; }
+.a-fld input, .a-fld textarea, .a-fld select, .a-inv input { box-sizing: border-box; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface); color: var(--ink); font-size: 14px; }
+.a-fld textarea { resize: vertical; min-height: 64px; line-height: 1.7; }
+.a-fld input[readonly] { background: var(--sunken); color: var(--muted); }
+.a-fld input[dir="ltr"], .a-inv input { text-align: right; }
+.auth-err { margin: 0; color: var(--spell); font-size: 13px; line-height: 1.7; }
+.auth-go { justify-content: center; padding: 9px 12px; font-size: 14.5px; }
+.auth-foot { margin: 0; text-align: center; color: var(--muted); font-size: 12.5px; }
+.auth-local { margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11.5px; line-height: 1.8; }
+.nav-item { position: relative; }
+.nav-badge { position: absolute; top: 3px; inset-inline-end: 3px; min-width: 16px; height: 16px; box-sizing: border-box; padding: 0 4px; border-radius: 99px; background: var(--spell); color: #FFFFFF; font-size: 10.5px; font-weight: 600; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.shell.nav-open .nav-badge { position: static; margin-inline-start: auto; }
+.a-wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 14px; }
+.a-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; }
+.a-card h3 { margin: 0 0 12px; font-size: 14.5px; display: flex; align-items: baseline; gap: 8px; }
+.a-card h3 small { color: var(--muted); font-weight: 400; font-size: 12.5px; }
+.a-me { display: flex; align-items: center; gap: 14px; }
+.a-me h2 { margin: 0; font-size: 16px; }
+.a-me .a-mail { margin: 2px 0 0; color: var(--muted); font-size: 13px; text-align: right; }
+.a-av { width: 48px; height: 48px; border-radius: 50%; background: var(--nav-act); color: var(--accent); display: grid; place-items: center; font-size: 20px; font-weight: 700; flex: none; }
+.a-role { margin-inline-start: auto; font-size: 12.5px; border: 1px solid var(--line); border-radius: 99px; padding: 2px 12px; color: var(--muted); white-space: nowrap; }
+.a-role.admin { color: var(--conv); border-color: color-mix(in srgb, var(--gold) 70%, transparent); background: color-mix(in srgb, var(--gold) 10%, transparent); }
+.a-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.a-stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; display: grid; gap: 2px; }
+.a-stat b { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.a-stat span { color: var(--muted); font-size: 13px; }
+.a-stat.ok b { color: var(--good); } .a-stat.no b { color: var(--spell); }
+.a-pw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
+.a-msg { margin: 10px 0 0; font-size: 13px; color: var(--good); }
+.a-msg.err { color: var(--spell); }
+.a-msg:empty { display: none; }
+.a-none { margin: 0; color: var(--muted); font-size: 13px; }
+.a-hint { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.8; }
+.a-inv { display: flex; gap: 10px; }
+.a-inv input { flex: 1; width: auto; }
+.a-props { display: grid; gap: 10px; }
+.a-prop { border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; background: var(--surface); }
+.a-prop header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.a-prop header .k { color: var(--ink); font-weight: 600; font-size: 13px; }
+.a-prop header .d { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+.a-prop .body { font-size: 14px; line-height: 1.9; }
+.a-prop .body .w { font-family: var(--text); font-size: 16px; }
+.a-prop .body .w.good { color: var(--good); font-weight: 700; }
+.a-prop .body .w.bad { color: var(--spell); text-decoration: line-through; }
+.a-prop .why2 { color: var(--muted); font-size: 13px; line-height: 1.8; }
+.a-prop .anote { font-size: 13px; line-height: 1.8; border-inline-start: 3px solid var(--line); padding-inline-start: 10px; }
+.a-prop .acts { margin-top: 4px; }
+.p-st { font-size: 11.5px; font-weight: 600; border: 1px solid currentColor; border-radius: 99px; padding: 0 8px; }
+.p-st.approved { color: var(--good); } .p-st.rejected { color: var(--spell); } .p-st.pending { color: var(--conv); }
+.u-acts { display: flex; gap: 14px; justify-content: flex-end; flex-wrap: wrap; }
+.u-acts .link { font-size: 12.5px; }
+.u-acts .link.no { color: var(--spell); }
+.u-me { color: var(--muted); font-size: 12.5px; }
+.u-st { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.u-st i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.u-st.active { --c: var(--good); } .u-st.invited { --c: var(--conv); } .u-st.disabled { --c: var(--muted); }
+.dtable tr.u-off td { opacity: .6; }
+.prop-dlg { width: min(480px, calc(100vw - 48px)); }
+.prop-dlg form { display: grid; gap: 12px; }
+.prop-dlg h2 { margin: 0; }
+.prop-dlg .sub { margin: -6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.prop-dlg .acts { margin-top: 4px; }
+.g-prop { margin-inline-start: 4px; }
+.sw-lock { font-size: 12.5px; color: var(--conv); margin: 0 0 12px; display: flex; align-items: center; gap: 6px; }
+.switch[disabled] { cursor: default; opacity: .55; }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--surface); border-radius: 8px; padding: 9px 16px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.2); direction: rtl; max-width: min(520px, calc(100vw - 48px)); line-height: 1.7; }
+
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
   .main { grid-template-columns: minmax(0, 1fr); }
@@ -403,9 +481,10 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
       <a href="#" data-view="guide" class="nav-item" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span></a>
       <a href="#" data-view="dict" class="nav-item" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span></a>
+      <a href="#" data-view="admin" class="nav-item" id="navAdmin" title="الإدارة" hidden><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">الإدارة</span><span class="nav-badge" id="navAdminN" hidden></span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" data-view="acct" class="nav-item" id="navAcct" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl" id="navAcctName">الحساب</span></a>
     </nav>
 <div class="app" id="editorView" hidden>
   <header class="top">
@@ -496,7 +575,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       </div>
       <div id="docsList"></div>
       <p class="msg" id="docsMsg" role="status"></p>
-      <p class="docs-note" id="docsNote">المستندات وقراراتك فيها محفوظة في هذا المتصفح على هذا الجهاز. حفظها على الخادم ومشاركتها بين المدققين يأتيان مع الحسابات.</p>
+      <p class="docs-note" id="docsNote">تظهر هنا مستنداتك أنت فقط. المستندات وقراراتك فيها محفوظة الآن في هذا المتصفح على هذا الجهاز، وحفظها على الخادم يأتي مع ربط الأداة به.</p>
     </div>
   </div>
   <dialog class="confirm" id="delDlg" aria-labelledby="delTitle">
@@ -532,14 +611,71 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     <span class="grow"></span>
     <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       <input type="search" id="dQ" placeholder="ابحث في القاموس" aria-label="ابحث في القاموس"></label>
+    <button class="btn primary" id="dPropBtn" type="button">اقترح إضافة</button>
   </header>
   <div class="docs-body" id="dictBody"><div class="g-wrap" id="dWrap"></div></div>
 </div>
+<div class="app docs" id="acctView" hidden>
+  <header class="top docs-top">
+    <h1>الحساب</h1>
+    <span class="grow"></span>
+    <button class="btn" id="logoutBtn" type="button">تسجيل الخروج</button>
+  </header>
+  <div class="docs-body"><div class="a-wrap" id="aWrap"></div></div>
 </div>
+<div class="app docs guide" id="adminView" hidden>
+  <header class="top docs-top">
+    <h1>الإدارة <small>لمسؤول الدليل وحده</small></h1>
+    <div class="seg g-tabs" role="group" aria-label="أقسام الإدارة" id="mTabs">
+      <button type="button" data-t="users" aria-pressed="true">المستخدمون<b></b></button>
+      <button type="button" data-t="props" aria-pressed="false">الاقتراحات<b></b></button>
+    </div>
+    <span class="grow"></span>
+  </header>
+  <div class="docs-body" id="adminBody"><div class="a-wrap" id="mWrap"></div></div>
+</div>
+<dialog class="confirm prop-dlg" id="propDlg" aria-labelledby="propTitle">
+  <form id="propForm" novalidate>
+    <h2 id="propTitle"></h2>
+    <p class="sub" id="propSub"></p>
+    <div id="propFields" style="display:grid;gap:12px"></div>
+    <p class="auth-err" id="propErr" role="alert"></p>
+    <div class="acts"><button class="btn primary" type="submit" id="propSend"></button><button class="btn" type="button" id="propNo">إلغاء</button></div>
+  </form>
+</dialog>
+<dialog class="confirm" id="askDlg" aria-labelledby="askTitle">
+  <h2 id="askTitle"></h2>
+  <p id="askText"></p>
+  <div class="acts"><button class="btn primary" type="button" id="askYes"></button><button class="btn" type="button" id="askNo">إلغاء</button></div>
+</dialog>
+</div>
+<div class="auth" id="authView" hidden>
+  <form class="auth-card" id="authForm" novalidate>
+    <div class="auth-logo"><img src="data:image/png;base64,/*__LOGO__*/" alt=""><div><b>مدقق تجديد</b><small>مركز تجديد</small></div></div>
+    <h1 id="authTitle"></h1>
+    <p class="auth-sub" id="authSub"></p>
+    <div id="authFields" style="display:grid;gap:12px"></div>
+    <p class="auth-err" id="authErr" role="alert"></p>
+    <button class="btn primary auth-go" id="authGo" type="submit"></button>
+    <p class="auth-foot" id="authFoot"></p>
+    <p class="auth-local">الحسابات محفوظة الآن في هذا المتصفح على هذا الجهاز فقط، إلى أن تُربط الأداة بالخادم. حينها تصل الدعوة إلى البريد، ويدخل كل مدقق من جهازه.</p>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
 /*__DICT__*/
+</script>
+<script>
+// ما اعتمده مسؤول الدليل من إضافات القاموس داخل الأداة: محفوظ في هذا المتصفح إلى أن تُربط الأداة بالخادم،
+// ويُضاف إلى القاموس قبل أن يقرأه المحرك
+(function () {
+  try {
+    const a = JSON.parse(localStorage.getItem('tajdid-dictAdds') || 'null'), D = window.TajdidDict;
+    if (a && D) for (const k of ['words', 'names', 'terms', 'exceptions']) (a[k] || []).forEach(x => D[k].push(x));
+  } catch (e) {}
+})();
 </script>
 <script>
 /*__ENGINE__*/
@@ -568,6 +704,10 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
     off: new Set(store.get('off', [])), autoSet: store.get('auto', {}), noHarakat: false, hideAcc: true };
+  // the signed-in user; rule switches and the dictionary are set by the guide admin only
+  let me = null;
+  const isAdmin = () => !!me && me.role === 'admin';
+  const LOCK = ' disabled title="يحددها مسؤول الدليل للجميع"';
   // Purely mechanical rules (auto: true in the engine) are accepted on their own when a document is opened.
   // The guide page can switch any rule to automatic or manual; only the choices that differ from the default are stored.
   const isAuto = id => id in st.autoSet ? st.autoSet[id] : !!(E.RULES.find(r => r.id === id) || {}).auto;
@@ -1240,8 +1380,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const extras = () => optRules().filter(r => !r.no);
   const decOf = no => G.decisions.filter(d => d.rules.includes(no));
   const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
-  const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
-  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : ''} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
+  const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'}${isAdmin() ? '' : LOCK} aria-label="تشغيل ${esc(r.name)}">`;
+  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : isAdmin() ? '' : LOCK} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
   const autoMark = r => isAuto(r.id) ? ' <span class="tag auto-tag" title="تُطبَّق تلقائياً عند فتح المستند، ويستطيع المدقق رفضها">تلقائي</span>' : '';
   const exHTML = id => { const ex = EX[id]; return ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''; };
   function engTable(list) {
@@ -1259,7 +1399,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   function ruleHTML(r) {
     const eng = engineOf(r.no), decs = decOf(r.no);
-    return `<section class="g-rule" id="g-rule-${r.no}"><header><span class="g-no">${r.no}</span><h2>${hl(r.title)}</h2><span class="g-st s-${r.status}">${ST[r.status]}</span></header>
+    return `<section class="g-rule" id="g-rule-${r.no}"><header><span class="g-no">${r.no}</span><h2>${hl(r.title)}</h2><span class="g-st s-${r.status}">${ST[r.status]}</span><button type="button" class="g-chip g-prop" data-prop="${r.no}">${isAdmin() ? 'سجّل تعديلاً' : 'اقترح تعديلاً'}</button></header>
       <div class="g-text">${textHTML(r.text)}</div>
       ${r.tool ? `<div class="g-tool"><b>في الأداة:</b><span>${hl(r.tool)}</span></div>` : ''}
       ${decs.map(d => `<div class="g-dec"><b>قرار معتمد · ${hl(d.title)}:</b> ${hl(d.text)}${d.pending ? ' <b>(بانتظار الإدارة)</b>' : ''}</div>`).join('')}
@@ -1297,8 +1437,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       return rows ? `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th><th title="تُقبل تصحيحاتها وحدها عند فتح المستند">تلقائي</th></tr></thead><tbody>${rows}</tbody></table>` : '';
     }).join('');
     return `<div class="opts-h g-tools"><p>${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة. القاعدة المطفأة لا يقترح المحرك تصحيحاتها، ويُعاد فحص المستند المفتوح عند الرجوع إلى المحرر.
-      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يُحفظ الاختيار في هذا المتصفح.</p>
-      <button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button></div>
+      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يحدد مسؤول الدليل هذه الإعدادات للجميع.</p>
+      ${isAdmin() ? `<button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button>` : ''}</div>
+      ${isAdmin() ? '' : '<p class="sw-lock">يحدد مسؤول الدليل تشغيل القواعد وتلقائيتها لكل المدققين، فهي معروضة هنا للاطلاع فقط.</p>'}
       <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
   }
   function renderGuide() {
@@ -1333,10 +1474,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
     const rg = ev.target.closest('[data-rule-go]');
     if (rg) { const no = +rg.dataset.ruleGo; gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    const pr = ev.target.closest('[data-prop]');
+    if (pr) { openPropose('rule', +pr.dataset.prop); return; }
+    if (!isAdmin()) return;
     if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
     if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
   });
   $('gWrap').addEventListener('change', ev => {
+    if (!isAdmin()) { renderGuide(); return; }
     const aid = ev.target.dataset.autorule;
     if (aid) {
       const def = !!(E.RULES.find(r => r.id === aid) || {}).auto;
@@ -1358,7 +1503,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const dDate = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
   const dHit = s => !dsx.q || gNorm(s).includes(gNorm(dsx.q));
   function dHl(s) { const q = gs.q; gs.q = dsx.q; const out = hl(s); gs.q = q; return out; }
-  const D_NOTE = '<p class="g-intro d-foot">يُعدَّل القاموس الآن بطلب من مسؤول الدليل، فيصل التعديل إلى كل المدققين مع تحديث الأداة. واقتراح الإضافة من داخل الأداة واعتمادها من المسؤول يأتيان مع الحسابات.</p>';
+  const D_NOTE = () => `<p class="g-intro d-foot">${isAdmin() ? 'ما تضيفه بزر «إضافة إلى القاموس»، وما تعتمده من اقتراحات المدققين، يُضاف إلى القاموس فوراً، ويطبّقه المحرك على النصوص بعد إعادة فتح الأداة.' : 'لاقتراح كلمة أو علم أو مصطلح أو استثناء، استعمل زر «اقترح إضافة»، فيصل الاقتراح إلى مسؤول الدليل. وترى قراره في صفحة «الحساب».'}</p>`;
   // a rejected correction, read back from a saved document: the whole word before and after it
   function rejectedWords() {
     const LW = /[ء-يً-ٰٟـ]/;
@@ -1409,7 +1554,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           : `<div class="g-empty">${DCT.exceptions.length ? 'لا توجد كلمة تطابق البحث.' : 'لا توجد استثناءات بعد.'}</div>`}` },
     rej: {
       list: () => rejectedWords().filter(o => dHit(o.before + ' ' + o.after + ' ' + o.rule.name)),
-      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فأرسله إلى مسؤول الدليل ليُضاف إلى الاستثناءات. لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
+      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فاقترحه استثناءً بزر «اقترح إضافة». لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
         ${list.length ? dTable(['الكلمة في النص', 'تصحيح المحرك', 'القاعدة', 'رُفض', 'أسباب الرفض'], list.map(o => `<tr><td class="w">${dHl(o.before)}</td><td class="w bad">${dHl(o.after)}</td><td class="src">${esc(o.rule.name)}${o.rule.no ? ' (القاعدة ' + o.rule.no + ')' : ''}</td><td class="src" title="${esc([...o.docs.values()].join('\n'))}">${o.n === 2 ? 'مرتان' : o.n.toLocaleString('ar') + ' مرات'} ${o.docs.size === 1 ? 'في مستند واحد' : o.docs.size === 2 ? 'في مستندين' : 'في ' + o.docs.size.toLocaleString('ar') + ' مستندات'}</td><td class="src">${o.reasons.map(esc).join('<br>') || '—'}</td></tr>`))
           : `<div class="g-empty">${dsx.q ? 'لا يوجد تصحيح يطابق البحث.' : 'لم يُرفض أي تصحيح مرتين بعد.'}</div>`}` }
   };
@@ -1418,7 +1563,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const lists = {};
     for (const k of Object.keys(D_TABS)) lists[k] = D_TABS[k].list();
     $('dTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === dsx.tab)); b.querySelector('b').textContent = lists[b.dataset.t].length.toLocaleString('ar'); });
-    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE;
+    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE();
   }
   function dTab(t) { dsx.tab = t; store.set('dictTab', t); renderDict(); $('dictBody').scrollTo({ top: 0, behavior: 'instant' }); }
   function openDictAt(t) { dsx.q = ''; $('dQ').value = ''; dsx.tab = t; store.set('dictTab', t); setView('dict'); }
@@ -1473,7 +1618,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   ['cards', 'pop'].forEach(id => $(id).addEventListener('input', autosave));
 
   async function openDoc(id) {
-    const rec = docs.get(id); if (!rec) return;
+    const rec = docs.get(id); if (!rec || !mine(rec)) return;
     if (st.docId && st.docId !== id) { commitDirty(); await saveNow(); }
     const f = await DB.get('files', id);
     if (!f) { say('ملف هذا المستند غير موجود في المتصفح.', true); return; }
@@ -1482,7 +1627,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     st.docId = id; st.savedStr = JSON.stringify(docState());
     Object.assign(rec, { opened: Date.now(), stats: docStats() });
     DB.put('docs', rec).catch(() => {});
-    store.set('lastDoc', id);
+    store.set(uKey('lastDoc'), id);
     setView('editor');
   }
   async function addFiles(files, openOne) {
@@ -1494,7 +1639,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       try {
         const buf = await f.arrayBuffer(), now = Date.now();
         await E.loadDocx(JSZip, buf.slice(0), opts(), xml); // يتأكد أن الملف يُقرأ قبل حفظه
-        const rec = { id: newId(), name: f.name, sample: false, size: f.size, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        const rec = { id: newId(), owner: me.id, name: f.name, sample: false, size: f.size, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
         await DB.put('files', { id: rec.id, buf }); await DB.put('docs', rec);
         docs.set(rec.id, rec); added.push(rec);
       } catch (e) { say('تعذّرت قراءة الملف «' + f.name + '»: ' + (e && e.message || e), true); }
@@ -1535,7 +1680,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'
   };
   function renderDocs() {
-    const all = [...docs.values()], n = s => s.toLocaleString('ar');
+    const all = [...docs.values()].filter(mine), n = s => s.toLocaleString('ar');
     $('docsCount').textContent = all.length ? countWord(all.length) : '';
     const byDate = all.filter(inDate), q = norm(ds.q.trim());
     const byQ = q ? byDate.filter(r => norm(r.name).includes(q)) : byDate;
@@ -1606,7 +1751,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const id = ds.delId; $('delDlg').close(); if (!id) return;
     const name = docTitle(docs.get(id));
     await DB.del(id).catch(() => {}); docs.delete(id);
-    if (st.docId === id) { clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll(); store.set('lastDoc', null); }
+    if (st.docId === id) { clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll(); store.set(uKey('lastDoc'), null); }
     renderDocs(); say(`حُذف «${name}».`);
   });
   $('docsQ').addEventListener('input', e => { ds.q = e.target.value; renderDocs(); });
@@ -1621,16 +1766,334 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   dv.addEventListener('dragleave', e => { if (!dv.contains(e.relatedTarget)) dv.classList.remove('drag'); });
   dv.addEventListener('drop', e => { e.preventDefault(); dv.classList.remove('drag'); addFiles(e.dataTransfer.files, true); });
 
-  // ---------------- views: documents / editor
+  // ---------------- accounts: saved in this browser for now (localStorage), until the tool is linked to a server.
+  // One guide admin (the first account) invites proofreaders by email; an invited person sets their own name and password.
+  const AC = {
+    users: () => store.get('users', []), setUsers: u => store.set('users', u),
+    props: () => store.get('proposals', []), setProps: p => store.set('proposals', p)
+  };
+  const ROLE = { admin: 'مسؤول الدليل', proof: 'مدقق' };
+  const U_ST = { invited: 'مدعو', active: 'فعّال', disabled: 'معطّل' };
+  const PW_MIN = 8;
+  const normEmail = s => (s || '').trim().toLowerCase();
+  const okEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const uKey = k => k + '-' + (me ? me.id : '');
+  const mine = r => !!me && r.owner === me.id;
+  const userName = id => { const u = AC.users().find(x => x.id === id); return u ? (u.name || u.email) : 'مستخدم محذوف'; };
+  const n_ = x => x.toLocaleString('ar');
+  async function hashPw(pw, salt) {
+    try {
+      const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + '|' + pw));
+      return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      let h = 2166136261; for (const c of salt + '|' + pw) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+      return 'f' + (h >>> 0).toString(16);
+    }
+  }
+  let toastT = null;
+  function toast(t) { $('toast').textContent = t; $('toast').hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { $('toast').hidden = true; }, 4200); }
+  function ask(title, text, yes, danger) {
+    return new Promise(res => {
+      $('askTitle').textContent = title; $('askText').textContent = text; $('askYes').textContent = yes;
+      $('askYes').className = 'btn ' + (danger ? 'danger' : 'primary');
+      $('askYes').onclick = () => { res(true); $('askDlg').close(); };
+      $('askNo').onclick = () => $('askDlg').close();
+      $('askDlg').onclose = () => res(false);
+      $('askDlg').showModal();
+    });
+  }
+
+  // ---- sign-in screens: first setup (the guide admin), sign in, accepting an invitation
+  const au = { mode: 'login' };
+  const fld = (id, label, type, attrs) => `<label class="a-fld"><span>${label}</span><input id="${id}" type="${type}" ${attrs || ''}></label>`;
+  const F_NAME = (v) => fld('aName', 'الاسم', 'text', `autocomplete="name" value="${esc(v || '')}"`);
+  const F_EMAIL = (v, ro) => fld('aEmail', 'البريد الإلكتروني', 'email', `autocomplete="email" dir="ltr" value="${esc(v || '')}"${ro ? ' readonly' : ''}`);
+  const F_NEW = () => fld('aPass', `كلمة المرور<small>${n_(PW_MIN)} أحرف على الأقل</small>`, 'password', 'autocomplete="new-password"') + fld('aPass2', 'تأكيد كلمة المرور', 'password', 'autocomplete="new-password"');
+  function showAuth(mode, email, err) {
+    au.mode = mode;
+    $('shell').hidden = true; $('authView').hidden = false;
+    const old = mode === 'accept' && AC.users().find(u => u.email === email);
+    const M = {
+      setup: ['إعداد الأداة لأول مرة', 'أنشئ حساب مسؤول الدليل. هو الحساب الوحيد الذي يدعو المدققين، ويعتمد الاقتراحات، ويحدد تشغيل القواعد للجميع.', F_NAME() + F_EMAIL() + F_NEW(), 'إنشاء الحساب', ''],
+      login: ['تسجيل الدخول', '', F_EMAIL(email) + fld('aPass', 'كلمة المرور', 'password', 'autocomplete="current-password"'), 'دخول', 'نسيت كلمة المرور؟ تواصل مع مسؤول الدليل.'],
+      accept: [old && old.hash === null && old.joined ? 'كلمة مرور جديدة' : 'قبول الدعوة', old && old.joined ? 'أعاد مسؤول الدليل تعيين كلمة مرورك. اختر كلمة مرور جديدة.' : 'دعاك مسؤول الدليل إلى أداة التدقيق. اكتب اسمك واختر كلمة مرورك.',
+        F_EMAIL(email, true) + F_NAME(old && old.name) + F_NEW(), 'حفظ والدخول', '<button type="button" class="link" id="authBack">الرجوع إلى تسجيل الدخول</button>']
+    }[mode];
+    $('authTitle').textContent = M[0]; $('authSub').textContent = M[1]; $('authFields').innerHTML = M[2]; $('authGo').textContent = M[3]; $('authFoot').innerHTML = M[4];
+    $('authErr').textContent = err || '';
+    document.title = M[0] + ' · مدقق تجديد';
+    const first = [...$('authFields').querySelectorAll('input:not([readonly])')].find(i => !i.value);
+    if (first) first.focus();
+  }
+  $('authFoot').addEventListener('click', ev => { if (ev.target.id === 'authBack') showAuth('login'); });
+  $('authForm').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const v = id => ($(id) ? $(id).value : ''), err = t => { $('authErr').textContent = t; };
+    const users = AC.users(), email = normEmail(v('aEmail'));
+    if (!okEmail(email)) return err('اكتب بريداً إلكترونياً صحيحاً.');
+    if (au.mode === 'login') {
+      const u = users.find(x => x.email === email);
+      if (u && u.status === 'invited') return showAuth('accept', email);
+      if (!u || !u.hash || await hashPw(v('aPass'), u.salt) !== u.hash) return err('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+      if (u.status === 'disabled') return err('هذا الحساب معطّل. تواصل مع مسؤول الدليل.');
+      return signIn(u);
+    }
+    const name = v('aName').trim().replace(/\s+/g, ' ');
+    if (!name) return err('اكتب اسمك.');
+    if (v('aPass').length < PW_MIN) return err(`كلمة المرور ${n_(PW_MIN)} أحرف على الأقل.`);
+    if (v('aPass') !== v('aPass2')) return err('كلمتا المرور غير متطابقتين.');
+    const salt = uid(), hash = await hashPw(v('aPass'), salt), now = Date.now();
+    if (au.mode === 'setup') {
+      if (users.length) return showAuth('login');
+      const u = { id: uid(), email, name, role: 'admin', status: 'active', salt, hash, invited: now, joined: now };
+      AC.setUsers([u]);
+      // documents opened before accounts existed belong to the guide admin
+      for (const r of await DB.all()) if (!r.owner) { r.owner = u.id; await DB.put('docs', r); }
+      store.set('seeded-' + u.id, store.get('seeded', false)); store.set('lastDoc-' + u.id, store.get('lastDoc', null));
+      return signIn(u);
+    }
+    const u = users.find(x => x.email === email && x.status === 'invited');
+    if (!u) return showAuth('login', '', 'لم تعد هذه الدعوة قائمة. تواصل مع مسؤول الدليل.');
+    Object.assign(u, { name, salt, hash, status: 'active', joined: u.joined || now });
+    AC.setUsers(users); signIn(u);
+  });
+  function applyMe() {
+    $('navAcctName').textContent = me.name || 'الحساب';
+    $('navAcct').title = 'الحساب: ' + (me.name || me.email);
+    $('navAdmin').hidden = !isAdmin();
+    const np = AC.props().filter(p => p.status === 'pending').length;
+    $('navAdminN').hidden = !isAdmin() || !np; $('navAdminN').textContent = n_(np);
+    $('dPropBtn').textContent = isAdmin() ? 'إضافة إلى القاموس' : 'اقترح إضافة';
+  }
+  function signIn(u) {
+    me = u; store.set('session', u.id);
+    $('authView').hidden = true; $('shell').hidden = false;
+    applyMe(); boot();
+  }
+  async function signOut() {
+    commitDirty(); await saveNow(); hidePop(true);
+    clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll();
+    store.set('session', null); me = null; say(''); clearTimeout(toastT); $('toast').hidden = true;
+    showAuth('login');
+  }
+  $('logoutBtn').addEventListener('click', signOut);
+
+  // ---- the account page: who I am, my numbers, my password, and what the guide admin decided on my proposals
+  const KIND = { rule: 'قاعدة في الدليل', word: 'كلمة معتمدة', name: 'علم', term: 'مصطلح', except: 'استثناء' };
+  const DICT_KEY = { word: 'words', name: 'names', term: 'terms', except: 'exceptions' };
+  const P_ST = { pending: 'بانتظار القرار', approved: 'معتمد', rejected: 'مرفوض' };
+  function propBody(p) {
+    const d = p.data || {};
+    if (p.kind === 'rule') { const r = G.rules.find(x => x.no === p.rule); return `<div class="body"><b>القاعدة ${n_(p.rule)}${r ? ': ' + esc(r.title) : ''}</b><br>${esc(d.text || '')}</div>`; }
+    if (p.kind === 'word') return `<div class="body">تُكتب <span class="w good">${esc(d.good)}</span> لا <span class="w bad">${esc(d.bad)}</span></div>`;
+    if (p.kind === 'name') return `<div class="body"><span class="w good">${esc(d.name)}</span>${d.variants && d.variants.length ? ` بدلاً من <span class="w bad">${d.variants.map(esc).join('، ')}</span>` : ''}</div>`;
+    if (p.kind === 'term') return `<div class="body"><span class="w">${esc(d.term)}</span>${d.field ? ` <span class="tag">${esc(d.field)}</span>` : ''}: ${esc(d.def || '')}</div>`;
+    return `<div class="body">لا يقترح المحرك تصحيحاً في <span class="w">${esc(d.word)}</span></div>`;
+  }
+  function propCard(p, admin) {
+    const who = admin ? ` · من ${esc(userName(p.by))}` : '';
+    const st_ = p.status === 'pending' && !admin ? '' : `<span class="p-st ${p.status}">${P_ST[p.status]}</span>`;
+    const date = p.status === 'pending' ? p.at : p.decided;
+    return `<article class="a-prop" data-pid="${p.id}"><header><span class="k">${KIND[p.kind]}</span>${who}${st_}<span class="d" title="${esc(fullDate(date))}">${fmtDate(date)}</span></header>
+      ${propBody(p)}${p.why ? `<div class="why2">السبب: ${esc(p.why)}</div>` : ''}
+      ${p.status !== 'pending' && p.note ? `<div class="anote"><b>ملاحظة مسؤول الدليل:</b> ${esc(p.note)}</div>` : ''}
+      ${p.status === 'approved' && p.kind === 'rule' ? '<div class="why2">يُعدَّل نص الدليل في الأداة مع التحديث التالي.</div>' : ''}
+      ${admin && p.status === 'pending' ? `<textarea class="reason" data-note="${p.id}" rows="2" placeholder="ملاحظة للمدقق (اختيارية)"></textarea>
+        <div class="acts"><button class="btn ok" type="button" data-dec="approved">اعتماد</button><button class="btn no" type="button" data-dec="rejected">رفض</button></div>` : ''}</article>`;
+  }
+  function renderAcct() {
+    const my = [...docs.values()].filter(mine), sum = k => my.reduce((s, r) => s + (r.stats ? r.stats[k] : 0), 0);
+    const done = my.filter(r => statusOf(r) === 'done').length;
+    const props = AC.props().filter(p => p.by === me.id && p.status !== 'pending').sort((a, b) => b.decided - a.decided);
+    $('aWrap').innerHTML = `
+      <section class="a-card a-me"><span class="a-av">${esc((me.name || me.email).trim().charAt(0))}</span><div><h2>${esc(me.name)}</h2><p class="a-mail" dir="ltr">${esc(me.email)}</p></div><span class="a-role ${me.role}">${ROLE[me.role]}</span></section>
+      <div class="a-stats">
+        <div class="a-stat"><b>${n_(done)}</b><span>مستندات اكتمل تدقيقها، من ${n_(my.length)}</span></div>
+        <div class="a-stat ok"><b>${n_(sum('accepted'))}</b><span>تصحيحات قبلتها</span></div>
+        <div class="a-stat no"><b>${n_(sum('rejected'))}</b><span>تصحيحات رفضتها</span></div>
+      </div>
+      <section class="a-card"><h3>تغيير كلمة المرور</h3>
+        <form class="a-pw" id="pwForm" novalidate>
+          ${fld('pwOld', 'كلمة المرور الحالية', 'password', 'autocomplete="current-password"')}
+          ${fld('pwNew', `الجديدة<small>${n_(PW_MIN)} أحرف على الأقل</small>`, 'password', 'autocomplete="new-password"')}
+          ${fld('pwNew2', 'تأكيد الجديدة', 'password', 'autocomplete="new-password"')}
+          <button class="btn primary" type="submit">حفظ</button>
+        </form><p class="a-msg" id="pwMsg" role="status"></p></section>
+      <section class="a-card"><h3>اقتراحاتي <small>ما قرّر فيه مسؤول الدليل</small></h3>
+        ${props.length ? `<div class="a-props">${props.map(p => propCard(p, false)).join('')}</div>` : `<p class="a-none">${isAdmin() ? 'ما تسجّله أنت من تعديلات وإضافات يظهر هنا.' : 'لم يقرّر مسؤول الدليل في أي اقتراح لك بعد. تقترح من صفحة الدليل (تحت كل قاعدة) أو من القاموس.'}</p>`}</section>`;
+  }
+  $('aWrap').addEventListener('submit', async ev => {
+    if (ev.target.id !== 'pwForm') return;
+    ev.preventDefault();
+    const m = (t, bad) => { $('pwMsg').textContent = t; $('pwMsg').className = 'a-msg' + (bad ? ' err' : ''); };
+    const users = AC.users(), u = users.find(x => x.id === me.id);
+    if (await hashPw($('pwOld').value, u.salt) !== u.hash) return m('كلمة المرور الحالية غير صحيحة.', true);
+    if ($('pwNew').value.length < PW_MIN) return m(`كلمة المرور ${n_(PW_MIN)} أحرف على الأقل.`, true);
+    if ($('pwNew').value !== $('pwNew2').value) return m('كلمتا المرور الجديدتان غير متطابقتين.', true);
+    u.salt = uid(); u.hash = await hashPw($('pwNew').value, u.salt); AC.setUsers(users); me = u;
+    ev.target.reset(); m('غُيّرت كلمة المرور.');
+  });
+
+  // ---- proposals: a proofreader proposes a change to a guide rule or an addition to the dictionary; the guide admin decides.
+  // What the admin adds goes in directly. An approved dictionary item is added to the dictionary in this browser;
+  // an approved guide change is applied to the guide text in the next update of the tool.
+  const pd = { kind: 'rule', rule: 0 };
+  const TA = (id, label, ph) => `<label class="a-fld"><span>${label}</span><textarea id="${id}" rows="3" placeholder="${ph || ''}"></textarea></label>`;
+  const TX = (id, label, ph) => `<label class="a-fld"><span>${label}</span><input id="${id}" type="text" placeholder="${ph || ''}"></label>`;
+  function propFields() {
+    const k = pd.kind;
+    const kinds = k === 'rule' ? '' : `<label class="a-fld"><span>النوع</span><select id="pKind">${['word', 'name', 'term', 'except'].map(x => `<option value="${x}"${x === k ? ' selected' : ''}>${KIND[x]}</option>`).join('')}</select></label>`;
+    const why = TA('pWhy', isAdmin() ? 'ملاحظة (اختيارية)' : 'لماذا؟', k === 'except' ? 'ما الخطأ الذي يقع فيه المحرك في هذه الكلمة؟' : '');
+    const body = {
+      rule: TA('pText', 'ما التعديل؟', 'مثلاً: إضافة استثناء، أو مثال، أو تغيير في نص القاعدة') + why,
+      word: TX('pGood', 'تُكتب', 'مثلاً: مسؤول') + TX('pBad', 'لا تُكتب', 'مثلاً: مسئول') + why,
+      name: TX('pName', 'الصيغة المعتمدة', 'مثلاً: هابرماس') + TX('pVar', 'الصيغ التي تُصحَّح إليها (افصل بينها بفاصلة)', 'مثلاً: هابرمس، هبرماس') + why,
+      term: TX('pTerm', 'المصطلح') + TX('pField', 'الحقل (اختياري)', 'مثلاً: فلسفة') + TA('pDef', 'تعريف قصير') + why,
+      except: TX('pWord', 'الكلمة كما تُكتب', 'مثلاً: ميتافيزيقياً') + why
+    }[k];
+    $('propFields').innerHTML = kinds + body;
+  }
+  function openPropose(kind, ruleNo) {
+    pd.kind = kind; pd.rule = ruleNo || 0;
+    const r = kind === 'rule' && G.rules.find(x => x.no === ruleNo);
+    $('propTitle').textContent = kind === 'rule' ? (isAdmin() ? 'تعديل على القاعدة ' : 'اقتراح تعديل على القاعدة ') + n_(ruleNo) : (isAdmin() ? 'إضافة إلى القاموس' : 'اقتراح إضافة إلى القاموس');
+    $('propSub').textContent = kind === 'rule' ? (r ? r.title : '') + (isAdmin() ? '. يُسجَّل التعديل، ويُطبَّق على نص الدليل في التحديث التالي للأداة.' : '') : (isAdmin() ? 'تُضاف إلى القاموس فوراً، ويطبّقها المحرك بعد إعادة فتح الأداة.' : 'يصل الاقتراح إلى مسؤول الدليل، وترى قراره في صفحة «الحساب».');
+    $('propSend').textContent = isAdmin() ? (kind === 'rule' ? 'تسجيل التعديل' : 'إضافة') : 'إرسال إلى مسؤول الدليل';
+    $('propErr').textContent = '';
+    propFields();
+    $('propDlg').showModal();
+    const f = $('propFields').querySelector('input, textarea'); if (f) f.focus();
+  }
+  $('propFields').addEventListener('change', ev => { if (ev.target.id === 'pKind') { pd.kind = ev.target.value; propFields(); } });
+  $('propNo').addEventListener('click', () => $('propDlg').close());
+  $('dPropBtn').addEventListener('click', () => openPropose({ words: 'word', names: 'name', terms: 'term', except: 'except', rej: 'except' }[dsx.tab] || 'word'));
+  const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  // an approved dictionary item: kept in this browser and merged into the dictionary before the engine reads it
+  function addToDict(p) {
+    const d = p.data, src = 'اقتراح ' + userName(p.by), added = today();
+    const item = {
+      word: () => ({ good: d.good, bad: d.bad, from: d.bad, to: d.good, src, added }),
+      name: () => ({ name: d.name, variants: d.variants || [], note: p.why || '', src, added }),
+      term: () => ({ term: d.term, field: d.field || '', def: d.def || '', src, added }),
+      except: () => ({ word: d.word, note: p.why || '', src, added })
+    }[p.kind]();
+    const adds = store.get('dictAdds', {}), key = DICT_KEY[p.kind];
+    (adds[key] = adds[key] || []).push(item); store.set('dictAdds', adds);
+    DCT[key].push(item);
+  }
+  $('propForm').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const v = id => ($(id) ? $(id).value.trim().replace(/\s+/g, ' ') : ''), err = t => { $('propErr').textContent = t; };
+    const k = pd.kind, why = $('pWhy') ? $('pWhy').value.trim() : '';
+    let data;
+    if (k === 'rule') { if (!v('pText')) return err('اكتب التعديل الذي تقترحه.'); data = { text: $('pText').value.trim() }; }
+    if (k === 'word') { if (!v('pGood') || !v('pBad')) return err('اكتب الصيغتين: ما يُكتب وما لا يُكتب.'); if (v('pGood') === v('pBad')) return err('الصيغتان متطابقتان.'); data = { good: v('pGood'), bad: v('pBad') }; }
+    if (k === 'name') { if (!v('pName')) return err('اكتب الصيغة المعتمدة للعلم.'); data = { name: v('pName'), variants: v('pVar').split(/[،,]/).map(x => x.trim()).filter(x => x && x !== v('pName')) }; }
+    if (k === 'term') { if (!v('pTerm') || !v('pDef')) return err('اكتب المصطلح وتعريفه.'); data = { term: v('pTerm'), field: v('pField'), def: $('pDef').value.trim() }; }
+    if (k === 'except') { if (!v('pWord')) return err('اكتب الكلمة.'); if (/\s/.test(v('pWord'))) return err('الاستثناء كلمة واحدة.'); data = { word: v('pWord') }; }
+    if (!isAdmin() && !why) return err('اكتب سبب الاقتراح، فهو ما يقرّر به مسؤول الدليل.');
+    const now = Date.now(), p = { id: uid(), kind: k, rule: k === 'rule' ? pd.rule : 0, data, why, by: me.id, at: now, status: 'pending', note: '', decided: 0 };
+    if (isAdmin()) { p.status = 'approved'; p.decided = now; if (k !== 'rule') addToDict(p); }
+    AC.setProps([...AC.props(), p]);
+    $('propDlg').close(); applyMe();
+    if (!$('dictView').hidden) renderDict();
+    toast(isAdmin() ? (k === 'rule' ? 'سُجّل التعديل، ويُطبَّق على الدليل في التحديث التالي.' : 'أُضيف إلى القاموس، ويطبّقه المحرك بعد إعادة فتح الأداة.') : 'أُرسل الاقتراح إلى مسؤول الدليل.');
+  });
+
+  // ---- the admin page (guide admin only): users and invitations, and the proposals waiting for a decision
+  const ms = { tab: store.get('adminTab', 'users'), pf: 'pending' };
+  function usersHTML() {
+    const users = AC.users().slice().sort((a, b) => (b.role === 'admin') - (a.role === 'admin') || (a.invited - b.invited));
+    const acts = u => {
+      if (u.id === me.id) return '<span class="u-me">أنت</span>';
+      if (u.status === 'invited') return `<button type="button" class="link no" data-ua="cancel">${u.joined ? 'إلغاء إعادة التعيين' : 'إلغاء الدعوة'}</button>`;
+      if (u.status === 'disabled') return '<button type="button" class="link" data-ua="enable">تفعيل</button>';
+      return '<button type="button" class="link" data-ua="reset">إعادة تعيين كلمة المرور</button><button type="button" class="link" data-ua="admin">نقل مسؤولية الدليل إليه</button><button type="button" class="link no" data-ua="disable">تعطيل</button>';
+    };
+    return `<section class="a-card"><h3>دعوة مدقق</h3>
+      <form class="a-inv" id="invForm" novalidate><input id="invEmail" type="email" dir="ltr" placeholder="البريد الإلكتروني للمدقق" aria-label="البريد الإلكتروني للمدقق" autocomplete="off"><button class="btn primary" type="submit">دعوة</button></form>
+      <p class="a-msg" id="invMsg" role="status"></p>
+      <p class="a-hint">يُدعى الشخص بدور «مدقق»، فمسؤول الدليل واحد. عندما يفتح الأداة ويكتب بريده في شاشة الدخول، يكتب اسمه ويختار كلمة مروره.</p></section>
+      <table class="dtable"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور</th><th>الحالة</th><th>انضمّ</th><th></th></tr></thead><tbody>
+      ${users.map(u => `<tr data-uid="${u.id}" class="${u.status === 'disabled' ? 'u-off' : ''}" style="cursor:default"><td><b>${esc(u.name || '—')}</b></td><td dir="ltr" style="text-align:right">${esc(u.email)}</td><td>${ROLE[u.role]}</td>
+        <td><span class="u-st ${u.status}"><i></i>${u.status === 'invited' && u.joined ? 'بانتظار كلمة مرور جديدة' : U_ST[u.status]}</span></td><td class="c-date">${u.joined ? fmtDate(u.joined) : '—'}</td><td><div class="u-acts">${acts(u)}</div></td></tr>`).join('')}
+      </tbody></table>`;
+  }
+  function propsHTML() {
+    const all = AC.props(), cnt = k => all.filter(p => p.status === k).length;
+    const list = all.filter(p => p.status === ms.pf).sort((a, b) => ms.pf === 'pending' ? a.at - b.at : b.decided - a.decided);
+    const seg = ['pending', 'approved', 'rejected'].map(k => `<button type="button" data-pf="${k}" aria-pressed="${ms.pf === k}">${P_ST[k]}<b>${n_(cnt(k))}</b></button>`).join('');
+    const empty = { pending: 'لا توجد اقتراحات بانتظار قرارك.', approved: 'لم يُعتمد أي اقتراح بعد.', rejected: 'لم يُرفض أي اقتراح بعد.' }[ms.pf];
+    return `<div class="g-tools"><div class="seg" role="group" aria-label="حالة الاقتراح">${seg}</div></div>
+      ${list.length ? `<div class="a-props">${list.map(p => propCard(p, true)).join('')}</div>` : `<div class="g-empty">${empty}</div>`}
+      <p class="g-intro d-foot">الاقتراح المعتمد في القاموس يُضاف إليه فوراً. والمعتمد في الدليل يُطبَّق على نص الدليل في التحديث التالي للأداة، لأن قواعد الدليل مرتبطة بالمحرك.</p>`;
+  }
+  function renderAdmin() {
+    if (!['users', 'props'].includes(ms.tab)) ms.tab = 'users';
+    const counts = { users: AC.users().length, props: AC.props().filter(p => p.status === 'pending').length };
+    $('mTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === ms.tab)); b.querySelector('b').textContent = n_(counts[b.dataset.t]); });
+    $('mWrap').innerHTML = ms.tab === 'users' ? usersHTML() : propsHTML();
+    applyMe();
+  }
+  $('mTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (!b) return; ms.tab = b.dataset.t; store.set('adminTab', ms.tab); renderAdmin(); });
+  $('mWrap').addEventListener('submit', ev => {
+    if (ev.target.id !== 'invForm') return;
+    ev.preventDefault();
+    const m = (t, bad) => { $('invMsg').textContent = t; $('invMsg').className = 'a-msg' + (bad ? ' err' : ''); };
+    const email = normEmail($('invEmail').value), users = AC.users();
+    if (!okEmail(email)) return m('اكتب بريداً إلكترونياً صحيحاً.', true);
+    if (users.some(u => u.email === email)) return m('هذا البريد مضاف من قبل.', true);
+    users.push({ id: uid(), email, name: '', role: 'proof', status: 'invited', salt: '', hash: null, invited: Date.now(), joined: 0 });
+    AC.setUsers(users); renderAdmin();
+    $('invMsg').textContent = `دُعي ${email}. يدخل بكتابة بريده في شاشة الدخول.`; $('invMsg').className = 'a-msg';
+  });
+  $('mWrap').addEventListener('click', async ev => {
+    const pf = ev.target.closest('[data-pf]');
+    if (pf) { ms.pf = pf.dataset.pf; renderAdmin(); return; }
+    const dec = ev.target.closest('[data-dec]');
+    if (dec) {
+      const id = dec.closest('[data-pid]').dataset.pid, props = AC.props(), p = props.find(x => x.id === id); if (!p || p.status !== 'pending') return;
+      const note = ($('mWrap').querySelector(`[data-note="${id}"]`) || {}).value || '';
+      Object.assign(p, { status: dec.dataset.dec, note: note.trim(), decided: Date.now() });
+      if (p.status === 'approved' && p.kind !== 'rule') addToDict(p);
+      AC.setProps(props); renderAdmin();
+      toast(p.status === 'rejected' ? 'رُفض الاقتراح.' : p.kind === 'rule' ? 'اعتُمد الاقتراح، ويُطبَّق على نص الدليل في التحديث التالي.' : 'اعتُمد الاقتراح وأُضيف إلى القاموس، ويطبّقه المحرك بعد إعادة فتح الأداة.');
+      return;
+    }
+    const ua = ev.target.closest('[data-ua]'); if (!ua) return;
+    const users = AC.users(), u = users.find(x => x.id === ua.closest('[data-uid]').dataset.uid); if (!u) return;
+    const who = u.name || u.email, a = ua.dataset.ua;
+    if (a === 'cancel') {
+      if (!u.joined) { if (!await ask('إلغاء الدعوة؟', `لن يستطيع ${u.email} الدخول إلى الأداة.`, 'إلغاء الدعوة', true)) return; users.splice(users.indexOf(u), 1); }
+      else { u.status = 'disabled'; }
+    }
+    if (a === 'disable') { if (!await ask('تعطيل الحساب؟', `لن يستطيع ${who} الدخول إلى الأداة، وتبقى مستنداته محفوظة. تستطيع تفعيله متى شئت.`, 'تعطيل', true)) return; u.status = 'disabled'; }
+    if (a === 'enable') u.status = u.hash ? 'active' : 'invited';
+    if (a === 'reset') { if (!await ask('إعادة تعيين كلمة المرور؟', `تُلغى كلمة مرور ${who}، فيختار كلمة جديدة حين يكتب بريده في شاشة الدخول.`, 'إعادة التعيين')) return; Object.assign(u, { status: 'invited', hash: null, salt: '' }); }
+    if (a === 'admin') {
+      if (!await ask('نقل مسؤولية الدليل؟', `سيصبح ${who} مسؤول الدليل، وتصير أنت مدققاً. لا تعود إليك المسؤولية إلا إذا نقلها إليك.`, 'نقل المسؤولية', true)) return;
+      u.role = 'admin'; const self = users.find(x => x.id === me.id); self.role = 'proof';
+      AC.setUsers(users); me = self; applyMe(); setView('acct'); toast(`صار ${who} مسؤول الدليل.`); return;
+    }
+    AC.setUsers(users); renderAdmin();
+  });
+
+  // ---------------- views
+  const VIEWS = { docs: 'docsView', editor: 'editorView', guide: 'guideView', dict: 'dictView', acct: 'acctView', admin: 'adminView' };
+  const V_TITLE = { docs: 'المستندات', guide: 'دليل التدقيق', dict: 'القاموس', acct: 'الحساب', admin: 'الإدارة' };
   function setView(v) {
     if (v === 'editor' && !st.docId) v = 'docs';
+    if (v === 'admin' && !isAdmin()) v = 'docs';
     if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
     if (v === 'guide') { hidePop(true); commitDirty(); renderGuide(); }
     if (v === 'dict') { hidePop(true); commitDirty(); saveNow(); renderDict(); }
+    if (v === 'acct') { hidePop(true); commitDirty(); saveNow(); renderAcct(); }
+    if (v === 'admin') { hidePop(true); commitDirty(); saveNow(); renderAdmin(); }
     if (v === 'editor' && optsDirty) { optsDirty = false; recheck(); say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.'); }
-    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide'; $('dictView').hidden = v !== 'dict';
+    for (const k in VIEWS) $(VIEWS[k]).hidden = k !== v;
     document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : v === 'dict' ? 'القاموس · مدقق تجديد' : 'محرر تجديد';
+    document.title = V_TITLE[v] ? V_TITLE[v] + ' · مدقق تجديد' : 'محرر تجديد';
     store.set('view', v);
   }
   $('nav').addEventListener('click', ev => {
@@ -1639,23 +2102,30 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     setView(a.dataset.view);
   });
 
-  // ---------------- start: the documents list (the sample article is added once, on first use)
-  (async () => {
+  // ---------------- start: sign in, then the documents list (each user gets the sample article once, on first use)
+  let docsLoaded = false;
+  async function boot() {
     try {
-      let list = await DB.all();
-      if (!list.length && !store.get('seeded', false)) {
+      if (!docsLoaded) { (await DB.all()).forEach(r => docs.set(r.id, r)); docsLoaded = true; }
+      if (![...docs.values()].some(mine) && !store.get(uKey('seeded'), false)) {
         const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        const now = Date.now(), rec = { id: newId(), name: SAMPLE_NAME, sample: true, size: bytes.length, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        const now = Date.now(), rec = { id: newId(), owner: me.id, name: SAMPLE_NAME, sample: true, size: bytes.length, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
         await DB.put('files', { id: rec.id, buf: bytes.buffer }); await DB.put('docs', rec);
-        store.set('seeded', true); list = [rec];
+        docs.set(rec.id, rec);
       }
-      list.forEach(r => docs.set(r.id, r));
+      store.set(uKey('seeded'), true);
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
-      const last = store.get('lastDoc', null);
-      if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
-      else setView(['guide', 'dict'].includes(store.get('view', 'docs')) ? store.get('view', 'docs') : 'docs');
+      const last = store.get(uKey('lastDoc'), null), v = store.get('view', 'docs');
+      if (v === 'editor' && last && docs.has(last) && mine(docs.get(last))) await openDoc(last);
+      else setView(['guide', 'dict', 'acct', 'admin'].includes(v) ? v : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
+  }
+  (() => {
+    const users = AC.users();
+    if (!users.length) { showAuth('setup'); return; }
+    const u = users.find(x => x.id === store.get('session', null));
+    if (u && u.status === 'active') signIn(u); else showAuth('login');
   })();
 })();
 </script>
