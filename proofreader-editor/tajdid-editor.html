@@ -383,6 +383,84 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
 .g-sw { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; }
 .g-sw label { display: inline-flex; align-items: center; gap: 8px; }
 
+/* accounts: sign-in screens, the account page, the admin page, proposals */
+.auth { min-height: 100%; display: grid; place-items: center; padding: 32px 16px; box-sizing: border-box; direction: rtl; background: var(--bg); }
+.auth-card { width: min(400px, 100%); box-sizing: border-box; background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--gold); border-radius: 10px; padding: 28px 28px 22px; display: grid; gap: 14px; box-shadow: 0 10px 32px rgba(0,0,0,.08); }
+.auth-logo { display: flex; align-items: center; gap: 12px; color: var(--brand); }
+.auth-logo img { width: 42px; height: 42px; }
+.auth-logo b { display: block; font-size: 16px; }
+.auth-logo small { color: var(--muted); font-size: 12.5px; }
+.auth-card h1 { margin: 6px 0 0; font-size: 18px; }
+.auth-sub { margin: -6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.auth-sub:empty, .auth-err:empty, .auth-foot:empty { display: none; }
+.a-fld { display: grid; gap: 5px; font-size: 13px; color: var(--muted); }
+.a-fld small { font-size: 11.5px; margin-inline-start: 6px; }
+.a-fld input, .a-fld textarea, .a-fld select, .a-inv input { box-sizing: border-box; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--surface); color: var(--ink); font-size: 14px; }
+.a-fld textarea { resize: vertical; min-height: 64px; line-height: 1.7; }
+.a-fld input[readonly] { background: var(--sunken); color: var(--muted); }
+.a-fld input[dir="ltr"], .a-inv input { text-align: right; }
+.auth-err { margin: 0; color: var(--spell); font-size: 13px; line-height: 1.7; }
+.auth-go { justify-content: center; padding: 9px 12px; font-size: 14.5px; }
+.auth-foot { margin: 0; text-align: center; color: var(--muted); font-size: 12.5px; }
+.auth-local { margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11.5px; line-height: 1.8; }
+.nav-item { position: relative; }
+.nav-badge { position: absolute; top: 3px; inset-inline-end: 3px; min-width: 16px; height: 16px; box-sizing: border-box; padding: 0 4px; border-radius: 99px; background: var(--spell); color: #FFFFFF; font-size: 10.5px; font-weight: 600; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+.shell.nav-open .nav-badge { position: static; margin-inline-start: auto; }
+.a-wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 14px; }
+.a-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px; }
+.a-card h3 { margin: 0 0 12px; font-size: 14.5px; display: flex; align-items: baseline; gap: 8px; }
+.a-card h3 small { color: var(--muted); font-weight: 400; font-size: 12.5px; }
+.a-me { display: flex; align-items: center; gap: 14px; }
+.a-me h2 { margin: 0; font-size: 16px; }
+.a-me .a-mail { margin: 2px 0 0; color: var(--muted); font-size: 13px; text-align: right; }
+.a-av { width: 48px; height: 48px; border-radius: 50%; background: var(--nav-act); color: var(--accent); display: grid; place-items: center; font-size: 20px; font-weight: 700; flex: none; }
+.a-role { margin-inline-start: auto; font-size: 12.5px; border: 1px solid var(--line); border-radius: 99px; padding: 2px 12px; color: var(--muted); white-space: nowrap; }
+.a-role.admin { color: var(--conv); border-color: color-mix(in srgb, var(--gold) 70%, transparent); background: color-mix(in srgb, var(--gold) 10%, transparent); }
+.a-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.a-stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px; display: grid; gap: 2px; }
+.a-stat b { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.a-stat span { color: var(--muted); font-size: 13px; }
+.a-stat.ok b { color: var(--good); } .a-stat.no b { color: var(--spell); }
+.a-pw { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; gap: 12px; align-items: end; }
+.a-msg { margin: 10px 0 0; font-size: 13px; color: var(--good); }
+.a-msg.err { color: var(--spell); }
+.a-msg:empty { display: none; }
+.a-none { margin: 0; color: var(--muted); font-size: 13px; }
+.a-hint { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.8; }
+.a-inv { display: flex; gap: 10px; }
+.a-inv input { flex: 1; width: auto; }
+.a-props { display: grid; gap: 10px; }
+.a-prop { border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; display: grid; gap: 6px; background: var(--surface); }
+.a-prop header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.a-prop header .k { color: var(--ink); font-weight: 600; font-size: 13px; }
+.a-prop header .d { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+.a-prop .body { font-size: 14px; line-height: 1.9; }
+.a-prop .body .w { font-family: var(--text); font-size: 16px; }
+.a-prop .body .w.good { color: var(--good); font-weight: 700; }
+.a-prop .body .w.bad { color: var(--spell); text-decoration: line-through; }
+.a-prop .why2 { color: var(--muted); font-size: 13px; line-height: 1.8; }
+.a-prop .anote { font-size: 13px; line-height: 1.8; border-inline-start: 3px solid var(--line); padding-inline-start: 10px; }
+.a-prop .acts { margin-top: 4px; }
+.p-st { font-size: 11.5px; font-weight: 600; border: 1px solid currentColor; border-radius: 99px; padding: 0 8px; }
+.p-st.approved { color: var(--good); } .p-st.rejected { color: var(--spell); } .p-st.pending { color: var(--conv); }
+.u-acts { display: flex; gap: 14px; justify-content: flex-end; flex-wrap: wrap; }
+.u-acts .link { font-size: 12.5px; }
+.u-acts .link.no { color: var(--spell); }
+.u-me { color: var(--muted); font-size: 12.5px; }
+.u-st { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; }
+.u-st i { width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+.u-st.active { --c: var(--good); } .u-st.invited { --c: var(--conv); } .u-st.disabled { --c: var(--muted); }
+.dtable tr.u-off td { opacity: .6; }
+.prop-dlg { width: min(480px, calc(100vw - 48px)); }
+.prop-dlg form { display: grid; gap: 12px; }
+.prop-dlg h2 { margin: 0; }
+.prop-dlg .sub { margin: -6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.8; }
+.prop-dlg .acts { margin-top: 4px; }
+.g-prop { margin-inline-start: 4px; }
+.sw-lock { font-size: 12.5px; color: var(--conv); margin: 0 0 12px; display: flex; align-items: center; gap: 6px; }
+.switch[disabled] { cursor: default; opacity: .55; }
+.toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 60; background: var(--ink); color: var(--surface); border-radius: 8px; padding: 9px 16px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.2); direction: rtl; max-width: min(520px, calc(100vw - 48px)); line-height: 1.7; }
+
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100%; }
   .main { grid-template-columns: minmax(0, 1fr); }
@@ -403,9 +481,10 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       <a href="#" data-view="docs" aria-current="page" class="nav-item" title="المستندات"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">المستندات</span></a>
       <a href="#" data-view="guide" class="nav-item" title="دليل التدقيق"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 7h6"/></svg><span class="lbl">دليل التدقيق</span></a>
       <a href="#" data-view="dict" class="nav-item" title="القاموس"><svg viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7"/><path d="M7 8h1M16 8h1"/></svg><span class="lbl">القاموس</span></a>
+      <a href="#" data-view="admin" class="nav-item" id="navAdmin" title="الإدارة" hidden><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">الإدارة</span><span class="nav-badge" id="navAdminN" hidden></span></a>
       <div class="nav-fill"></div>
       <button type="button" id="themeBtn" class="nav-item" title="الوضع الليلي"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="lbl">الوضع الليلي</span></button>
-      <a href="#" class="nav-item soon" aria-disabled="true" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl">الحساب</span><span class="soon-tag">قريباً</span></a>
+      <a href="#" data-view="acct" class="nav-item" id="navAcct" title="الحساب"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span class="lbl" id="navAcctName">الحساب</span></a>
     </nav>
 <div class="app" id="editorView" hidden>
   <header class="top">
@@ -488,6 +567,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           <select id="docsDate">
             <option value="all">كل التواريخ</option><option value="today">اليوم</option><option value="7">آخر ٧ أيام</option><option value="30">آخر ٣٠ يوماً</option><option value="year">هذه السنة</option>
           </select></label>
+        <label class="field" id="docsOwnerF" hidden>المدقق
+          <select id="docsOwner"></select></label>
         <span class="grow"></span>
         <label class="field">الترتيب
           <select id="docsSort">
@@ -496,7 +577,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       </div>
       <div id="docsList"></div>
       <p class="msg" id="docsMsg" role="status"></p>
-      <p class="docs-note" id="docsNote">المستندات وقراراتك فيها محفوظة في هذا المتصفح على هذا الجهاز. حفظها على الخادم ومشاركتها بين المدققين يأتيان مع الحسابات.</p>
+      <p class="docs-note" id="docsNote">يرى كل مدقق مستنداته فقط، ويرى مسؤول الدليل مستندات الجميع. المستندات وقراراتك فيها محفوظة الآن في هذا المتصفح على هذا الجهاز، وحفظها على الخادم يأتي مع ربط الأداة به.</p>
     </div>
   </div>
   <dialog class="confirm" id="delDlg" aria-labelledby="delTitle">
@@ -532,10 +613,57 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     <span class="grow"></span>
     <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
       <input type="search" id="dQ" placeholder="ابحث في القاموس" aria-label="ابحث في القاموس"></label>
+    <button class="btn primary" id="dPropBtn" type="button">اقترح إضافة</button>
   </header>
   <div class="docs-body" id="dictBody"><div class="g-wrap" id="dWrap"></div></div>
 </div>
+<div class="app docs" id="acctView" hidden>
+  <header class="top docs-top">
+    <h1>الحساب</h1>
+    <span class="grow"></span>
+    <button class="btn" id="logoutBtn" type="button">تسجيل الخروج</button>
+  </header>
+  <div class="docs-body"><div class="a-wrap" id="aWrap"></div></div>
 </div>
+<div class="app docs guide" id="adminView" hidden>
+  <header class="top docs-top">
+    <h1>الإدارة <small>لمسؤول الدليل وحده</small></h1>
+    <div class="seg g-tabs" role="group" aria-label="أقسام الإدارة" id="mTabs">
+      <button type="button" data-t="users" aria-pressed="true">المستخدمون<b></b></button>
+      <button type="button" data-t="props" aria-pressed="false">الاقتراحات<b></b></button>
+    </div>
+    <span class="grow"></span>
+  </header>
+  <div class="docs-body" id="adminBody"><div class="a-wrap" id="mWrap"></div></div>
+</div>
+<dialog class="confirm prop-dlg" id="propDlg" aria-labelledby="propTitle">
+  <form id="propForm" novalidate>
+    <h2 id="propTitle"></h2>
+    <p class="sub" id="propSub"></p>
+    <div id="propFields" style="display:grid;gap:12px"></div>
+    <p class="auth-err" id="propErr" role="alert"></p>
+    <div class="acts"><button class="btn primary" type="submit" id="propSend"></button><button class="btn" type="button" id="propNo">إلغاء</button></div>
+  </form>
+</dialog>
+<dialog class="confirm" id="askDlg" aria-labelledby="askTitle">
+  <h2 id="askTitle"></h2>
+  <p id="askText"></p>
+  <div class="acts"><button class="btn primary" type="button" id="askYes"></button><button class="btn" type="button" id="askNo">إلغاء</button></div>
+</dialog>
+</div>
+<div class="auth" id="authView" hidden>
+  <form class="auth-card" id="authForm" novalidate>
+    <div class="auth-logo"><img src="data:image/png;base64,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" alt=""><div><b>مدقق تجديد</b><small>مركز تجديد</small></div></div>
+    <h1 id="authTitle"></h1>
+    <p class="auth-sub" id="authSub"></p>
+    <div id="authFields" style="display:grid;gap:12px"></div>
+    <p class="auth-err" id="authErr" role="alert"></p>
+    <button class="btn primary auth-go" id="authGo" type="submit"></button>
+    <p class="auth-foot" id="authFoot"></p>
+    <p class="auth-local">الحسابات محفوظة الآن في هذا المتصفح على هذا الجهاز فقط، إلى أن تُربط الأداة بالخادم. حينها تصل الدعوة إلى البريد، ويدخل كل مدقق من جهازه.</p>
+  </form>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
@@ -595,7 +723,10 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { good: 'استراتيجية', bad: 'إستراتيجية', from: 'إستراتيج', to: 'استراتيج', src: CENTER, added: '2026-11-12' },
     { good: 'إنفلونزا', bad: 'أنفلونزا', from: 'أنفلونز', to: 'إنفلونز', src: CENTER, added: '2026-11-12' },
     { good: 'إمبراطورية', bad: 'امبراطورية', from: 'امبراطور', to: 'إمبراطور', src: CENTER, added: '2026-11-12' },
-    { good: 'برجوازية', bad: 'بورجوازية', from: 'بورجواز', to: 'برجواز', src: CENTER, added: '2026-11-12' }
+    { good: 'برجوازية', bad: 'بورجوازية', from: 'بورجواز', to: 'برجواز', src: CENTER, added: '2026-11-12' },
+    { good: 'أوروبا، أوروبي', bad: 'اوروبا', from: 'اوروب', to: 'أوروب', src: CENTER, added: '2026-11-16' },
+    { good: 'إندونيسيا، إندونيسي', bad: 'أندونيسيا', from: 'أندونيس', to: 'إندونيس', src: CENTER, added: '2026-11-16' },
+    { good: 'إيرلندا، إيرلندي', bad: 'أيرلندا', from: 'أيرلند', to: 'إيرلند', src: CENTER, added: '2026-11-16' }
   ];
 
   // names: قرار المركز في 12 تشرين الثاني/ نوفمبر 2026. يصحّح المحرك الكلمة نفسها فقط ولا يكمّل الاسم:
@@ -615,7 +746,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { name: 'بنثام', variants: ['بنتام'], note: 'جيريمي بنثام.', src: CENTER, added: '2026-11-12' },
     { name: 'رولز', variants: ['راولز'], note: 'جون رولز.', src: CENTER, added: '2026-11-12' },
     { name: 'ستيوارت مل', variants: ['ستيوارت ميل', 'ستوارت ميل', 'ستوارت مل'], note: 'جون ستيوارت مل. «ميل» وحدها لا تُصحَّح لأنها كلمة عربية.', src: CENTER, added: '2026-11-12' },
-    { name: 'ستيوارت', variants: ['ستوارت'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'ستيوارت', variants: ['ستوارت', 'ستيورت', 'ستيورات'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'بتلر', variants: ['بطلر'], note: 'جوديث بتلر.', src: CENTER, added: '2026-11-12' },
     { name: 'هيل كولينز', variants: ['هيل كولنز'], note: 'باتريشيا هيل كولينز. أما «ج. ج. كولنز» فشخص آخر، فلا تُصحَّح «كولنز» وحدها.', src: CENTER, added: '2026-11-12' },
     { name: 'داروين', variants: ['دارون'], note: '', src: CENTER, added: '2026-11-12' },
@@ -629,7 +760,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { name: 'هوبز', variants: ['هوبس'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'ماكنتاير', variants: ['ماكينتاير'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'بوفوار', variants: ['بفوار'], note: 'سيمون دي بوفوار.', src: CENTER, added: '2026-11-12' },
-    { name: 'إيريغاراي', variants: ['إريغاراي'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'إيريغاري', variants: ['إيريغاراي', 'إريغاراي', 'إيريجاري'], note: 'لوس إيريغاري. قرار المركز في 16/11 بدل «إيريغاراي».', src: CENTER, added: '2026-11-16' },
     { name: 'كيمليكا', variants: ['كيميلكا', 'كيميليكا'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'ويليامز', variants: ['وليامز'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'ستيفن', variants: ['ستيفين'], note: '', src: CENTER, added: '2026-11-12' },
@@ -640,7 +771,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { name: 'داود', variants: ['داوود', 'داؤود'], note: 'رسم المصحف.', src: CENTER, added: '2026-11-12' },
     { name: 'إشعياء', variants: ['إشعيا', 'أشعيا', 'اشعياء'], note: '', src: CENTER, added: '2026-11-12' },
     { name: 'شاول', variants: ['شاؤول'], note: '', src: CENTER, added: '2026-11-12' },
-    { name: 'صموئيل', variants: ['صمويل'], note: '', src: CENTER, added: '2026-11-12' },
+    { name: 'صاموئيل', variants: ['صموئيل', 'صمويل', 'صامويل'], note: 'قرار المركز في 16/11 بدل «صموئيل».', src: CENTER, added: '2026-11-16' },
     { name: 'إبراهيم', variants: ['ابراهيم'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
     { name: 'إسماعيل', variants: ['اسماعيل'], note: 'همزة القطع.', src: CENTER, added: '2026-11-12' },
     { name: 'إسحاق', variants: ['إسحق'], note: '', src: CENTER, added: '2026-11-12' },
@@ -710,7 +841,78 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { name: 'محمد باقر الصدر', variants: [], note: 'باحث معاصر.', src: CORPUS, added: '2026-11-12' },
     { name: 'كونفوشيوس', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' },
     { name: 'حاييم فيتال', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' },
-    { name: 'إسحاق لوريا', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' }
+    { name: 'إسحاق لوريا', variants: [], note: 'من أديان وثقافات أخرى.', src: CORPUS, added: '2026-11-12' },
+  // قرار المركز في 16 تشرين الثاني/ نوفمبر 2026: صيغ متعارضة جديدة، وأعلام متكررة في المقالات
+    { name: 'أتو أبل', variants: ['أوتو أبل'], note: 'كارل أتو أبل، كما كتبه المؤلف.', src: CENTER, added: '2026-11-16' },
+    { name: 'ميكيافيلي', variants: ['ماكيافيلي', 'مكيافيلي'], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'تايلور', variants: ['تيلور'], note: 'تشارلز تايلور.', src: CENTER, added: '2026-11-16' },
+    { name: 'ديفيد', variants: ['دايفيد', 'دافيد'], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ريتشارد', variants: ['ريتشرد'], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'محمد شحرور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'شحرور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الشافعي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'سيد قطب', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الرازي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الجابري', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الأشعري', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'أبو الحسن الأشعري', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'محمد أبو القاسم حاج حمد', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'السعداوي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'مسكويه', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن عاشور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'التوحيدي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'أبو حيان التوحيدي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'البخاري', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن العربي', variants: [], note: 'الفقيه المالكي، غير ابن عربي.', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن عربي', variants: [], note: 'الصوفي، غير ابن العربي.', src: CENTER, added: '2026-11-16' },
+    { name: 'الباقلاني', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الزركشي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'بدر الدين الزركشي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'المرنيسي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الجرجاني', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'عبد القاهر الجرجاني', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن منظور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'الطوسي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'البيضاوي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'فضل الرحمن', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'عبد المجيد الشرفي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'عبد الجبار الرفاعي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'حسن حنفي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن الجوزي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'مالك بن نبي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'محمد إقبال', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن حنبل', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'أحمد بن حنبل', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن فارس', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ابن جنّي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'قاسم أمين', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'زكي نجيب محمود', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'إيزوتسو', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'توشيهيكو إيزوتسو', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'هايدي غوتنر إبندروث', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'إبندروث', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'هيرستهاوس', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'روزاليند هيرستهاوس', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'راسل', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'برتراند راسل', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'تشارلز تايلور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'لوك', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'دريدا', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'كونت', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'برغسون', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'فولتير', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'هوسرل', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'فيبر', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'ماكس فيبر', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'سلوت', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'هولباخ', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'هانس يوناس', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'روبير ميزرحي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'رورتي', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'شوبنهاور', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'مونتسكيو', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'نوزيك', variants: [], note: '', src: CENTER, added: '2026-11-16' },
+    { name: 'كيلر', variants: [], note: '', src: CENTER, added: '2026-11-16' }
   ];
 
   // مصطلحات من أكثر ما ورد في المقالات، والتعريفات للعرض فقط ولا يغيّر بها المحرك شيئاً
@@ -766,11 +968,38 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { term: 'نظرية الموقف', field: 'دراسات المرأة', def: 'نظرية ترى أن موقع العارف الاجتماعي يشكّل ما يعرفه، وأن مواقع المهمّشين تكشف ما يغيب عن غيرهم.', src: CORPUS, added: '2026-11-12' },
     { term: 'المعرفة المتموضعة', field: 'دراسات المرأة', def: 'معرفة مرتبطة بموقع صاحبها وتجربته، لا من موقع محايد مجرد.', src: CORPUS, added: '2026-11-12' },
     { term: 'المجتمعات الأمومية', field: 'أنثروبولوجيا', def: 'مجتمعات يُنسب فيها النسب أو الإرث أو السلطة إلى الأم.', src: CORPUS, added: '2026-11-12' },
-    { term: 'القبالة', field: 'أديان', def: 'تيار صوفي باطني في اليهودية، أشهر كتبه «الزوهار».', src: CORPUS, added: '2026-11-12' }
+    { term: 'القبالة', field: 'أديان', def: 'تيار صوفي باطني في اليهودية، أشهر كتبه «الزوهار».', src: CORPUS, added: '2026-11-12' },
+  // مصطلحات متكررة في المقالات، اعتمدها المركز في 16 تشرين الثاني/ نوفمبر 2026
+    { term: 'الإبستمولوجيا النسوية', field: 'دراسات المرأة', def: 'دراسة أثر النوع الاجتماعي في إنتاج المعرفة وتسويغها.', src: CENTER, added: '2026-11-16' },
+    { term: 'النظام الأمومي', field: 'أنثروبولوجيا', def: 'تنظيم اجتماعي يُنسب فيه النسب أو الإرث أو السلطة إلى الأم.', src: CENTER, added: '2026-11-16' },
+    { term: 'الأشاعرة', field: 'كلام', def: 'مدرسة كلامية تنسب إلى أبي الحسن الأشعري.', src: CENTER, added: '2026-11-16' },
+    { term: 'الأنثروبولوجيا', field: 'أنثروبولوجيا', def: 'علم الإنسان وثقافاته ومجتمعاته.', src: CENTER, added: '2026-11-16' },
+    { term: 'القانون الأخلاقي', field: 'أخلاق', def: 'القاعدة الكلية التي يُلزم بها العقل الفاعل، خاصة عند كانط.', src: CENTER, added: '2026-11-16' },
+    { term: 'الفلسفة النسوية', field: 'دراسات المرأة', def: 'نقد الفلسفة ومفاهيمها من منظور تجربة المرأة.', src: CENTER, added: '2026-11-16' },
+    { term: 'الفعل الأخلاقي', field: 'أخلاق', def: 'الفعل الإرادي الذي يُحكم عليه بالخير أو الشر.', src: CENTER, added: '2026-11-16' },
+    { term: 'المعتزلة', field: 'كلام', def: 'مدرسة كلامية تقدّم العقل وتقول بالعدل والتوحيد.', src: CENTER, added: '2026-11-16' },
+    { term: 'المعرفة النسوية', field: 'دراسات المرأة', def: 'معرفة تنطلق من تجارب النساء ومواقعهن.', src: CENTER, added: '2026-11-16' },
+    { term: 'الحركة النسوية', field: 'دراسات المرأة', def: 'حركة اجتماعية وسياسية تطالب بحقوق المرأة ومساواتها.', src: CENTER, added: '2026-11-16' },
+    { term: 'الحكم الأخلاقي', field: 'أخلاق', def: 'وصف الفعل أو الفاعل بأنه خيّر أو شرير، صواب أو خطأ.', src: CENTER, added: '2026-11-16' },
+    { term: 'الفكر النسوي', field: 'دراسات المرأة', def: 'مجموع النظريات والمواقف التي تدرس وضع المرأة وتنقده.', src: CENTER, added: '2026-11-16' },
+    { term: 'الهيمنة الذكورية', field: 'دراسات المرأة', def: 'سيطرة الرجال وقيمهم على المجتمع والمعرفة.', src: CENTER, added: '2026-11-16' },
+    { term: 'النظرية النسوية', field: 'دراسات المرأة', def: 'الإطار النظري لتحليل التفاوت بين الجنسين وأسبابه.', src: CENTER, added: '2026-11-16' },
+    { term: 'الحكمة العملية', field: 'أخلاق', def: 'القدرة على حسن التصرف في المواقف الجزئية (الفرونيسيس عند أرسطو).', src: CENTER, added: '2026-11-16' },
+    { term: 'الإلزام الأخلاقي', field: 'أخلاق', def: 'شعور الفاعل بأنه مطالب بفعل الواجب، ومصدر هذا الطلب.', src: CENTER, added: '2026-11-16' },
+    { term: 'الوعي الأخلاقي', field: 'أخلاق', def: 'إدراك الإنسان للقيم ولما يترتب على أفعاله.', src: CENTER, added: '2026-11-16' },
+    { term: 'المسؤولية الأخلاقية', field: 'أخلاق', def: 'استحقاق الفاعل المدح أو اللوم على فعله الحر.', src: CENTER, added: '2026-11-16' },
+    { term: 'الخطاب القرآني', field: 'علوم القرآن', def: 'النص القرآني من حيث هو كلام موجّه إلى مخاطبين في سياق.', src: CENTER, added: '2026-11-16' },
+    { term: 'التحليل النفسي', field: 'علم النفس', def: 'منهج فرويد في تفسير السلوك باللاشعور.', src: CENTER, added: '2026-11-16' },
+    { term: 'التعددية الثقافية', field: 'فلسفة سياسية', def: 'الاعتراف بثقافات متعددة داخل المجتمع الواحد وحقوقها.', src: CENTER, added: '2026-11-16' },
+    { term: 'التمييز الجنسي', field: 'دراسات المرأة', def: 'التفريق في المعاملة بسبب الجنس.', src: CENTER, added: '2026-11-16' },
+    { term: 'التفكيك', field: 'فلسفة', def: 'قراءة تكشف تناقضات النص وثنائياته (دريدا).', src: CENTER, added: '2026-11-16' }
   ];
 
   const exceptions = [
-    { word: 'ميتافيزيقياً', note: 'صفة منصوبة (بحثاً ميتافيزيقياً)، لا اسم العلم، فلا تُصحَّح إلى «ميتافيزيقا».', src: CENTER, added: '2026-11-12' }
+    { word: 'ميتافيزيقياً', note: 'صفة منصوبة (بحثاً ميتافيزيقياً)، لا اسم العلم، فلا تُصحَّح إلى «ميتافيزيقا».', src: CENTER, added: '2026-11-12' },
+    { word: 'سفر صموئيل', note: 'اسم السفر في الكتاب المقدس يبقى «صموئيل»، والعلم يُكتب «صاموئيل».', src: CENTER, added: '2026-11-16' },
+    { word: 'صموئيل الأول', note: 'اسم السفر في توثيق الكتاب المقدس.', src: CENTER, added: '2026-11-16' },
+    { word: 'صموئيل الثاني', note: 'اسم السفر في توثيق الكتاب المقدس.', src: CENTER, added: '2026-11-16' }
   ];
 
   const api = { words, names, terms, exceptions };
@@ -778,6 +1007,16 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   root.TajdidDict = api;
 })(typeof window !== 'undefined' ? window : globalThis);
 
+</script>
+<script>
+// ما اعتمده مسؤول الدليل من إضافات القاموس داخل الأداة: محفوظ في هذا المتصفح إلى أن تُربط الأداة بالخادم،
+// ويُضاف إلى القاموس قبل أن يقرأه المحرك
+(function () {
+  try {
+    const a = JSON.parse(localStorage.getItem('tajdid-dictAdds') || 'null'), D = window.TajdidDict;
+    if (a && D) for (const k of ['words', 'names', 'terms', 'exceptions']) (a[k] || []).forEach(x => D[k].push(x));
+  } catch (e) {}
+})();
 </script>
 <script>
 /* Tajdid proofreading engine: tier-1 (deterministic) rules applied to a .docx as tracked changes. */
@@ -809,8 +1048,24 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     }
     return bad.concat(st);
   }
+  // قرار بشار (16/11/2026، المقال الثاني): قوسان مقلوبان معاً «ابن منظور) أبو الفضل(، لسان العرب» يُقلبان معاً:
+  //  «ابن منظور (أبو الفضل)»؛ كان المحرك يقلب الثاني وحده فيخرج «ابن منظور) أبو الفضل)»
+  function reversedPairs(text) {
+    const bad = unmatchedParens(text).sort((a, b) => a - b), out = [];
+    const AR = /[\u0621-\u064A]/;
+    for (let k = 0; k + 1 < bad.length; k++) {
+      const i = bad[k], j = bad[k + 1];
+      if (text[i] !== ')' || text[j] !== '(' || j - i > 80) continue;
+      if (!AR.test(text[i - 1] || '') || !/[ \u00A0]/.test(text[i + 1] || '')) continue;   // «منظور) »
+      if (!AR.test(text[j - 1] || '') || AR.test(text[j + 1] || '')) continue;               // «الفضل(،»
+      if (/[()]/.test(text.slice(i + 1, j))) continue;
+      out.push({ i, j }); k++;
+    }
+    return out;
+  }
   function flippedParens(text) {
-    const bad = unmatchedParens(text).filter(i => !doubledAfterLatin(text).some(d => d.close === i || d.close + 1 === i));
+    const rev = reversedPairs(text).flatMap(r => [r.i, r.j]);
+    const bad = unmatchedParens(text).filter(i => !rev.includes(i) && !doubledAfterLatin(text).some(d => d.close === i || d.close + 1 === i));
     const L = /[\u0621-\u064A]/;
     return bad.filter(i => text[i] === ')'
       ? (i === 0 || /\s/.test(text[i - 1])) && L.test(text[i + 1] || '')
@@ -819,7 +1074,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   // «Motsamai Molefe))»: a foreign name typed in Arabic text often ends up with both parentheses after it
   function doubledAfterLatin(text) {
     const bad = new Set(unmatchedParens(text)), out = [];
-    for (const m of text.matchAll(/(?<![A-Za-z0-9(])([A-Za-z][A-Za-z0-9 .,'’&-]*?[A-Za-z0-9.])\)\)/g)) {
+    for (const m of text.matchAll(/(?<![A-Za-z0-9(])([A-Za-z][A-Za-z0-9 .,;'’&-]*?[A-Za-z0-9.])\)\)/g)) {
       const close = m.index + m[1].length;
       if (bad.has(close) && bad.has(close + 1)) out.push({ start: m.index, close });
     }
@@ -837,6 +1092,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       const m = /(^|[\s\u0621-\u064A])([A-Za-z][A-Za-z0-9 .,'’&:-]{0,60}?)$/.exec(text.slice(0, i));
       if (!m || !/[A-Za-z0-9.]$/.test(m[2])) continue;
       const start = i - m[2].length;
+      // only a reference inside Arabic text: not an English line («Surah YUSUF … model)») or a Latin citation
+      //  whose earlier sentence ends before it («(1910). The Monist»)
+      if (!(/[\u0621-\u064A][\s\u00A0]*$/.test(text.slice(Math.max(0, start - 3), start)) || /\([A-Za-z][^()]*\)[\s\u00A0]*$/.test(text.slice(Math.max(0, start - 60), start))) || /[.?!]\s+[A-Z]/.test(m[2])) continue;
       const edits = [{ start, end: start, repl: /[\u0621-\u064A]/.test(m[1]) ? ' (' : '(' }];
       const extra = bad.find(j => j > i && text[j - 1] === ')' && !taken.has(j));
       if (extra !== undefined) edits.push({ start: extra, end: extra + 1, repl: '' });
@@ -859,6 +1117,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const LEVANT = [['كانون الثاني', 'يناير'], ['شباط', 'فبراير'], ['آذار', 'مارس'], ['نيسان', 'أبريل'], ['أيار', 'مايو'], ['حزيران', 'يونيو'], ['تموز', 'يوليو'], ['آب', 'أغسطس'], ['أيلول', 'سبتمبر'], ['تشرين الأول', 'أكتوبر'], ['تشرين الثاني', 'نوفمبر'], ['كانون الأول', 'ديسمبر']];
   const GREG_ALIASES = { 'إبريل': 'أبريل', 'يونيه': 'يونيو', 'يوليه': 'يوليو' };
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
+  // not a nisba ya at all: the name عليّ and أيّ (also after و، ف، ب: وعليّ، وبأيّ)
+  const NISBA_NOT = new Set(['علي', 'أي']);
   // نسبة إلى كلمة من حرفين (طبّ، فنّ...): لا يكفيها شرط الجذع الثلاثي، فتُذكر هنا بأسمائها
   const NISBA_SHORT = new Set(['طبي', 'فني', 'حسي', 'كمي', 'جوي', 'بري', 'سري', 'ذري', 'خطي', 'كلي', 'ظني']);
   // the centre's dictionary (dictionary.js): preferred words and names are corrected, exceptions are never touched
@@ -873,9 +1133,31 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const NAME_ONE = new Set([...NAME_FULL].filter(n => !n.includes(' ')));
   const isName = s => { const t = noH(s); return !!t && (NAME_FULL.has(t) || t.split(' ').every(w => NAME_ONE.has(w))); };
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
+  const SAYING = /(?:^|[\s(«])[وف]?ب?(?:قال|قالت|قالا|قالوا|يقول|تقول|يقولون|نقول|أقول|قول|قوله|قولها|قولهم|يقال|قيل)[\s\u00A0]*:?[\s\u00A0]*$/;
+  const THAT = /(?:^|[\s(«])[وف]?بأن\u0651?[\s\u00A0]*$/;
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
-  const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
+  const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا',
+    // feminine elatives (فُعلى): السفلى not السفلي
+    'السفلى', 'سفلى', 'الوسطى', 'وسطى', 'العظمى', 'عظمى', 'الحسنى', 'حسنى', 'الفضلى', 'فضلى', 'المثلى', 'مثلى', 'اليسرى', 'يسرى', 'اليمنى', 'يمنى', 'القربى', 'قربى', 'الجلى', 'الرجعى', 'الطولى']);
+
+  // كلمات تُكتب بالياء خطأً وصوابها الألف المقصورة، ولا تلتبس بغيرها (قرار بشار 16/11/2026)
+  const YA_REV = new Map([['حتي', 'حتى']]);
+  // همزة الوصل في أول المصادر والأفعال الخماسية والسداسية الشائعة (الإتجاه ← الاتجاه، إدعى ← ادعى). قائمة مغلقة:
+  //  «إنتاج، إتقان، إتلاف، إدراك، إتباع» مصادر رباعية همزتها همزة قطع صحيحة، فلا تُصحَّح بقاعدة عامة (قرار بشار 16/11/2026)
+  const WASL = ('اتجاه اتجه اتجاهات احتواء احتوى انطواء انطوى اعتلاء اعتلى ادعاء ادعى ادعاءات اتفاق اتفق اتفاقية اتفاقيات اتخاذ اتخذ ' +
+    'اعتبار اعتبر اعتماد اعتمد اعتقاد اعتقد اعتراف اعترف اعتراض اعترض اعتداء اعتدال اعتناء اعتزال اكتشاف اكتشف اكتساب اكتسب اكتمال ' +
+    'اجتماع اجتمع اجتهاد اجتهد اجتياح احتجاج احتكار احترام احترم احتمال احتياج احتلال احتل احتفال احتفاظ احتكام اختيار اختار اختلاف اختلف ' +
+    'اختلاط اختصار اختصاص اختراع اختراق اختبار اختفاء ارتباط ارتبط ارتقاء ارتكاب ارتكب ارتفاع ارتفع ازدهار ازدياد ازدواج ازدواجية ' +
+    'انتشار انتشر انتقال انتقل انتقاد انتقد انتماء انتهاء انتهى انتظار انتخاب انتخابات انتصار انتصر انتباه انتهاك انتقام انتحار انتزاع ' +
+    'انفتاح انفصال انفعال انفعالات انقسام انقطاع انقلاب انهيار انحراف انحطاط انحلال انحياز انسجام انسحاب انطلاق انطلق انعكاس انعكس انعدام انعقاد ' +
+    'اندماج اندفاع اندلاع اتصال اتساع اتساق اتهام اتحاد اتكال اصطلاح اصطدام اضطراب اضطهاد اضطرار اطلاع اطمئنان اغتراب اغتيال ' +
+    'افتراض افترض افتراق افتقار افتتاح اقتصاد اقتراح اقترح اقتراب اقتباس اقتناع التزام التزم التباس التفات التقاء امتلاك امتداد امتناع ' +
+    'امتياز امتحان امتثال ابتكار ابتعاد ابتداء ابتلاء ابتسامة ' +
+    'استخدام استخدم استعمال استقلال استمرار استمر استقرار استعمار استبداد استغلال استثمار استنتاج استنباط استدلال استيعاب استجابة ' +
+    'استطاعة استطاع استقامة استعداد استثناء استهلاك استفادة استحقاق استشراق استعادة استقبال استعراض استحالة استيلاء').split(' ');
+  // the stem: a final ء or ة goes, since its seat changes before a suffix («احتوا» also catches «إحتوائه»); longest first
+  const WASL_STEMS = [...new Set(WASL.map(w => /[ءة]$/.test(w) ? w.slice(0, -1) : w))].sort((a, b) => b.length - a.length);
 
   // الشدة في الأدوات الشائعة: want=true gives only the forms that are right in every case (أنّه، إلّا، إنّما، كلّ، ممّا، ثمّ...),
   //  applied automatically; want=false gives the rest (أنّ/إنّ before a word), which can be the light أنْ/إنْ
@@ -924,6 +1206,36 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
 
   const RULES = [
+    // قرار بشار (16/11/2026): سطر الكلمات المفتاحية تفصل بين كلماته شرطة بمسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)
+    { id: 'dash-list', auto: true, no: 8, name: 'الشرطة في سطر الكلمات المفتاحية', why: 'تُفصل الكلمات المفتاحية بشرطة قصيرة بين مسافتين: وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية.',
+      find: text => {
+        // a short paragraph that is only a list: three or more dashes, every piece one to five words, no sentence punctuation
+        // a final full stop is allowed; the dash can also be typed as an underscore (لغة _ القرآن _ قريش), قرار بشار (16/11/2026، المقال الثاني)
+        const body = text.trim().replace(/^(?:الكلمات المفتاحية|كلمات مفتاحية)[ \u00A0]*:/, '').replace(/\.$/, '');
+        if (text.length > 400 || /[.،؛؟!,;]/.test(body.replace(/\.{2,}/g, ''))) return [];
+        // an Arabic line only: the English abstract keeps its own style (al-Shaykh, Al-Azhar)
+        if ((text.match(/[A-Za-z]/g) || []).length * 2 > (text.match(/[\u0621-\u064A]/g) || []).length) return [];
+        const dashes = [];
+        for (let i = 0; i < text.length; i++) {
+          if (!/[-–—_]/.test(text[i])) continue;
+          if (re('[{D}]').test(text[i - 1] || '') && re('[{D}]').test(text[i + 1] || '')) continue;   // a range: 1914-1918
+          if (/[A-Za-z]/.test(text[i - 1] || '') && /[A-Za-z]/.test(text[i + 1] || '')) continue;    // a Latin hyphenated word
+          dashes.push(i);
+        }
+        if (dashes.length < 3) return [];
+        const cuts = [-1, ...dashes, text.length];
+        for (let k = 0; k + 1 < cuts.length; k++) {
+          const n = text.slice(cuts[k] + 1, cuts[k + 1]).replace(/[()]/g, '').trim().split(/\s+/).filter(Boolean).length;
+          if (n < 1 || n > 5) return [];
+        }
+        const out = [];
+        for (const i of dashes) {
+          let a = i; while (a > 0 && /[ \u00A0]/.test(text[a - 1])) a--;
+          let b = i + 1; while (b < text.length && /[ \u00A0]/.test(text[b])) b++;
+          if (text.slice(a, b) !== ' - ') out.push({ start: a, end: b, repl: ' - ' });
+        }
+        return out.length ? [{ group: out }] : [];
+      } },
     { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
       find: text => {
         const out = [];
@@ -939,21 +1251,38 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
+    // قرار بشار (16/11/2026، المقال الثاني): فاصلتان متتاليتان (لبنان، ،2015 أو الوسطية،،) فاصلة واحدة
+    { id: 'comma-double', auto: true, no: 7, name: 'فاصلتان متتاليتان', why: 'لا تتكرر الفاصلة: لبنان، ،2015 ← لبنان، 2015.',
+      // the space after the comma is part of the edit, so the next word is never glued to it (الداخل، ،سواء ← الداخل، سواء)
+      find: simple(/،(?:[ \u00A0]*،)+[ \u00A0]*/g, m => /[ \u00A0]$/.test(m[0]) || /\S/.test(m.input[m.index + m[0].length] || '') ? '، ' : '،') },
+    // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد «د.» قبل الاسم (د.راقية ← د. راقية)؛ ولا تُمسّ «د.ت» و«د.ط» في المراجع
+    { id: 'title-d', auto: true, no: 31, name: 'لقب الدكتور', why: 'يُفصل لقب «د.» بمسافة عن الاسم بعده: د. راقية.',
+      find: simple(re('(?<![{LH}])د\\.(?=[{L}]{3})'), () => 'د. ') },
     { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
     { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
-      find: text => [
+      find: (text, ctx) => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
-        ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
+        ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد الفاصلة قبل الرقم (ط2،1980 ← ط2، 1980)، إلا في الكسر العشري (2،5)
+        ...simple(re('(?<![{D}]،?)،(?=[{D}])|(?<=[{D}])،(?=[{D}])(?![{D}](?![{D}]))(?![{D}]{3}(?![{D}]))'), () => '، ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد النقطتين قبل علامة التنصيص الافتتاحية (بقوله:"اللغة ← بقوله: "اللغة)
+        //  وعلامة بعد النقطتين تليها مسافة ثم كلمة افتتاحية دائماً، ولو اختلّ ترتيب العلامات: ويقال:" فلان ← ويقال: "فلان
+        ...simple(re(':[ \\u00A0]*"[ \\u00A0]+(?=[{L}])'), () => ': "')(text),
+        ...ctx.straightPairs.filter(([a]) => text[a - 1] === ':' && !/[ \u00A0]/.test(text[a + 1])).map(([a]) => ({ start: a, end: a, repl: ' ' })),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة قبل القوس الملتصق بكلمة (سيبويه(عمرو ← سيبويه (عمرو)، لا بعد حرف واحد (بـ(، ف()
+        ...simple(re('(?<=[{L}]{2}[{H}]*)(?<!\u0640)\\((?=[ \\u00A0]*[{L}])'), () => ' (')(text)
       ] },
     { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
       ] },
-    { id: 'br-flip', no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
+    { id: 'br-flip', auto: true, no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
       find: text => [
         ...flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })),
+        ...reversedPairs(text).map(({ i, j }) => { let a = i + 1; while (/[ \u00A0]/.test(text[a])) a++;
+          return { group: [{ start: i, end: a, repl: ' (' }, { start: j, end: j + 1, repl: ')' }] }; }),
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
@@ -962,7 +1291,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
           ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
-        ].filter(e => !flippedParens(text).includes(e.end)); // a reversed «)» opens: the space before it stays
+        ].filter(e => !flippedParens(text).includes(e.end))
+          // a reversed «»» or «”» that opens a quotation («أن »ميزة العقل») keeps the space before it
+          .filter(e => !(/[»”]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
         for (const [a, b] of ctx.straightPairs) {
           if (gluedPair(text, a, b)) continue;
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
@@ -983,10 +1314,24 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           if (!sl && !sr) continue;                                   // a hyphen inside a word
           if (re('^[ \\u00A0]*([{D}]+|[{L}])[ \\u00A0]*$').test(text.slice(0, i))) continue; // a heading number or letter: 2 – الفرد المسؤول، أ - ...
           if (re('[{D}]').test(text[i - 1] + text[i + 1])) continue;          // a range glued to a number: 1918- نهاية
-          if (re('[{D}]').test(text.slice(0, i).trimEnd().slice(-1)) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970
+          if (re('[{D}](?:[ \u00A0]*(?:هـ|م|ه))?$').test(text.slice(0, i).trimEnd()) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970، 1384هـ - 1964م
           if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
           if (/[-–—]/.test(text[i - 1] + text[i + 1]) || /[-–—][  ]*$/.test(text.slice(0, i)) && /[-–—]/.test(text.slice(Math.max(0, i - 3), i))) continue;
           cand.push(i);
+        }
+        // قرار بشار (16/11/2026): شرطتان ملتصقتان بالكلمات من الجهتين حول عبارة من ثلاث كلمات أو أكثر هما شرطتا جملة معترضة:
+        //  «القوانين-سواء بأنفسهم أو من خلال ممثلين لهم-وأن» ← «القوانين -سواء ... لهم- وأن»؛ بشرط ألا يكون في الفقرة غيرهما،
+        //  حتى لا تختلط بالشرطة بين كلمتين (الاجتماعية-السياسية)
+        if (!cand.length) {
+          const all = [...text.matchAll(/[-–—]/g)].map(m => m.index);
+          if (all.length === 2 && all.every(i => re('[{LH}]').test(text[i - 1] || '') && re('[{L}]').test(text[i + 1] || ''))) {
+            const [a, b] = all, inner = text.slice(a + 1, b);
+            // two nisba adjectives joined by a dash are a compound (تحليلية–تطبيقية، الأنطولوجي–الرمزي)، not an aside
+            const nisba = i => re('ي[{H}]*(?:ة|ات)?[{H}]*$').test(text.slice(0, i)) && re('^[{L}]+ي[{H}]*(?:ة|ات)?[{H}]*(?![{LH}])').test(text.slice(i + 1));
+            if (!all.some(nisba) && inner.trim().split(/\s+/).length >= 3 && inner.length <= 120 && !/[.؟!:؛\n]/.test(inner) && !/[A-Za-z]/.test(inner))
+              out.push({ group: [{ start: a, end: a, repl: ' ' }, { start: b + 1, end: b + 1, repl: ' ' }] });
+          }
+          return out;
         }
         if (cand.length % 2) return out;                              // an odd count: not clear which dashes pair up
         // a list such as keywords (أ - ب - ج - د): every piece between the dashes is short
@@ -1022,8 +1367,36 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
-      find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
-    { id: 'dot-out', no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
+      // in a keywords line the dash rule rewrites the whole « - » (لغة _  القرآن): two edits side by side would glue the dash to the next word,
+      // so only there are the spaces next to a dash left to it
+      find: text => {
+        const out = simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ')(text);
+        if (!out.length || !RULES.find(r => r.id === 'dash-list').find(text).length) return out;
+        return out.filter(e => !/[-\u2013\u2014_]/.test((text[e.start - 1] || '') + (text[e.end] || '')));
+      } },
+    // قرار بشار (16/11/2026، المقال الثاني): مدّة زائدة في آخر الكلمة قبل علامة الترقيم (فقطـ، ← فقط،)؛ وتبقى (هـ) و(الـ، بـ، فـ) قبل الأجنبي
+    { id: 'tatweel-end', auto: true, no: 7, name: 'مدّة زائدة قبل علامة الترقيم', why: 'لا تُكتب المدّة (ـ) في آخر الكلمة قبل علامة الترقيم: فقطـ، ← فقط،',
+      // the tatweel before a space is usually a dash typed with the wrong key (الآخرـ إن وجد فضل لأحدهما على الآخرـ): left alone
+      find: simple(/(?<=(?<![\u0621-\u063F\u0641-\u064A])[\u0621-\u063F\u0641-\u064A]{3,}[\u064B-\u0652]*)\u0640+(?=[،؛:.!؟)])/g, () => '') },
+    // قرار بشار (16/11/2026): نقاط الحذف ثلاث، تلتصق بالكلمة قبلها وتُفصل بمسافة عمّا بعدها: تقهقر... وجرأة
+    { id: 'ellipsis', auto: true, no: 7, name: 'نقاط الحذف', why: 'نقاط الحذف ثلاث، تلتصق بالكلمة التي قبلها وتُفصل بمسافة عن الكلمة التي بعدها: أنا أفكر... إذن أنا موجود.',
+      find: text => [...simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*(?<!\\.)\\.{2,3}(?!\\.)[ \\u00A0]*(?=[{L}])'), () => '... ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): علامة الحذف بين قوسين ثلاث نقاط: (....) ← (...)
+        ...simple(/(?<=\()[ \u00A0]*(?:\.{2}|\.{4,})[ \u00A0]*(?=\))/g, () => '...')(text)] },
+    // قرار بشار (16/11/2026): واو العطف تلتصق بما بعدها: «و تراكم» ← «وتراكم»، «و (فينيليوس)» ← «و(فينيليوس)»؛
+    //  ولا تُمسّ الواو في أول الفقرة (حرف ترقيم: و- ...) ولا الواو قبل حرف واحد (أ و ب)
+    { id: 'waw-space', auto: true, no: 1, label: 'الإملاء', name: 'واو العطف منفصلة', why: 'واو العطف تلتصق بالكلمة التي بعدها: وتراكم، وكبار.',
+      find: text => {
+        const out = [];
+        for (const m of text.matchAll(/و[ \u00A0]+/g)) {
+          const i = m.index, j = i + m[0].length;
+          if (!text.slice(0, i).trim() || !/[ \u00A0(«“"،,]/.test(text[i - 1])) continue;
+          if (!re('^[(«“"]?[{L}][{H}]*[{L}]', '').test(text.slice(j))) continue;
+          out.push({ start: i + 1, end: j, repl: '' });
+        }
+        return out;
+      } },
+    { id: 'dot-out', auto: true, no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
         const out = [];
         const closers = new Set(ctx.straightPairs.map(p => p[1]));
@@ -1033,23 +1406,32 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           // English citation style keeps ." inside: the nearest letter before the dot is Latin (… 1990–1996.” or (2012).”)
           const lastLetter = (text.slice(Math.max(0, i - 60), i).match(/[A-Za-z\u0621-\u063F\u0641-\u064A](?=[^A-Za-z\u0621-\u063F\u0641-\u064A]*$)/) || [''])[0];
           if (/[A-Za-z]/.test(lastLetter)) continue;
-          if (c === ')' || c === '»' || c === '”' || (c === '"' && closers.has(i + 1))) {
-            out.push({ start: i, end: i + 1, repl: '' }, { start: i + 2, end: i + 2, repl: '.' });
+          // a straight quote that ends the paragraph closes a quotation even when an inner quote upsets the pairing
+          const lastQuote = c === '"' && new RegExp('^"' + FN + '*[ \\u00A0]*$').test(text.slice(i + 1));
+          if (c === ')' || c === '»' || c === '”' || (c === '"' && (closers.has(i + 1) || lastQuote))) {
+            // قرار بشار (16/11/2026، المقال الثاني): رقم الهامش بعد العلامة يسبق النقطة: عليها."¹ ← عليها"¹.
+            let k = i + 2; while (text[k] === FN) k++;
+            out.push({ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: '.' });
           }
         }
         return out.length ? [{ group: out }] : [];
       } },
-    { id: 'aw-quote', no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
+    { id: 'aw-quote', auto: true, no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
-    { id: 'year-paren', no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
+    { id: 'year-paren', auto: true, no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
       find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
+    { id: 'year-mark', auto: true, no: 19, name: 'حرف (م) و(هـ) بعد السنة', why: 'يلتصق حرف (م) أو (هـ) برقم السنة دون مسافة: 435م، 1427هـ.',
+      find: simple(re('(?<![{D}])([{D}]{3,4})[ \\u00A0]+(?=(?:م|هـ|ه)(?![{LH}]))'), m => m[1]) },
     { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
-        ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text)
+        ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text),
+        // قرار بشار (16/11/2026، المقال الثاني): فماهي ← فما هي، ماقبل ← ما قبل (ولا تُمسّ «ماهية»)
+        ...simple(re('(?<![{LH}])([وف]?)ما(هي|هو|قبل|بعد)(?![{LH}])'), m => m[1] + 'ما ' + m[2])(text)
       ] },
-    { id: 'ma-shadda', no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
-      find: simple(re('(?<=\\s)م[\\u064E]?\\u0651[\\u064E]?ا(?![{LH}])'), () => 'ما') },
+    { id: 'ma-shadda', auto: true, no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
+      // a vocalised «مَّا» belongs to a quoted verse or fully vocalised text (وَآبَاؤُكُم مَّا أَنزَلَ): left alone
+      find: simple(re('(?<=\\s)م\\u0651ا(?![{LH}])'), () => 'ما') },
     { id: 'sun-shadda', auto: true, no: 5, name: 'شدة الحرف الشمسي', word: true, why: 'لا توضع الشدة على الحرف الشمسي بعد (أل) التعريف.',
       find: text => {
         const out = [];
@@ -1059,8 +1441,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           if (m[1] === 'ل' && /^[\u064B-\u065F]*ه/.test(text.slice(m.index + m[0].length - m[2].length))) continue; // اللّه
           const k = m[2].indexOf('\u0651');
           if (k < 0) continue;
-          const pos = m.index + m[0].length - m[2].length + k;
-          out.push({ start: pos, end: pos + 1, repl: '' });
+          // a fully vocalised word (النَّاسِ، السَّمَاوَاتِ in quoted verses and hadith) keeps its shadda; otherwise the short vowel
+          //  typed with the shadda goes too (التَّوحيد ← التوحيد)
+          const rest = (text.slice(m.index + m[0].length).match(re('^[{LH}]*'))[0].match(/[\u064B-\u0650\u0652]/g) || []).length;
+          if (rest + (m[2].length - 1) >= 2) continue;
+          const st = m.index + m[0].length - m[2].length;
+          out.push({ start: st, end: st + m[2].length, repl: m[2].replace(/[\u064E-\u0652]/g, '') });
         }
         return out;
       } },
@@ -1073,19 +1459,30 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           const w = m[0];
           const mm = w.match(/ي([\u064B-\u0650\u0652]*)\u0651([\u064B-\u0650\u0652]*)(ة[\u064B-\u0652]*|ا\u064B?)?$/);
           if (!mm) continue;
+          // a fully vocalised word (الطَّبَرِيِّ، وَالذُّرِّيَّةُ، القَطْعيَّة) is left alone; in unvocalised text the short vowel
+          //  typed with the shadda goes too (الإسلاميَّة ← الإسلامية) and a tanween stays (أخلاقيًّا ← أخلاقيًا)
+          if ((w.slice(0, w.length - mm[0].length).match(/[\u064B-\u0652]/g) || []).length >= 2) continue;
           const bare = w.replace(/[\u064B-\u065F\u0670]/g, '');
           const core = bare.replace(/[ةا]$/, '').replace(/^[وف]?[بكل]?ال/, '').replace(/^[وف]?لل/, '');
           const stem = core.slice(0, -1);
           const short = NISBA_SHORT.has(core) || NISBA_SHORT.has(core.replace(/^[وف]?[بكل]?/, ''));
-          if ((stem.length < 3 && !short) || NISBA_EXCEPT.has(core)) continue;
-          const pos = m.index + w.length - (mm[0].length) + 1 + mm[1].length;
-          out.push({ start: pos, end: pos + 1, repl: '' });
+          if ((stem.length < 3 && !short) || NISBA_EXCEPT.has(core) || NISBA_NOT.has(core.replace(/^[وف]?[بكل]?/, ''))) continue;
+          const from = m.index + w.length - mm[0].length + 1, to = from + mm[1].length + 1 + mm[2].length;
+          const keep = (mm[1] + mm[2]).replace(/[\u064E-\u0652]/g, '');
+          out.push({ start: from, end: to, repl: keep });
         }
         return out;
       } },
     { id: 'tanween', auto: true, no: 6, name: 'موضع تنوين الفتح', word: true, why: 'تنوين الفتح يُكتب على الألف (كتاباً)، وفي المقصورة على الحرف الذي قبلها (معنًى).',
+      // a fully vocalised word (قُرْآنًا، مُتَكَلِّمًا in an unbracketed verse or a vocalised quotation) is left as written
       find: text => [
-        ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text),
+        // بعد الألف والهمزة لا تُكتب ألف التنوين: بناءً، انتهاءً، سواءً (لا: بناءا، بناءًا، بناءاً)؛ ويُترك المثنى «جاءا، شاءا»
+        ...simple(re('(?<![{LH}])([{L}]+)اء[\u064B]?ا[\u064B]?(?![{LH}])'), m => m[1].replace(/^[وف]/, '').length < 2 ? null : m[1] + 'اء\u064B')(text),
+        ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text).filter(e => {
+          if (/اء$/.test(text.slice(0, e.start))) return false;
+          const w = text.slice(0, e.start).match(re('[{LH}]*$'))[0];
+          return (w.match(/[\u064E-\u0650\u0652]/g) || []).length < 2;
+        }),
         ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text)
       ] },
     { id: 'months', auto: true, no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
@@ -1107,7 +1504,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
-    { id: 'tatweel', no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
+    { id: 'tatweel', auto: true, no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
       find: text => [
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
@@ -1115,7 +1512,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
     { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
-      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
+      // «ط: 1427هـ» is a printing year, not an edition number: left alone
+      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])(?!(?<=ط[^{D}]*)[{D}]{3})'), m => m[1]) },
     { id: 'ibid', auto: true, no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
         ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
@@ -1124,7 +1522,13 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       ] },
     { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
-        const out = simple(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'), () => '')(text);
+        // «الخاصة ¹أو»: the space goes from before the mark to after it, so the next word is not glued to it
+        const out = [];
+        for (const m of text.matchAll(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'))) {
+          let k = m.index + m[0].length; while (text[k] === FN) k++;
+          const del = { start: m.index, end: m.index + m[0].length, repl: '' };
+          out.push(/[\p{L}\p{N}]/u.test(text[k] || '') ? { group: [del, { start: k, end: k, repl: ' ' }] } : del);
+        }
         const rx = new RegExp('\\.(' + FN + '+)', 'g');
         let m;
         while ((m = rx.exec(text))) out.push({ group: [{ start: m.index, end: m.index + 1, repl: '' }, { start: m.index + m[0].length, end: m.index + m[0].length, repl: '.' }] });
@@ -1144,14 +1548,20 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           }
           if (fix) out.push({ start: s, end: s + w.length, repl: fix });
         }
+        out.push(...simple(re('(?<![{LH}])([وف]?)(' + [...YA_REV.keys()].join('|') + ')(?![{LH}])', 'g'), m => m[1] + YA_REV.get(m[2]))(text));
         return out;
       } },
+    { id: 'hamza-wasl', auto: true, no: 4, name: 'همزة الوصل في أول المصدر', word: true, why: 'مصادر الأفعال الخماسية والسداسية وأفعالها الماضية تبدأ بهمزة وصل لا تُكتب: الاتجاه، احتواء، انطواء، ادعى.',
+      find: simple(re('(?<![{LH}])((?:[وف]?[بلك]?ال|[وف]?لل|[وفبلك])?)إ(' + WASL_STEMS.map(w => w.slice(1)).join('|') + ')(?=[{LH}]*(?![{LH}]))', 'g'),
+        m => m[1] + 'ا' + m[2]) },
     { id: 'inna', auto: true, no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
     { id: 'shadda-sure', auto: true, no: 4, name: 'الشدة المؤكدة في الأدوات', word: true, quotes: true, why: 'توضع الشدة حيث لا تكون الأداة إلا مشددة: أنّه، إنّها، لكنّهم، إلّا، إنّما، كلّ، ممّا، عمّا، إمّا، ثمّ.',
-      find: text => shaddaCommon(text, true) },
-    { id: 'shadda-common', no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
+      find: text => [...shaddaCommon(text, true),
+        // قرار بشار (16/11/2026، المقال الثاني): الشدة على الألف تنتقل إلى اللام: إلاّ ← إلّا
+        ...simple(re('(?<![{LH}])([وف]?)إلا\u0651(?![{LH}])'), m => m[1] + 'إل\u0651ا')(text)] },
+    { id: 'shadda-common', auto: true, no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
       find: text => shaddaCommon(text, false) },
     { id: 'quote-type', auto: true, no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
       find: (text, ctx) => {
@@ -1165,7 +1575,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           const inner = text.slice(a + 1, b).trim();
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
           if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner) || isName(inner)) continue;
-          const words = inner.split(/\s+/).length;
+          // a quoted saying stays a quotation even when short: «قالا: "نزل القرآن بكل لسان"»، «بأنّ "القرآن يفسر بعضه بعضا"»
+          const pre = text.slice(Math.max(0, a - 30), a).replace(/[\u064B-\u0650\u0652]/g, '');
+          if (kind === '"' && (SAYING.test(pre) || (THAT.test(pre) && inner.split(/\s+/).length >= 3))) continue;
+          // نقاط الحذف تفصل بين كلمتين: «أنا أفكر...إذن أنا موجود» خمس كلمات
+          const words = inner.replace(/(?<=\S)[.…]+(?=\S)/g, ' ').split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
           if (kind === '"' && op === '"') continue;
           out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
@@ -1187,17 +1601,22 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           // a space that would be left at the start or end inside the marks goes with them
           let s0 = a + 1; while (text[s0] === ' ') s0++;
           let e0 = b; while (e0 > s0 && text[e0 - 1] === ' ') e0--;
-          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: '' }, { start: e0, end: b + 1, repl: '' }] });
+          // a mark glued to a whole word keeps the words apart: «الوطن(سورية)» ← «الوطن سورية»، «كانط"مفهوماً» ← «كانط مفهوماً»;
+          //  a one-letter prefix joins the name: «و«هوبز»» ← «وهوبز»
+          const L1 = re('[{LH}]'), prefix = /[وفبلك]/.test(text[a - 1] || '') && !L1.test(text[a - 2] || '');
+          const gapL = !tat && !prefix && L1.test(text[a - 1] || '') ? ' ' : '';
+          const gapR = L1.test(text[b + 1] || '') ? ' ' : '';
+          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: gapL }, { start: e0, end: b + 1, repl: gapR }] });
         }
         return out;
       } },
-    { id: 'names', no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
+    { id: 'names', auto: true, no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of NAMES) out.push(...simple(re('(?<![{LH}])([وف]?[بلك]?)' + fuzzy(bad) + '(?![{LH}])'), m => m[1] + good)(text));
         return out;
       } },
-    { id: 'words', no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
+    { id: 'words', auto: true, no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of WORDS) out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)' + bad), m => m[1] + good)(text));
@@ -1207,9 +1626,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
-    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
+    spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
+    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -1513,6 +1932,19 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   // ---------------------------------------------------------------- XML rebuild
   function rebuild(p, segs, text, edits, ctx) {
     const doc = p.ownerDocument;
+    // قرار بشار (16/11/2026): حذف مسافة زائدة بين كلمة أجنبية وكلمة عربية يحذف المسافة التي في المقطع الأجنبي (اليساري)، وتبقى
+    //  التي في المقطع العربي؛ فمسافة باقية في مقطع يساري تظهر في وورد في الجهة الخطأ، فتبدو «USAID» ملتصقة بالكلمة بعدها
+    const segAt = i => segs.find(s => s.kind === 'text' && s.start <= i && i < s.start + s.text.length);
+    const rtl = s => { const r = s && kids(s.node).find(c => isW(c, 'rPr')); const t = r && kids(r).find(c => isW(c, 'rtl'));
+      return !!t && !/^(0|false|off)$/.test(t.getAttributeNS(W, 'val') || ''); };
+    edits = edits.map(e => {
+      if (e.repl || e.end - e.start !== 1 || text[e.start] !== ' ' || !rtl(segAt(e.start))) return e;
+      for (const k of [e.start - 1, e.end]) {
+        const s = segAt(k);
+        if (text[k] === ' ' && s && !rtl(s) && !edits.some(x => x !== e && x.start <= k && k <= x.end)) return Object.assign({}, e, { start: k, end: k + 1 });
+      }
+      return e;
+    });
     const delAt = new Array(text.length).fill(null);
     const insAt = new Map();
     for (const e of edits) {
@@ -1725,7 +2157,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const rules = [
     { no: 1, title: 'السلامة النحوية والإملائية', status: 'ai',
       text: ['تُراجع النصوص مراجعة دقيقة تضمن سلامتها النحوية وفق القواعد المقرّرة في اللغة العربية، والتثبّت من خلوّها من الأخطاء الإملائية، مع التأكد من صحة الإعراب وسلامة التراكيب اللغوية والأسلوبية.'],
-      tool: 'بعض الأخطاء الشائعة يصحّحها المحرك الآن (الياء المنقوطة، همزة إنّ بعد القول). والباقي، ومنه الأخطاء الطباعية، يأتي مع طبقة الذكاء الاصطناعي.' },
+      tool: 'بعض الأخطاء الشائعة يصحّحها المحرك الآن (الياء المنقوطة، و«حتي» ← «حتى»، همزة إنّ بعد القول، واو العطف المنفصلة). والباقي، ومنه الأخطاء الطباعية، يأتي مع طبقة الذكاء الاصطناعي.' },
     { no: 2, title: 'انسيابية النص وسلامة السياق', status: 'comment',
       text: ['التأكد من انسيابية النصوص وسلامة السياق وإعطائه المعنى الصحيح.'],
       tool: 'ملاحظات المعنى والسياق تظهر تعليقاً للمدقق، ولا يُعدَّل النص آلياً.' },
@@ -1735,18 +2167,19 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 4, title: 'همزات الوصل والقطع، وتشكيل ما يلتبس معناه', status: 'partial',
       text: ['التحقق من سلامة كتابة همزات الوصل والقطع، وتشكيل الكلمات التي قد يتغير معناها بغياب الحركات، مع الاهتمام بوضع الشدّات حيث يجب، وبالأخص في المواضع التي يُؤدي غيابها إلى التباس في المعنى. ويشمل ذلك الكلمات المشتقة، والأفعال.',
         'أمثلة: أصل = أصّل، عبر = عبّر، عبد = عبّد، عَلِم = عَلَّم ...إلخ.'],
-      tool: 'يضع المحرك الشدة في الأدوات الشائعة (إنّ، أنّ، كلّ، إلّا، ممّا، ثمّ، إنّما...)، ومنها (أنّ/إنّ) قبل الضمير والمعرّف بـ(ال) وأسماء الإشارة والظروف، وقبل الأسماء التي لا تكون أفعالاً بأوزانها (المنوّن، وما آخره تاء مربوطة، وتفعيل، وافتعال، وفُعول، وفواعل، وأفعال...)، ولو كان في الكلمة التالية تشكيل (وإنّ كلّ). ويعمل داخل الاقتباسات أيضاً، ويترك (إنْ) الشرطية والنافية و(أنْ) الناصبة للفعل. وما لا يكون إلا مشدداً يُطبَّق تلقائياً عند فتح المستند: (أنّ/إنّ/لكنّ/كأنّ) المتصلة بضمير (أنّه، إنّها، لكنّهم)، وإلّا، وإنّما، وكلّ، وممّا، وعمّا، وإمّا، وثمّ. أما (أنّ/إنّ) قبل كلمة، و(أمّا)، فتبقى اقتراحاً يراجعه المدقق لأنها قد تكون خفيفة. أما همزات الوصل والقطع وتشكيل ما يلتبس فيأتيان مع طبقة الذكاء الاصطناعي.' },
+      tool: 'يضع المحرك الشدة في الأدوات الشائعة (إنّ، أنّ، كلّ، إلّا، ممّا، ثمّ، إنّما...)، ومنها (أنّ/إنّ) قبل الضمير والمعرّف بـ(ال) وأسماء الإشارة والظروف، وقبل الأسماء التي لا تكون أفعالاً بأوزانها (المنوّن، وما آخره تاء مربوطة، وتفعيل، وافتعال، وفُعول، وفواعل، وأفعال...)، ولو كان في الكلمة التالية تشكيل (وإنّ كلّ). ويعمل داخل الاقتباسات أيضاً، ويترك (إنْ) الشرطية والنافية و(أنْ) الناصبة للفعل. وما لا يكون إلا مشدداً يُطبَّق تلقائياً عند فتح المستند: (أنّ/إنّ/لكنّ/كأنّ) المتصلة بضمير (أنّه، إنّها، لكنّهم)، وإلّا (وتنتقل الشدة من الألف إلى اللام: إلاّ ← إلّا)، وإنّما، وكلّ، وممّا، وعمّا، وإمّا، وثمّ. و(أنّ/إنّ) قبل كلمة، و(أمّا)، تُطبَّق تلقائياً أيضاً منذ 16/11 بعد مراجعة 7 آلاف موضع لم يُخطئ فيها المحرك إلا مرة واحدة؛ لأنه يترك (أنْ) قبل الفعل. ومنذ 16/11 يحذف المحرك تلقائياً همزة القطع المكتوبة خطأً في أول المصادر والأفعال الخماسية والسداسية الشائعة (الإتجاه ← الاتجاه، إحتوائه ← احتوائه، إدعى ← ادعى، الإجتماعية ← الاجتماعية)، من قائمة مغلقة فقط، لأن مصادر الرباعي مثل (إنتاج، إتقان، إتلاف، إدراك، إطلاق) همزتها همزة قطع صحيحة. أما باقي همزات الوصل والقطع وتشكيل ما يلتبس فيأتيان مع طبقة الذكاء الاصطناعي.' },
     { no: 5, title: 'لا شدة على الحرف الشمسي ولا على ياء النسبة', status: 'auto',
       text: ['لا تُوضع الشدّة على الحروف الشمسية التي تلي (أل) التعريف في الكتابة، رغم نطقها مشددة، مثل: الضلال، التلال، السماء، الشمس. ولا توضع على ياء النسبة: عراقيّ، مصريّ، إسلاميّ، ...'] },
     { no: 6, title: 'موضع تنوين الفتح', status: 'auto',
-      text: ['التحقق من وضع تنوين الفتح في موضعه الصحيح، بحيث يُكتب على الألف في الكلمات المنتهية بألف ممدودة، لا على الحرف الذي يسبقها. أما في الكلمات المنتهية بألف مقصورة (مثل: "معنًى" أو "هدًى")، فيُكتب التنوين على الحرف الذي يسبق الألف، وليس على الألف المقصورة نفسها.'] },
+      text: ['التحقق من وضع تنوين الفتح في موضعه الصحيح، بحيث يُكتب على الألف في الكلمات المنتهية بألف ممدودة، لا على الحرف الذي يسبقها. أما في الكلمات المنتهية بألف مقصورة (مثل: "معنًى" أو "هدًى")، فيُكتب التنوين على الحرف الذي يسبق الألف، وليس على الألف المقصورة نفسها.'],
+      tool: 'يصحّحه المحرك تلقائياً. والكلمة المنتهية بألف وهمزة لا تُكتب بعدها ألف التنوين: بناءً، انتهاءً، سواءً (لا: بناءا، بناءًا، بناءاً)، ويُترك المثنى (جاءا، شاءا).' },
     { no: 7, title: 'علامات الترقيم ومسافاتها', status: 'auto',
       text: ['استخدام علامات الترقيم بدقة، مثل: النقطة، الفاصلة، الفاصلة المنقوطة، علامات الاقتباس، الاستفهام، والتعجب، ووضعها في أماكنها الصحيحة، مع مراعاة أن تكون ملاصقة للكلمة التي تسبقها، ومفصولة بمسافة واحدة عن الكلمة التي تليها.'],
-      tool: 'تصحيحات المسافات قبل علامات الترقيم وبعدها، والمسافات الزائدة، والفاصلة المنقوطة العربية (؛) تُطبَّق تلقائياً عند فتح المستند، لأنها آلية لا تحتاج إلى رأي، ويستطيع المدقق رفض أي منها.' },
+      tool: 'تصحيحات المسافات قبل علامات الترقيم وبعدها، والمسافات الزائدة، والفاصلة المنقوطة العربية (؛) تُطبَّق تلقائياً عند فتح المستند، لأنها آلية لا تحتاج إلى رأي، ويستطيع المدقق رفض أي منها. ونقاط الحذف ثلاث، تلتصق بالكلمة التي قبلها وتُفصل بمسافة عمّا بعدها (تقهقر..وجرأة ← تقهقر... وجرأة). وواو العطف المنفصلة تُلصق بما بعدها (و تراكم ← وتراكم، و (فينيليوس) ← و(فينيليوس))، إلا الواو في أول الفقرة. وعند حذف مسافة زائدة بين كلمة أجنبية وكلمة عربية تبقى المسافة في الجزء العربي، حتى لا تظهر الكلمة الأجنبية في وورد ملتصقة بما بعدها (USAID المقدمة). ومنذ المقال الثاني (16/11): مسافة بعد النقطتين قبل علامة التنصيص الافتتاحية (بقوله:"اللغة ← بقوله: "اللغة)، ومسافة بعد الفاصلة قبل الرقم (ط2،1980 ← ط2، 1980) إلا في الكسر العشري وفاصل الآلاف (2،5، 12،000)، ومسافة قبل القوس الملتصق بكلمة (سيبويه(عمرو ← سيبويه (عمرو) إلا بعد الحرف الواحد (بـ(، فـ()، والفاصلتان المتتاليتان فاصلة واحدة (لبنان، ،2015 ← لبنان، 2015)، وعلامة الحذف بين قوسين ثلاث نقاط ((....) ← (...))، والمدّة الزائدة في آخر الكلمة قبل علامة الترقيم تُحذف (فقطـ، ← فقط،)، أما المدّة قبل المسافة (سياسيةـ يثير) فتبقى للذكاء الاصطناعي لأنها غالباً شرطة كُتبت بالزر الخطأ.' },
     { no: 8, title: 'الشرطتان والشرطة بين كلمتين أو رقمين', status: 'auto',
       text: ['بالنسبة للجمل المعترضة، والتي عادةً توضع بين شرطتين (– –)، تكون هاتان الشرطتان ملتصقتين بالجملة من اليمين واليسار، وليستا مفصولتين بمسافة، وعلامة الشرطة (–) في لوحة المفاتيح (الكيبورد) تكون في الزر الذي يسبق الرقم (0)، وتستخدم من دون زر (شفت).',
         'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'],
-      tool: 'قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). والشرطتان حول الجملة المعترضة تُصحَّحان تلقائياً أيضاً. والشرطة بعد رقم العنوان أو حرفه في أول الفقرة تُكتب قصيرة ملتصقة به وبعدها مسافة (2- الفرد المسؤول، ب- أما...)، وتُصحَّح تلقائياً، ولا تُعدّ طرفاً في جملة معترضة، ولا تُقترح الشرطتان حول كلمة واحدة في سطر المرجع (بيروت - لبنان، ط1).' },
+      tool: 'قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). والشرطتان حول الجملة المعترضة تُصحَّحان تلقائياً أيضاً. والشرطة بعد رقم العنوان أو حرفه في أول الفقرة تُكتب قصيرة ملتصقة به وبعدها مسافة (2- الفرد المسؤول، ب- أما...)، وتُصحَّح تلقائياً، ولا تُعدّ طرفاً في جملة معترضة، ولا تُقترح الشرطتان حول كلمة واحدة في سطر المرجع (بيروت - لبنان، ط1). والشرطتان الملتصقتان بالكلمات من الجهتين حول عبارة من ثلاث كلمات أو أكثر تُعدّان شرطتي جملة معترضة إذا لم يكن في الفقرة غيرهما (القوانين-سواء بأنفسهم أو من خلال ممثلين لهم-وأن ← القوانين -سواء بأنفسهم أو من خلال ممثلين لهم- وأن)، إلا إذا جاءت الشرطة بين صفتين منسوبتين (تحليلية-تطبيقية). وفي سطر الكلمات المفتاحية تُفصل الكلمات بشرطة قصيرة بين مسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)، ولو كُتبت الشرطة سفلية (لغة _ القرآن _ قريش)، ولا يُمسّ سطر الكلمات المفتاحية الأجنبي. أما الشرطة الواحدة بين كلمتين بمسافة من جهة واحدة (تاريخ الأدب العربي- العصر الجاهلي ← العربي - العصر) فتبقى للذكاء الاصطناعي، لأنها في المقالات تأتي أيضاً بين صفتين (العربية- الإسلامية) وفي الأسماء المركبة وبعد (أولاً-) وفي جملة معترضة نقصت إحدى شرطتيها.' },
     { no: 9, title: 'الشرطة المائلة', status: 'auto',
       text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'],
       tool: 'تُصحَّح تلقائياً عند فتح المستند، ويستطيع المدقق رفض أي تصحيح منها.' },
@@ -1754,7 +2187,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['توحيد استخدام الأقواس وعلامات الاقتباس، بحيث تُستخدم علامة الاقتباس العربية " " للنصوص المقتبسة التي تتطلب توثيقاً أو إحالة مرجعية، سواء أُذكر المصدر في المتن أم في الهامش. أما الأقواس الاعتيادية ( ) فتُخصص للإيضاحات أو الشروحات داخل النص.',
         'ويُراعى –خصوصاً في النصوص المترجمة– الالتزام بما وضعه المترجم من علامات اقتباس أو أقواس، دون تعديل أو حذف، حرصاً على أمانة النقل، وكما في توضيحات النقاط اللاحقة.',
         'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'],
-      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند، والتحويل بين الأقواس وعلامات التنصيص كذلك (القاعدة 13). ولا يلمس المحرك علامة تنصيص ملتصقة بالكلمة من خارجها، لأن ذلك يدل على اقتباس متداخل. أما القوس المقلوب فينتظر قرار المدقق.' },
+      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند، والتحويل بين الأقواس وعلامات التنصيص كذلك (القاعدة 13). ولا يلمس المحرك علامة تنصيص ملتصقة بالكلمة من خارجها، لأن ذلك يدل على اقتباس متداخل. والقوس المقلوب يُصحَّح تلقائياً أيضاً، ومنه المرجع الأجنبي الذي جاء قوساه بعده (Street 2006)) ← (Street 2006)، ولا يُمسّ سطر أجنبي كامل. وإذا كان القوسان مقلوبين معاً قُلبا معاً: ابن منظور) أبو الفضل( ← ابن منظور (أبو الفضل).' },
     { no: 11, title: 'إغلاق الأقواس وعلامات الاقتباس', status: 'auto',
       text: ['الانتباه إلى إغلاق الأقواس الاعتيادية ( ) وعلامات الاقتباس " " عند استخدامها، والتأكد من عدم نسيان أحد طرفيها؛ إذ يُعدّ هذا من أكثر الأخطاء الشكلية شيوعاً التي تؤثر في وضوح النص وسلامة تركيبه.'],
       tool: 'تنبّه الأداة في الشريط السفلي إلى الفقرة التي فيها قوس أو علامة غير مغلقة، ويحدّد المدقق موضع الإغلاق.' },
@@ -1776,7 +2209,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['عند استخدام علامات الاقتباس " " أو الأقواس الاعتيادية ( )، توضع علامة النقطة أو غيرها من علامات الترقيم خارج العلامة الختامية، وليس قبلها، ما لم تكن العلامة جزءاً من النص المقتبس أو المضمَّن.',
         'مثال صحيح: وقال له: "تعال إليّ". (انظر التفاصيل في الملحق).',
         'مثال غير صحيح: وقال له: "تعال إليّ." (انظر التفاصيل في الملحق.)',
-        'ملاحظة: تُستثنى من القاعدة السابقة علامتا الاستفهام والتعجب إذا كانتا جزءاً من الجملة داخل علامات الاقتباس أو الأقواس، فيُوضعان قبل المزدوج الثاني أو القوس الختامي، بينما تُوضع النقطة بعده. مثال: ثم سأله: (هل تريد تناول الطعام؟). قال متعجباً: (يا له من موقف!).'] },
+        'ملاحظة: تُستثنى من القاعدة السابقة علامتا الاستفهام والتعجب إذا كانتا جزءاً من الجملة داخل علامات الاقتباس أو الأقواس، فيُوضعان قبل المزدوج الثاني أو القوس الختامي، بينما تُوضع النقطة بعده. مثال: ثم سأله: (هل تريد تناول الطعام؟). قال متعجباً: (يا له من موقف!).'],
+      tool: 'يطبّقه المحرك تلقائياً. وإذا جاء رقم الهامش بعد العلامة الختامية تأتي النقطة بعد رقم الهامش: عليها."¹ ← عليها"¹. وعلامة التنصيص في آخر الفقرة بعد النقطة علامة ختامية ولو اختلّ ترتيب العلامات بسبب اقتباس داخل اقتباس.' },
     { no: 15, title: 'أسماء الكتب والمجلات والصحف', status: 'ai',
       text: ['تُوضع أسماء الكتب، والمجلات، والصحف بين هلالين ( ) عند ورودها في المتن، مثل: (نهج البلاغة)، (مجلة أخلاق)، (جريدة الحياة).',
         'وفي حال ورد اسم المجلة أو الكتاب بالعربية والأجنبية نضع الاسمين العربي والأجنبي بين ( ).'] },
@@ -1792,14 +2226,16 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 18, title: 'عبارة "أو (...)"', status: 'auto',
       text: ['في حالة وجود مثل هكذا عبارات: "أو (متحدة)"، يتم تعديلها لتكون: أو (متحدة).'] },
     { no: 19, title: 'الأعوام لا توضع بين قوسين', status: 'auto',
-      text: ['لا توضع أرقام الأعوام بين قوسين: وُلد عام 1900م. لكن نضع القوسين في الحالة التالية: وُلد عام (1900م–1340هـ) أو في الحالة: كان الملا صدرا (1572م–1641م) مقيماً في ....'] },
+      text: ['لا توضع أرقام الأعوام بين قوسين: وُلد عام 1900م. لكن نضع القوسين في الحالة التالية: وُلد عام (1900م–1340هـ) أو في الحالة: كان الملا صدرا (1572م–1641م) مقيماً في ....'],
+      tool: 'يزيل المحرك القوسين عن رقم العام بعد (عام) و(سنة) تلقائياً. ويُلصق حرف (م) أو (هـ) برقم السنة إذا فصلته عنه مسافة: 435 م ← 435م، 1418 هـ ← 1418هـ. ولا يضيف المحرك (م) حيث لم يكتبها المؤلف.' },
     { no: 20, title: 'توحيد أسماء الأعلام والأماكن', status: 'partial',
       text: ['التحقق من توحيد أسماء الأعلام والأماكن في النص؛ إذ قد يَرِد الاسم الواحد بأكثر من صورة داخل المقال أو الكتاب، رغم الإشارة إلى المعنى نفسه، مثل: (غورباتشوف) و(غورباتشيف)، أو (ناجورني كاراباخ) و(نكورني كاراباغ)، أو (أمريكا) و(أميركا). يُراعى اعتماد صيغة واحدة ثابتة في جميع المواضع.'],
-      tool: 'يقترح المحرك تصحيح الأعلام والأماكن المسجّلة في القاموس إلى صيغتها المعتمدة بقرار المركز، ولا يمكن إطفاء ذلك. يصحّح الكلمة نفسها فقط ولا يكمّل الاسم: يبقى «كانط» كما كتبه المؤلف ولا يصير «إيمانويل كانط». أما توحيد الأعلام غير المسجّلة داخل النص فيأتي مع طبقة الذكاء الاصطناعي.' },
+      tool: 'يصحّح المحرك تلقائياً الأعلام والأماكن المسجّلة في القاموس إلى صيغتها المعتمدة بقرار المركز، ولا يمكن إطفاء ذلك. يصحّح الكلمة نفسها فقط ولا يكمّل الاسم: يبقى «كانط» كما كتبه المؤلف ولا يصير «إيمانويل كانط». أما توحيد الأعلام غير المسجّلة داخل النص فيأتي مع طبقة الذكاء الاصطناعي.' },
     { no: 21, title: 'أسماء الأشهر', status: 'auto',
       text: ['في كتابة أسماء الأشهر، يُعتمد الأسلوب المزدوج، بذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: (تموز/ يوليو) و(شباط/ فبراير)، ولا تُستخدم تسميات أخرى معتمدة في بعض الدول العربية كبدائل. أما النص المترجَم فيبقى كما الأصل.'] },
     { no: 22, title: 'فصل (ما) و(لا) عمّا بعدهما', status: 'auto',
-      text: ['يُراعى الفصل بين (ما) النافية أو (ما) التي تُستعمل كاسم موصول، وبين الكلمة التي تليها، مثل: (ما زال)، (ما دام)، ولا تُكتب ملاصقة لها (مثلاً: "مازال" خطأ). وكذلك الأمر في استعمال (لا) النافية مع ما بعدها، فتُكتب مفصولة: (لا بد)، (لا زال)، (لا سيما)، ولا تُكتب موصولة (مثل: "لابد" أو "لازال")، فكلها أخطاء شائعة ينبغي تجنّبها.'] },
+      text: ['يُراعى الفصل بين (ما) النافية أو (ما) التي تُستعمل كاسم موصول، وبين الكلمة التي تليها، مثل: (ما زال)، (ما دام)، ولا تُكتب ملاصقة لها (مثلاً: "مازال" خطأ). وكذلك الأمر في استعمال (لا) النافية مع ما بعدها، فتُكتب مفصولة: (لا بد)، (لا زال)، (لا سيما)، ولا تُكتب موصولة (مثل: "لابد" أو "لازال")، فكلها أخطاء شائعة ينبغي تجنّبها.'],
+      tool: 'يفصل المحرك تلقائياً (ما زال، ما دام، لا بد، لا زال، لا سيما)، ومنذ 16/11: (ما هي، ما هو، ما قبل، ما بعد): فماهي ← فما هي، مابعد الحداثة ← ما بعد الحداثة، ولا يلمس «ماهية». أما (لا) و(ما) الملتصقتان بالفعل (لايضر، مايريد) فمع طبقة الذكاء الاصطناعي.' },
     { no: 23, title: 'اختصار الصلاة والسلام', status: 'decision',
       text: ['تُكتب عبارة (صلى الله عليه وآله) و(عليه السلام) بصيغة مختصرة كـ(مخطوطة) في المتن، ما لم تردا ضمن نص مقتبس من كتاب أو حديث شريف، ففي هذه الحالة تُتركان كما وردتا في المصدر الأصلي دون تغيير.'],
       tool: 'لا تُطبَّق: قرار رئيس المدققين أن تُترك الصلوات كما كتبها الكاتب أو المترجم.' },
@@ -1851,7 +2287,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '• العناوين داخل المقال: العنوان الرئيس الداخلي: حجم الخط (13)، ونوع الخط (Arabic UI Display Heavy). والعنوان الفرعي الأول (التابع له مباشرة): حجم الخط (12)، ونفس نوع الخط (Arabic UI Display Heavy). أما العنوان الفرعي الثاني (التابع للفرعي الأول): فحجم الخط (16)، ونوعه (Tajdid Bold).',
         '• الهوامش السفلية: نوع الخط: (Tajdid Regular) بحجم (12).',
         '• نقطة بعد (المترجم).'],
-      tool: 'يطبّق المحرك كتابة اللقب العلمي بمسافة (أ. د.) تلقائياً عند فتح المستند. أما فحص الخطوط وأحجامها فمؤجّل بطلب المركز.' }
+      tool: 'يطبّق المحرك كتابة اللقب العلمي بمسافة (أ. د.) تلقائياً عند فتح المستند، ومسافة بعد «د.» قبل الاسم (د.راقية ← د. راقية)، ولا يلمس «د.ت» و«د.ط» في المراجع. أما فحص الخطوط وأحجامها فمؤجّل بطلب المركز.' }
   ];
 
   // قرارات «القرارات المعتمدة في التدقيق اللغوي»، أجاب عنها رئيس المدققين، وأكّدها بشار في 5 تشرين الثاني/ نوفمبر 2026
@@ -1867,8 +2303,12 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { rules: [30], title: 'ترتيب التوثيق', text: 'يُتّبع ترتيب الدليل في توثيق الكتب، وتُعدَّل قواعد النشر لتوافقه.', effect: 'مع القاعدة 30 المؤجّلة.' },
     { rules: [31], title: 'سطر الكاتب والمترجم', text: 'يبقى الشكل الحالي في المجلة، وتُكتب الصفات (إعداد، مراجعة...) كما وردت في كل مقال.', effect: 'لا يحتاج إلى تعديل في المحرك.' },
     { rules: [20], title: 'أسماء المفكرين والعلماء الغربيين', text: 'يرد اسم المفكر أو العالم الغربي بالعربية والإنجليزية مرة واحدة في بداية المقالة: كانط Kant، وإذا تكرر بعد ذلك يُذكر الاسم العربي وحده دون الإنجليزي. ويتكرر الاسم كما ذكره المؤلف فقط: إذا كتب «كانط» بقي «كانط»، ولا يُكتب «إيمانويل كانط». قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'لا يكمّل المحرك الأسماء ولا يضيف إليها. أما حذف الاسم الإنجليزي المكرر فيأتي مع طبقة الذكاء الاصطناعي.' },
-    { rules: [20], title: 'صيغ الأعلام والأماكن والمصطلحات', text: 'اعتمد المركز صيغة واحدة لكل علم ومكان ومصطلح ورد بأكثر من صيغة في المقالات، ومنها: حرف G الأجنبي يُكتب غيناً (هايدغر، هيغل، فتغنشتاين، غادامر، براغماتية، لوغوس)، وأمريكا، وأوروبا، وإنجليزي، وسوريا، وبنثام، وتوما الإكويني. وتُترك «إتيقا» و«إيتيقا» كما اختارها المؤلف، وتبقى «ما وراء الأخلاق» كما هي، ولا تُوحَّد «الطاوية» و«التاو». قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'الصيغ كلها في القاموس، ويقترح المحرك تصحيحها.' },
+    { rules: [20], title: 'صيغ الأعلام والأماكن والمصطلحات', text: 'اعتمد المركز صيغة واحدة لكل علم ومكان ومصطلح ورد بأكثر من صيغة في المقالات، ومنها: حرف G الأجنبي يُكتب غيناً (هايدغر، هيغل، فتغنشتاين، غادامر، براغماتية، لوغوس)، وأمريكا، وأوروبا، وإنجليزي، وسوريا، وبنثام، وتوما الإكويني. وتُترك «إتيقا» و«إيتيقا» كما اختارها المؤلف، وتبقى «ما وراء الأخلاق» كما هي، ولا تُوحَّد «الطاوية» و«التاو». قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'الصيغ كلها في القاموس، ويصحّحها المحرك تلقائياً.' },
+    { rules: [17, 20], title: 'أعلام ومصطلحات جديدة من تجربة 98 مقالة', text: 'أضاف المركز إلى القاموس 70 علماً متكرراً في المقالات (منها: محمد شحرور، الشافعي، سيد قطب، ابن عاشور، إيزوتسو، دريدا، تشارلز تايلور) و23 مصطلحاً، واعتمد صيغاً لأعلام وأماكن وردت بأكثر من صيغة: كارل أتو أبل، ميكيافيلي، تايلور، ديفيد، ريتشارد، ستيوارت، صاموئيل، إيريغاري، أوروبا، إندونيسيا، إيرلندا. ويبقى اسم السفر في الكتاب المقدس «صموئيل» (سفر صموئيل، صموئيل الأول، صموئيل الثاني). قرار بشار في 16 تشرين الثاني/ نوفمبر 2026.', effect: 'يصحّح المحرك الصيغ الأخرى إليها تلقائياً، ويزيل الأقواس وعلامات التنصيص عن هذه الأعلام.' },
     { rules: [4, 5, 6, 8, 13, 17, 21, 22, 29], title: 'التصحيحات التلقائية', text: 'يطبّق المحرك تلقائياً عند فتح المستند ما ثبت أنه صحيح في كل حالاته فقط، ويبقى الملتبس اقتراحاً للمدقق ثم لطبقة الذكاء الاصطناعي. والمعيار قياس كل قاعدة على المقالات المدققة بالدليل الجديد. صار تلقائياً بهذا القياس: الياء المنقوطة، وفصل (ما) و(لا)، وكسر همزة إنّ بعد القول، وتنوين الفتح، وشدة الحرف الشمسي وياء النسبة، والشرطتان حول الجملة المعترضة، ونوع علامة الاقتباس، وأسماء الأشهر، و(المصدر نفسه) و(مصدر سابق)، والأقواس حول الأعلام، والشدة المؤكدة (أنّه، إلّا، إنّما، كلّ، ثمّ...). قرار بشار في 12 تشرين الثاني/ نوفمبر 2026.', effect: 'يبقى كل تصحيح تلقائي ظاهراً وقابلاً للرفض، ولكل قاعدة زر «تلقائي» في صفحة «تشغيل القواعد».' },
+    { rules: [4, 5, 6, 10, 13, 14, 17, 18, 19, 20, 24, 26, 29], title: 'المحرك كله تلقائي بعد مراجعة 50 ألف تصحيح', text: 'راجعنا كل تصحيحات المحرك على 98 مقالة مدققة (نحو 50 ألف تصحيح)، وأصلحنا ما ظهر فيها من أخطاء، ثم صارت قواعد المحرك كلها تلقائية تُطبَّق عند فتح المستند، وتكون طبقة الذكاء الاصطناعي هي الخطوة الأخيرة. وما خالف فيه المدققون الدليلَ (الفاصلة المنقوطة قبل لأنّ، والشرطة بين الأرقام، والشرطة بعد رقم العنوان، والمسافة بعد الشرطة المائلة) يُطبَّق كما في الدليل. ومما أُصلح: الكلمة المشكولة كلها (آية أو حديث أو نص قديم مشكول) تُترك كما هي فلا تُحذف شدتها ولا يُنقل تنوينها (النَّاسِ، قُرْآنًا)، ومع حذف الشدة تُحذف الحركة التي كُتبت معها (الإسلاميَّة ← الإسلامية)، والمسافة قبل رقم الهامش تنتقل إلى ما بعده (الخاصة ¹أو ← الخاصة¹ أو)، و(السفلى، الوسطى، العظمى...) لا تُغيَّر ياءً، والقول المنقول بعد (قال، يقول، قوله، قيل) أو بعد (بأنّ) إذا كان جملة يبقى بين علامتي التنصيص ولو كان قصيراً، و(ط: 1427هـ) سنة طبع لا رقم طبعة، والتاريخان (1384هـ - 1964م) لا تُعدّ شرطتهما جملة معترضة، وإزالة القوسين عن العلم الملتصق بكلمة تترك مسافة (الوطن(سورية) ← الوطن سورية). قرار بشار في 16 تشرين الثاني/ نوفمبر 2026.', effect: 'لكل قاعدة زر «تلقائي» في صفحة «تشغيل القواعد»، ويبقى كل تصحيح ظاهراً وقابلاً للرفض.' },
+    { rules: [1, 4, 6, 7, 8, 13, 19], title: 'التدقيق اليدوي بعد المحرك: المقال الأول', text: 'دقّق بشار يدوياً مقالاً بعد المحرك (مراجعة كتاب التاريخ الفكري والسياسي للإعلان العالمي لحقوق الإنسان)، فأُضيف إلى المحرك: التنوين بعد الألف والهمزة (بناءً)، وهمزة الوصل في المصادر الخماسية والسداسية الشائعة (الاتجاه، ادعاء، اتفاق)، وواو العطف المنفصلة، و(حتي ← حتى)، وإلصاق (م) و(هـ) بالسنة، ونقاط الحذف الثلاث، والشرطتان الملتصقتان حول الجملة المعترضة، والشرطة بين مسافتين في سطر الكلمات المفتاحية، والمسافة بعد الكلمة الأجنبية في وورد. وتُركت لطبقة الذكاء الاصطناعي: توحيد علامات الكلمات المتجاورة («الأحرار» و«العبيد»)، وفصل (لا) و(ما) الملتصقتين بالفعل (لايضر، مايريد)، و(الأخاء ← الإخاء)، وفصل (أو) الملتصقة (أومجتمعين)، و(أنّ) قبل كلمة ملتبسة (إلى أن أساس). ويُترك العام بين قوسين بعد (الآن) كما هو: (1930). قرار بشار في 16 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك تلقائياً، بعد اختباره على 98 مقالة مدققة.' },
+    { rules: [4, 7, 8, 10, 14, 22, 31], title: 'التدقيق اليدوي بعد المحرك: المقال الثاني', text: 'دقّق بشار يدوياً مقال «هل نزل القرآن بلغة قريش» بعد المحرك، فأُصلح خطآن للمحرك: القوسان المقلوبان معاً كان يقلب أحدهما فقط، والفاصلتان (، ،) كان يجعلهما (،،). وأُضيف: مسافة بعد النقطتين قبل علامة التنصيص، وبعد الفاصلة قبل الرقم، وقبل القوس الملتصق بكلمة، ورقم الهامش قبل النقطة بعد علامة التنصيص، وإلاّ ← إلّا، وما هي وما قبل وما بعد، ود. قبل الاسم، و(....) ← (...)، وسطر الكلمات المفتاحية بالشرطة السفلية، والمدّة قبل علامة الترقيم. وتُركت لطبقة الذكاء الاصطناعي: التصحيح داخل الاقتباسات (فلابد، اللهجيّة، التّفاعل)، فطبقة الذكاء الاصطناعي تقوم بالتعديلات الأساسية فقط وحصراً داخل الاقتباس؛ والآيات (﴿ ﴾ وتوثيقها)؛ والشدة الخاطئة من الكاتب (لكنّ حافظت، بعضّ)؛ ونقل علامة التنصيص حول اسم الكتاب؛ وعلامات الكلمات المتجاورة؛ والشرطة الواحدة بين كلمتين (العربي - العصر). قرار بشار في 16 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك تلقائياً، بعد اختباره على 98 مقالة مدققة.' },
     { rules: [19], title: 'حرف (م) بعد السنة الميلادية', text: 'إذا كان النص يتحدث عن السنة الميلادية تُوضع (م) بعد رقم السنة، و(هـ) و(م) معاً إذا ذُكرت السنتان.', effect: 'بانتظار جواب الإدارة عن الحالات التي يشملها، ولا يطبّقه المحرك بعد.', pending: true }
   ];
 
@@ -1901,6 +2341,10 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     set(k, v) { try { localStorage.setItem('tajdid-' + k, JSON.stringify(v)); } catch (e) {} } };
   const st = { name: '', buf: null, sample: false, paras: [], byKey: new Map(), gid: 0, cat: 'all', show: 'pending', sel: null, undo: [], redo: [], editing: null, warnAt: 0,
     off: new Set(store.get('off', [])), autoSet: store.get('auto', {}), noHarakat: false, hideAcc: true };
+  // the signed-in user; rule switches and the dictionary are set by the guide admin only
+  let me = null;
+  const isAdmin = () => !!me && me.role === 'admin';
+  const LOCK = ' disabled title="يحددها مسؤول الدليل للجميع"';
   // Purely mechanical rules (auto: true in the engine) are accepted on their own when a document is opened.
   // The guide page can switch any rule to automatic or manual; only the choices that differ from the default are stored.
   const isAuto = id => id in st.autoSet ? st.autoSet[id] : !!(E.RULES.find(r => r.id === id) || {}).auto;
@@ -2545,6 +2989,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     'tatweel': ['ال Ethics', 'الـ Ethics'], 'page': ['ص 22', 'ص22'], 'abbr': ['ط 2', 'ط2'], 'ibid': ['المرجع نفسه، مرجع سابق', 'المصدر نفسه، مصدر سابق'],
     'ya-dots': ['فى كتابه التى ألفها', 'في كتابه التي ألفها'], 'inna': ['قال أن الضمير فطري', 'قال إنّ الضمير فطري'],
     'shadda-sure': ['إنه، وكل إنسان، إلا', 'إنّه، وكلّ إنسان، إلّا'], 'shadda-common': ['إن الضمير', 'إنّ الضمير'], 'quote-type': ['قال "الضمير صوت" وقال «الضمير صوت داخلي لا يخطئ»', 'قال (الضمير صوت) وقال "الضمير صوت داخلي لا يخطئ"'],
+    'hamza-wasl': ['الإتجاه، إدعى', 'الاتجاه، ادعى'], 'waw-space': ['و تراكم الجهود', 'وتراكم الجهود'], 'ellipsis': ['تقهقر..وجرأة', 'تقهقر... وجرأة'],
+    'year-mark': ['عام 435 م', 'عام 435م'], 'comma-double': ['لبنان، ،2015', 'لبنان، 2015'], 'title-d': ['د.راقية', 'د. راقية'], 'tatweel-end': ['قبيحة فقطـ، والخلق', 'قبيحة فقط، والخلق'], 'dash-list': ['الأخلاق- الفضيلة-العدالة- الدين', 'الأخلاق - الفضيلة - العدالة - الدين'],
     'title-ad': ['أ.د. أحمد', 'أ. د. أحمد'], 'words': ['المسئول', 'المسؤول'], 'name-marks': ['"بيبر"', 'بيبر']
   };
   // ---------------- guide page: the centre's rules with their status in the tool, approved decisions, preferred words,
@@ -2573,8 +3019,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const extras = () => optRules().filter(r => !r.no);
   const decOf = no => G.decisions.filter(d => d.rules.includes(no));
   const ruleHay = r => [r.no, r.title, ...r.text, r.tool || '', ...engineOf(r.no).map(e => e.name + ' ' + e.why), ...decOf(r.no).map(d => d.title + ' ' + d.text)].join(' ');
-  const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'} aria-label="تشغيل ${esc(r.name)}">`;
-  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : ''} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
+  const swHTML = r => `<input type="checkbox" class="switch" data-rule="${r.id}" ${st.off.has(r.id) ? '' : 'checked'}${isAdmin() ? '' : LOCK} aria-label="تشغيل ${esc(r.name)}">`;
+  const autoSwHTML = r => `<input type="checkbox" class="switch" data-autorule="${r.id}" ${isAuto(r.id) ? 'checked' : ''}${st.off.has(r.id) ? ' disabled' : isAdmin() ? '' : LOCK} aria-label="تطبيق ${esc(r.name)} تلقائياً">`;
   const autoMark = r => isAuto(r.id) ? ' <span class="tag auto-tag" title="تُطبَّق تلقائياً عند فتح المستند، ويستطيع المدقق رفضها">تلقائي</span>' : '';
   const exHTML = id => { const ex = EX[id]; return ex ? `<del>${esc(ex[0])}</del><span class="arr">←</span><ins>${esc(ex[1])}</ins>` : ''; };
   function engTable(list) {
@@ -2592,7 +3038,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   }
   function ruleHTML(r) {
     const eng = engineOf(r.no), decs = decOf(r.no);
-    return `<section class="g-rule" id="g-rule-${r.no}"><header><span class="g-no">${r.no}</span><h2>${hl(r.title)}</h2><span class="g-st s-${r.status}">${ST[r.status]}</span></header>
+    return `<section class="g-rule" id="g-rule-${r.no}"><header><span class="g-no">${r.no}</span><h2>${hl(r.title)}</h2><span class="g-st s-${r.status}">${ST[r.status]}</span><button type="button" class="g-chip g-prop" data-prop="${r.no}">${isAdmin() ? 'سجّل تعديلاً' : 'اقترح تعديلاً'}</button></header>
       <div class="g-text">${textHTML(r.text)}</div>
       ${r.tool ? `<div class="g-tool"><b>في الأداة:</b><span>${hl(r.tool)}</span></div>` : ''}
       ${decs.map(d => `<div class="g-dec"><b>قرار معتمد · ${hl(d.title)}:</b> ${hl(d.text)}${d.pending ? ' <b>(بانتظار الإدارة)</b>' : ''}</div>`).join('')}
@@ -2630,8 +3076,9 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       return rows ? `<h3 class="c-${cat}"><span class="dot"></span>${CATS[cat]}</h3><table class="otable"><thead><tr><th>القاعدة</th><th>الشرح</th><th>مثال</th><th>تشغيل</th><th title="تُقبل تصحيحاتها وحدها عند فتح المستند">تلقائي</th></tr></thead><tbody>${rows}</tbody></table>` : '';
     }).join('');
     return `<div class="opts-h g-tools"><p>${on.toLocaleString('ar')} من ${rs.length.toLocaleString('ar')} قاعدة مفعّلة. القاعدة المطفأة لا يقترح المحرك تصحيحاتها، ويُعاد فحص المستند المفتوح عند الرجوع إلى المحرر.
-      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يُحفظ الاختيار في هذا المتصفح.</p>
-      <button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button></div>
+      والقاعدة «التلقائية» (${nAuto.toLocaleString('ar')} الآن) تُقبل تصحيحاتها وحدها عند فتح المستند، ويرى المدقق عددها فوق قائمة التصحيحات ويستطيع رفض أي منها أو التراجع عنها كلها، وتظهر في وورد المتتبَّع تعديلاً بلا تعليق. يسري تغيير «تلقائي» على المستندات عند فتحها، لا على ما فيه قرار سابق. يحدد مسؤول الدليل هذه الإعدادات للجميع.</p>
+      ${isAdmin() ? `<button class="btn" type="button" id="optsAllOn"${st.off.size ? '' : ' disabled'}>تشغيل الكل</button><button class="btn" type="button" id="autoDefault"${Object.keys(st.autoSet).length ? '' : ' disabled'}>التلقائي الافتراضي</button>` : ''}</div>
+      ${isAdmin() ? '' : '<p class="sw-lock">يحدد مسؤول الدليل تشغيل القواعد وتلقائيتها لكل المدققين، فهي معروضة هنا للاطلاع فقط.</p>'}
       <div class="opts-b">${body || '<div class="g-empty">لا توجد قاعدة تطابق البحث.</div>'}</div>`;
   }
   function renderGuide() {
@@ -2666,10 +3113,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     if (sf) { gs.sf = sf.dataset.sf; renderGuide(); return; }
     const rg = ev.target.closest('[data-rule-go]');
     if (rg) { const no = +rg.dataset.ruleGo; gs.q = ''; $('gQ').value = ''; gs.sf = 'all'; gTab('rules'); requestAnimationFrame(() => gGo(no ? 'g-rule-' + no : 'g-extra')); return; }
+    const pr = ev.target.closest('[data-prop]');
+    if (pr) { openPropose('rule', +pr.dataset.prop); return; }
+    if (!isAdmin()) return;
     if (ev.target.id === 'autoDefault') { st.autoSet = {}; store.set('auto', {}); renderGuide(); return; }
     if (ev.target.id === 'optsAllOn') { if (!st.off.size) return; st.off.clear(); store.set('off', []); optsDirty = true; renderGuide(); }
   });
   $('gWrap').addEventListener('change', ev => {
+    if (!isAdmin()) { renderGuide(); return; }
     const aid = ev.target.dataset.autorule;
     if (aid) {
       const def = !!(E.RULES.find(r => r.id === aid) || {}).auto;
@@ -2691,7 +3142,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   const dDate = s => s ? new Date(s + 'T12:00:00').toLocaleDateString('ar-SY-u-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
   const dHit = s => !dsx.q || gNorm(s).includes(gNorm(dsx.q));
   function dHl(s) { const q = gs.q; gs.q = dsx.q; const out = hl(s); gs.q = q; return out; }
-  const D_NOTE = '<p class="g-intro d-foot">يُعدَّل القاموس الآن بطلب من مسؤول الدليل، فيصل التعديل إلى كل المدققين مع تحديث الأداة. واقتراح الإضافة من داخل الأداة واعتمادها من المسؤول يأتيان مع الحسابات.</p>';
+  const D_NOTE = () => `<p class="g-intro d-foot">${isAdmin() ? 'ما تضيفه بزر «إضافة إلى القاموس»، وما تعتمده من اقتراحات المدققين، يُضاف إلى القاموس فوراً، ويطبّقه المحرك على النصوص بعد إعادة فتح الأداة.' : 'لاقتراح كلمة أو علم أو مصطلح أو استثناء، استعمل زر «اقترح إضافة»، فيصل الاقتراح إلى مسؤول الدليل. وترى قراره في صفحة «الحساب».'}</p>`;
   // a rejected correction, read back from a saved document: the whole word before and after it
   function rejectedWords() {
     const LW = /[ء-يً-ٰٟـ]/;
@@ -2742,7 +3193,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
           : `<div class="g-empty">${DCT.exceptions.length ? 'لا توجد كلمة تطابق البحث.' : 'لا توجد استثناءات بعد.'}</div>`}` },
     rej: {
       list: () => rejectedWords().filter(o => dHit(o.before + ' ' + o.after + ' ' + o.rule.name)),
-      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فأرسله إلى مسؤول الدليل ليُضاف إلى الاستثناءات. لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
+      html: list => `<p class="g-intro">كل تصحيح رُفض مرتين أو أكثر، من المستندات المحفوظة في هذا المتصفح. إن كان المحرك يخطئ فيه، فاقترحه استثناءً بزر «اقترح إضافة». لا يظهر هنا ما رُفض مرة واحدة، ولا تصحيحات الترقيم والمسافات.</p>
         ${list.length ? dTable(['الكلمة في النص', 'تصحيح المحرك', 'القاعدة', 'رُفض', 'أسباب الرفض'], list.map(o => `<tr><td class="w">${dHl(o.before)}</td><td class="w bad">${dHl(o.after)}</td><td class="src">${esc(o.rule.name)}${o.rule.no ? ' (القاعدة ' + o.rule.no + ')' : ''}</td><td class="src" title="${esc([...o.docs.values()].join('\n'))}">${o.n === 2 ? 'مرتان' : o.n.toLocaleString('ar') + ' مرات'} ${o.docs.size === 1 ? 'في مستند واحد' : o.docs.size === 2 ? 'في مستندين' : 'في ' + o.docs.size.toLocaleString('ar') + ' مستندات'}</td><td class="src">${o.reasons.map(esc).join('<br>') || '—'}</td></tr>`))
           : `<div class="g-empty">${dsx.q ? 'لا يوجد تصحيح يطابق البحث.' : 'لم يُرفض أي تصحيح مرتين بعد.'}</div>`}` }
   };
@@ -2751,7 +3202,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const lists = {};
     for (const k of Object.keys(D_TABS)) lists[k] = D_TABS[k].list();
     $('dTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === dsx.tab)); b.querySelector('b').textContent = lists[b.dataset.t].length.toLocaleString('ar'); });
-    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE;
+    $('dWrap').innerHTML = D_TABS[dsx.tab].html(lists[dsx.tab]) + D_NOTE();
   }
   function dTab(t) { dsx.tab = t; store.set('dictTab', t); renderDict(); $('dictBody').scrollTo({ top: 0, behavior: 'instant' }); }
   function openDictAt(t) { dsx.q = ''; $('dQ').value = ''; dsx.tab = t; store.set('dictTab', t); setView('dict'); }
@@ -2782,7 +3233,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   })();
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   const docs = new Map();
-  const ds = { q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
+  const ds = { owner: 'all', q: '', status: 'all', date: 'all', sort: store.get('docsSort', 'updated'), renaming: null, delId: null };
   const newId = () => 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const docState = () => st.paras.map(p => ({ key: p.key, base: p.base, manual: p.manual, g: p.groups.filter(g => g.status !== 'pending' || g.reason || g.auto).map(g => g.auto ? [sig(g), g.status, g.reason, 1] : [sig(g), g.status, g.reason]) }));
   function docStats() {
@@ -2806,7 +3257,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   ['cards', 'pop'].forEach(id => $(id).addEventListener('input', autosave));
 
   async function openDoc(id) {
-    const rec = docs.get(id); if (!rec) return;
+    const rec = docs.get(id); if (!rec || !canSee(rec)) return;
     if (st.docId && st.docId !== id) { commitDirty(); await saveNow(); }
     const f = await DB.get('files', id);
     if (!f) { say('ملف هذا المستند غير موجود في المتصفح.', true); return; }
@@ -2815,7 +3266,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     st.docId = id; st.savedStr = JSON.stringify(docState());
     Object.assign(rec, { opened: Date.now(), stats: docStats() });
     DB.put('docs', rec).catch(() => {});
-    store.set('lastDoc', id);
+    store.set(uKey('lastDoc'), id);
     setView('editor');
   }
   async function addFiles(files, openOne) {
@@ -2827,7 +3278,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       try {
         const buf = await f.arrayBuffer(), now = Date.now();
         await E.loadDocx(JSZip, buf.slice(0), opts(), xml); // يتأكد أن الملف يُقرأ قبل حفظه
-        const rec = { id: newId(), name: f.name, sample: false, size: f.size, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        const rec = { id: newId(), owner: me.id, name: f.name, sample: false, size: f.size, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
         await DB.put('files', { id: rec.id, buf }); await DB.put('docs', rec);
         docs.set(rec.id, rec); added.push(rec);
       } catch (e) { say('تعذّرت قراءة الملف «' + f.name + '»: ' + (e && e.message || e), true); }
@@ -2868,7 +3319,14 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     del: '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></svg>'
   };
   function renderDocs() {
-    const all = [...docs.values()], n = s => s.toLocaleString('ar');
+    const adm = isAdmin(), all = [...docs.values()].filter(r => adm ? ds.owner === 'all' || r.owner === ds.owner : mine(r)), n = s => s.toLocaleString('ar');
+    $('docsOwnerF').hidden = !adm;
+    if (adm) {
+      const owners = AC.users().filter(u => u.id === me.id || [...docs.values()].some(r => r.owner === u.id));
+      if (ds.owner !== 'all' && !owners.some(u => u.id === ds.owner)) ds.owner = 'all';
+      $('docsOwner').innerHTML = '<option value="all">كل المدققين</option>' + owners.map(u => `<option value="${u.id}">${esc(u.id === me.id ? (u.name || u.email) + ' (أنت)' : u.name || u.email)}</option>`).join('');
+      $('docsOwner').value = ds.owner;
+    }
     $('docsCount').textContent = all.length ? countWord(all.length) : '';
     const byDate = all.filter(inDate), q = norm(ds.q.trim());
     const byQ = q ? byDate.filter(r => norm(r.name).includes(q)) : byDate;
@@ -2885,7 +3343,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       return;
     }
     if (!list.length) { box.innerHTML = '<div class="docs-empty">لا توجد مستندات تطابق البحث أو التصفية.</div>'; return; }
-    box.innerHTML = '<table class="dtable"><thead><tr><th class="c-star"><span hidden>تثبيت</span></th><th class="c-name">الاسم</th><th>الحالة</th><th class="c-prog">التقدّم</th><th>الكلمات</th><th>أُضيف</th><th>آخر تعديل</th><th class="c-act"></th></tr></thead><tbody>' +
+    box.innerHTML = '<table class="dtable"><thead><tr><th class="c-star"><span hidden>تثبيت</span></th><th class="c-name">الاسم</th>' + (adm ? '<th>المدقق</th>' : '') + '<th>الحالة</th><th class="c-prog">التقدّم</th><th>الكلمات</th><th>أُضيف</th><th>آخر تعديل</th><th class="c-act"></th></tr></thead><tbody>' +
       list.map(r => {
         const s = statusOf(r), t = r.stats, dec = t ? t.accepted + t.rejected : 0, pct = t && t.total ? Math.round(dec / t.total * 100) : (t ? 100 : 0);
         const name = ds.renaming === r.id
@@ -2895,6 +3353,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         return `<tr data-id="${r.id}" class="${r.id === st.docId ? 'cur' : ''}">
           <td class="c-star"><button type="button" class="star" data-act="pin" aria-pressed="${!!r.pinned}" title="${r.pinned ? 'إلغاء التثبيت' : 'تثبيت في الأعلى'}">${ICO.star}</button></td>
           <td class="c-name"><div class="dname">${ICO.file}${name}</div></td>
+          ${adm ? `<td class="c-date">${r.owner === me.id ? 'أنت' : esc(userName(r.owner))}</td>` : ''}
           <td><span class="status ${s}"><i></i>${ST_LBL[s]}</span></td>
           <td class="c-prog">${prog}</td>
           <td class="c-date">${t ? n(t.words) : '—'}</td>
@@ -2939,12 +3398,13 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const id = ds.delId; $('delDlg').close(); if (!id) return;
     const name = docTitle(docs.get(id));
     await DB.del(id).catch(() => {}); docs.delete(id);
-    if (st.docId === id) { clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll(); store.set('lastDoc', null); }
+    if (st.docId === id) { clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll(); store.set(uKey('lastDoc'), null); }
     renderDocs(); say(`حُذف «${name}».`);
   });
   $('docsQ').addEventListener('input', e => { ds.q = e.target.value; renderDocs(); });
   $('docsStatus').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { ds.status = b.dataset.s; renderDocs(); } });
   $('docsDate').addEventListener('change', e => { ds.date = e.target.value; renderDocs(); });
+  $('docsOwner').addEventListener('change', e => { ds.owner = e.target.value; renderDocs(); });
   $('docsSort').value = ds.sort;
   $('docsSort').addEventListener('change', e => { ds.sort = e.target.value; store.set('docsSort', ds.sort); renderDocs(); });
   $('docsUpload').addEventListener('click', () => $('docsFile').click());
@@ -2954,16 +3414,336 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
   dv.addEventListener('dragleave', e => { if (!dv.contains(e.relatedTarget)) dv.classList.remove('drag'); });
   dv.addEventListener('drop', e => { e.preventDefault(); dv.classList.remove('drag'); addFiles(e.dataTransfer.files, true); });
 
-  // ---------------- views: documents / editor
+  // ---------------- accounts: saved in this browser for now (localStorage), until the tool is linked to a server.
+  // One guide admin (the first account) invites proofreaders by email; an invited person sets their own name and password.
+  const AC = {
+    users: () => store.get('users', []), setUsers: u => store.set('users', u),
+    props: () => store.get('proposals', []), setProps: p => store.set('proposals', p)
+  };
+  const ROLE = { admin: 'مسؤول الدليل', proof: 'مدقق' };
+  const U_ST = { invited: 'مدعو', active: 'فعّال', disabled: 'معطّل' };
+  const PW_MIN = 8;
+  const normEmail = s => (s || '').trim().toLowerCase();
+  const okEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
+  const uid = () => 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const uKey = k => k + '-' + (me ? me.id : '');
+  const mine = r => !!me && r.owner === me.id;
+  // the guide admin sees every proofreader's documents; a proofreader sees their own
+  const canSee = r => mine(r) || isAdmin();
+  const userName = id => { const u = AC.users().find(x => x.id === id); return u ? (u.name || u.email) : 'مستخدم محذوف'; };
+  const n_ = x => x.toLocaleString('ar');
+  async function hashPw(pw, salt) {
+    try {
+      const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + '|' + pw));
+      return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+    } catch (e) {
+      let h = 2166136261; for (const c of salt + '|' + pw) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); }
+      return 'f' + (h >>> 0).toString(16);
+    }
+  }
+  let toastT = null;
+  function toast(t) { $('toast').textContent = t; $('toast').hidden = false; clearTimeout(toastT); toastT = setTimeout(() => { $('toast').hidden = true; }, 4200); }
+  function ask(title, text, yes, danger) {
+    return new Promise(res => {
+      $('askTitle').textContent = title; $('askText').textContent = text; $('askYes').textContent = yes;
+      $('askYes').className = 'btn ' + (danger ? 'danger' : 'primary');
+      $('askYes').onclick = () => { res(true); $('askDlg').close(); };
+      $('askNo').onclick = () => $('askDlg').close();
+      $('askDlg').onclose = () => res(false);
+      $('askDlg').showModal();
+    });
+  }
+
+  // ---- sign-in screens: first setup (the guide admin), sign in, accepting an invitation
+  const au = { mode: 'login' };
+  const fld = (id, label, type, attrs) => `<label class="a-fld"><span>${label}</span><input id="${id}" type="${type}" ${attrs || ''}></label>`;
+  const F_NAME = (v) => fld('aName', 'الاسم', 'text', `autocomplete="name" value="${esc(v || '')}"`);
+  const F_EMAIL = (v, ro) => fld('aEmail', 'البريد الإلكتروني', 'email', `autocomplete="email" dir="ltr" value="${esc(v || '')}"${ro ? ' readonly' : ''}`);
+  const F_NEW = () => fld('aPass', `كلمة المرور<small>${n_(PW_MIN)} أحرف على الأقل</small>`, 'password', 'autocomplete="new-password"') + fld('aPass2', 'تأكيد كلمة المرور', 'password', 'autocomplete="new-password"');
+  function showAuth(mode, email, err) {
+    au.mode = mode;
+    $('shell').hidden = true; $('authView').hidden = false;
+    const old = mode === 'accept' && AC.users().find(u => u.email === email);
+    const M = {
+      setup: ['إعداد الأداة لأول مرة', 'أنشئ حساب مسؤول الدليل. هو الحساب الوحيد الذي يدعو المدققين، ويعتمد الاقتراحات، ويحدد تشغيل القواعد للجميع.', F_NAME() + F_EMAIL() + F_NEW(), 'إنشاء الحساب', ''],
+      login: ['تسجيل الدخول', '', F_EMAIL(email) + fld('aPass', 'كلمة المرور', 'password', 'autocomplete="current-password"'), 'دخول', 'نسيت كلمة المرور؟ تواصل مع مسؤول الدليل.'],
+      accept: [old && old.hash === null && old.joined ? 'كلمة مرور جديدة' : 'قبول الدعوة', old && old.joined ? 'أعاد مسؤول الدليل تعيين كلمة مرورك. اختر كلمة مرور جديدة.' : 'دعاك مسؤول الدليل إلى أداة التدقيق. اكتب اسمك واختر كلمة مرورك.',
+        F_EMAIL(email, true) + F_NAME(old && old.name) + F_NEW(), 'حفظ والدخول', '<button type="button" class="link" id="authBack">الرجوع إلى تسجيل الدخول</button>']
+    }[mode];
+    $('authTitle').textContent = M[0]; $('authSub').textContent = M[1]; $('authFields').innerHTML = M[2]; $('authGo').textContent = M[3]; $('authFoot').innerHTML = M[4];
+    $('authErr').textContent = err || '';
+    document.title = M[0] + ' · مدقق تجديد';
+    const first = [...$('authFields').querySelectorAll('input:not([readonly])')].find(i => !i.value);
+    if (first) first.focus();
+  }
+  $('authFoot').addEventListener('click', ev => { if (ev.target.id === 'authBack') showAuth('login'); });
+  $('authForm').addEventListener('submit', async ev => {
+    ev.preventDefault();
+    const v = id => ($(id) ? $(id).value : ''), err = t => { $('authErr').textContent = t; };
+    const users = AC.users(), email = normEmail(v('aEmail'));
+    if (!okEmail(email)) return err('اكتب بريداً إلكترونياً صحيحاً.');
+    if (au.mode === 'login') {
+      const u = users.find(x => x.email === email);
+      if (u && u.status === 'invited') return showAuth('accept', email);
+      if (!u || !u.hash || await hashPw(v('aPass'), u.salt) !== u.hash) return err('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+      if (u.status === 'disabled') return err('هذا الحساب معطّل. تواصل مع مسؤول الدليل.');
+      return signIn(u);
+    }
+    const name = v('aName').trim().replace(/\s+/g, ' ');
+    if (!name) return err('اكتب اسمك.');
+    if (v('aPass').length < PW_MIN) return err(`كلمة المرور ${n_(PW_MIN)} أحرف على الأقل.`);
+    if (v('aPass') !== v('aPass2')) return err('كلمتا المرور غير متطابقتين.');
+    const salt = uid(), hash = await hashPw(v('aPass'), salt), now = Date.now();
+    if (au.mode === 'setup') {
+      if (users.length) return showAuth('login');
+      const u = { id: uid(), email, name, role: 'admin', status: 'active', salt, hash, invited: now, joined: now };
+      AC.setUsers([u]);
+      // documents opened before accounts existed belong to the guide admin
+      for (const r of await DB.all()) if (!r.owner) { r.owner = u.id; await DB.put('docs', r); }
+      store.set('seeded-' + u.id, store.get('seeded', false)); store.set('lastDoc-' + u.id, store.get('lastDoc', null));
+      return signIn(u);
+    }
+    const u = users.find(x => x.email === email && x.status === 'invited');
+    if (!u) return showAuth('login', '', 'لم تعد هذه الدعوة قائمة. تواصل مع مسؤول الدليل.');
+    Object.assign(u, { name, salt, hash, status: 'active', joined: u.joined || now });
+    AC.setUsers(users); signIn(u);
+  });
+  function applyMe() {
+    $('navAcctName').textContent = me.name || 'الحساب';
+    $('navAcct').title = 'الحساب: ' + (me.name || me.email);
+    $('navAdmin').hidden = !isAdmin();
+    const np = AC.props().filter(p => p.status === 'pending').length;
+    $('navAdminN').hidden = !isAdmin() || !np; $('navAdminN').textContent = n_(np);
+    $('dPropBtn').textContent = isAdmin() ? 'إضافة إلى القاموس' : 'اقترح إضافة';
+  }
+  function signIn(u) {
+    me = u; store.set('session', u.id);
+    $('authView').hidden = true; $('shell').hidden = false;
+    applyMe(); boot();
+  }
+  async function signOut() {
+    commitDirty(); await saveNow(); hidePop(true);
+    clearTimeout(saveT); st.docId = null; st.buf = null; st.name = ''; st.sample = false; st.paras = []; st.byKey = new Map(); st.undo = []; st.redo = []; renderAll();
+    store.set('session', null); me = null; ds.owner = 'all'; store.set('view', 'docs'); say(''); clearTimeout(toastT); $('toast').hidden = true;
+    showAuth('login');
+  }
+  $('logoutBtn').addEventListener('click', signOut);
+
+  // ---- the account page: who I am, my numbers, my password, and what the guide admin decided on my proposals
+  const KIND = { rule: 'قاعدة في الدليل', word: 'كلمة معتمدة', name: 'علم', term: 'مصطلح', except: 'استثناء' };
+  const DICT_KEY = { word: 'words', name: 'names', term: 'terms', except: 'exceptions' };
+  const P_ST = { pending: 'بانتظار القرار', approved: 'معتمد', rejected: 'مرفوض' };
+  function propBody(p) {
+    const d = p.data || {};
+    if (p.kind === 'rule') { const r = G.rules.find(x => x.no === p.rule); return `<div class="body"><b>القاعدة ${n_(p.rule)}${r ? ': ' + esc(r.title) : ''}</b><br>${esc(d.text || '')}</div>`; }
+    if (p.kind === 'word') return `<div class="body">تُكتب <span class="w good">${esc(d.good)}</span> لا <span class="w bad">${esc(d.bad)}</span></div>`;
+    if (p.kind === 'name') return `<div class="body"><span class="w good">${esc(d.name)}</span>${d.variants && d.variants.length ? ` بدلاً من <span class="w bad">${d.variants.map(esc).join('، ')}</span>` : ''}</div>`;
+    if (p.kind === 'term') return `<div class="body"><span class="w">${esc(d.term)}</span>${d.field ? ` <span class="tag">${esc(d.field)}</span>` : ''}: ${esc(d.def || '')}</div>`;
+    return `<div class="body">لا يقترح المحرك تصحيحاً في <span class="w">${esc(d.word)}</span></div>`;
+  }
+  function propCard(p, admin) {
+    const who = admin ? ` · من ${esc(userName(p.by))}` : '';
+    const st_ = p.status === 'pending' && !admin ? '' : `<span class="p-st ${p.status}">${P_ST[p.status]}</span>`;
+    const date = p.status === 'pending' ? p.at : p.decided;
+    return `<article class="a-prop" data-pid="${p.id}"><header><span class="k">${KIND[p.kind]}</span>${who}${st_}<span class="d" title="${esc(fullDate(date))}">${fmtDate(date)}</span></header>
+      ${propBody(p)}${p.why ? `<div class="why2">السبب: ${esc(p.why)}</div>` : ''}
+      ${p.status !== 'pending' && p.note ? `<div class="anote"><b>ملاحظة مسؤول الدليل:</b> ${esc(p.note)}</div>` : ''}
+      ${p.status === 'approved' && p.kind === 'rule' ? '<div class="why2">يُعدَّل نص الدليل في الأداة مع التحديث التالي.</div>' : ''}
+      ${admin && p.status === 'pending' ? `<textarea class="reason" data-note="${p.id}" rows="2" placeholder="ملاحظة للمدقق (اختيارية)"></textarea>
+        <div class="acts"><button class="btn ok" type="button" data-dec="approved">اعتماد</button><button class="btn no" type="button" data-dec="rejected">رفض</button></div>` : ''}</article>`;
+  }
+  function renderAcct() {
+    const my = [...docs.values()].filter(mine), sum = k => my.reduce((s, r) => s + (r.stats ? r.stats[k] : 0), 0);
+    const done = my.filter(r => statusOf(r) === 'done').length;
+    const props = AC.props().filter(p => p.by === me.id && p.status !== 'pending').sort((a, b) => b.decided - a.decided);
+    $('aWrap').innerHTML = `
+      <section class="a-card a-me"><span class="a-av">${esc((me.name || me.email).trim().charAt(0))}</span><div><h2>${esc(me.name)}</h2><p class="a-mail" dir="ltr">${esc(me.email)}</p></div><span class="a-role ${me.role}">${ROLE[me.role]}</span></section>
+      <div class="a-stats">
+        <div class="a-stat"><b>${n_(done)}</b><span>مستندات اكتمل تدقيقها، من ${n_(my.length)}</span></div>
+        <div class="a-stat ok"><b>${n_(sum('accepted'))}</b><span>تصحيحات قبلتها</span></div>
+        <div class="a-stat no"><b>${n_(sum('rejected'))}</b><span>تصحيحات رفضتها</span></div>
+      </div>
+      <section class="a-card"><h3>تغيير كلمة المرور</h3>
+        <form class="a-pw" id="pwForm" novalidate>
+          ${fld('pwOld', 'كلمة المرور الحالية', 'password', 'autocomplete="current-password"')}
+          ${fld('pwNew', `الجديدة<small>${n_(PW_MIN)} أحرف على الأقل</small>`, 'password', 'autocomplete="new-password"')}
+          ${fld('pwNew2', 'تأكيد الجديدة', 'password', 'autocomplete="new-password"')}
+          <button class="btn primary" type="submit">حفظ</button>
+        </form><p class="a-msg" id="pwMsg" role="status"></p></section>
+      <section class="a-card"><h3>اقتراحاتي <small>ما قرّر فيه مسؤول الدليل</small></h3>
+        ${props.length ? `<div class="a-props">${props.map(p => propCard(p, false)).join('')}</div>` : `<p class="a-none">${isAdmin() ? 'ما تسجّله أنت من تعديلات وإضافات يظهر هنا.' : 'لم يقرّر مسؤول الدليل في أي اقتراح لك بعد. تقترح من صفحة الدليل (تحت كل قاعدة) أو من القاموس.'}</p>`}</section>`;
+  }
+  $('aWrap').addEventListener('submit', async ev => {
+    if (ev.target.id !== 'pwForm') return;
+    ev.preventDefault();
+    const m = (t, bad) => { $('pwMsg').textContent = t; $('pwMsg').className = 'a-msg' + (bad ? ' err' : ''); };
+    const users = AC.users(), u = users.find(x => x.id === me.id);
+    if (await hashPw($('pwOld').value, u.salt) !== u.hash) return m('كلمة المرور الحالية غير صحيحة.', true);
+    if ($('pwNew').value.length < PW_MIN) return m(`كلمة المرور ${n_(PW_MIN)} أحرف على الأقل.`, true);
+    if ($('pwNew').value !== $('pwNew2').value) return m('كلمتا المرور الجديدتان غير متطابقتين.', true);
+    u.salt = uid(); u.hash = await hashPw($('pwNew').value, u.salt); AC.setUsers(users); me = u;
+    ev.target.reset(); m('غُيّرت كلمة المرور.');
+  });
+
+  // ---- proposals: a proofreader proposes a change to a guide rule or an addition to the dictionary; the guide admin decides.
+  // What the admin adds goes in directly. An approved dictionary item is added to the dictionary in this browser;
+  // an approved guide change is applied to the guide text in the next update of the tool.
+  const pd = { kind: 'rule', rule: 0 };
+  const TA = (id, label, ph) => `<label class="a-fld"><span>${label}</span><textarea id="${id}" rows="3" placeholder="${ph || ''}"></textarea></label>`;
+  const TX = (id, label, ph) => `<label class="a-fld"><span>${label}</span><input id="${id}" type="text" placeholder="${ph || ''}"></label>`;
+  function propFields() {
+    const k = pd.kind;
+    const kinds = k === 'rule' ? '' : `<label class="a-fld"><span>النوع</span><select id="pKind">${['word', 'name', 'term', 'except'].map(x => `<option value="${x}"${x === k ? ' selected' : ''}>${KIND[x]}</option>`).join('')}</select></label>`;
+    const why = TA('pWhy', isAdmin() ? 'ملاحظة (اختيارية)' : 'لماذا؟', k === 'except' ? 'ما الخطأ الذي يقع فيه المحرك في هذه الكلمة؟' : '');
+    const body = {
+      rule: TA('pText', 'ما التعديل؟', 'مثلاً: إضافة استثناء، أو مثال، أو تغيير في نص القاعدة') + why,
+      word: TX('pGood', 'تُكتب', 'مثلاً: مسؤول') + TX('pBad', 'لا تُكتب', 'مثلاً: مسئول') + why,
+      name: TX('pName', 'الصيغة المعتمدة', 'مثلاً: هابرماس') + TX('pVar', 'الصيغ التي تُصحَّح إليها (افصل بينها بفاصلة)', 'مثلاً: هابرمس، هبرماس') + why,
+      term: TX('pTerm', 'المصطلح') + TX('pField', 'الحقل (اختياري)', 'مثلاً: فلسفة') + TA('pDef', 'تعريف قصير') + why,
+      except: TX('pWord', 'الكلمة كما تُكتب', 'مثلاً: ميتافيزيقياً') + why
+    }[k];
+    $('propFields').innerHTML = kinds + body;
+  }
+  function openPropose(kind, ruleNo) {
+    pd.kind = kind; pd.rule = ruleNo || 0;
+    const r = kind === 'rule' && G.rules.find(x => x.no === ruleNo);
+    $('propTitle').textContent = kind === 'rule' ? (isAdmin() ? 'تعديل على القاعدة ' : 'اقتراح تعديل على القاعدة ') + n_(ruleNo) : (isAdmin() ? 'إضافة إلى القاموس' : 'اقتراح إضافة إلى القاموس');
+    $('propSub').textContent = kind === 'rule' ? (r ? r.title : '') + (isAdmin() ? '. يُسجَّل التعديل، ويُطبَّق على نص الدليل في التحديث التالي للأداة.' : '') : (isAdmin() ? 'تُضاف إلى القاموس فوراً، ويطبّقها المحرك بعد إعادة فتح الأداة.' : 'يصل الاقتراح إلى مسؤول الدليل، وترى قراره في صفحة «الحساب».');
+    $('propSend').textContent = isAdmin() ? (kind === 'rule' ? 'تسجيل التعديل' : 'إضافة') : 'إرسال إلى مسؤول الدليل';
+    $('propErr').textContent = '';
+    propFields();
+    $('propDlg').showModal();
+    const f = $('propFields').querySelector('input, textarea'); if (f) f.focus();
+  }
+  $('propFields').addEventListener('change', ev => { if (ev.target.id === 'pKind') { pd.kind = ev.target.value; propFields(); } });
+  $('propNo').addEventListener('click', () => $('propDlg').close());
+  $('dPropBtn').addEventListener('click', () => openPropose({ words: 'word', names: 'name', terms: 'term', except: 'except', rej: 'except' }[dsx.tab] || 'word'));
+  const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+  // an approved dictionary item: kept in this browser and merged into the dictionary before the engine reads it
+  function addToDict(p) {
+    const d = p.data, src = 'اقتراح ' + userName(p.by), added = today();
+    const item = {
+      word: () => ({ good: d.good, bad: d.bad, from: d.bad, to: d.good, src, added }),
+      name: () => ({ name: d.name, variants: d.variants || [], note: p.why || '', src, added }),
+      term: () => ({ term: d.term, field: d.field || '', def: d.def || '', src, added }),
+      except: () => ({ word: d.word, note: p.why || '', src, added })
+    }[p.kind]();
+    const adds = store.get('dictAdds', {}), key = DICT_KEY[p.kind];
+    (adds[key] = adds[key] || []).push(item); store.set('dictAdds', adds);
+    DCT[key].push(item);
+  }
+  $('propForm').addEventListener('submit', ev => {
+    ev.preventDefault();
+    const v = id => ($(id) ? $(id).value.trim().replace(/\s+/g, ' ') : ''), err = t => { $('propErr').textContent = t; };
+    const k = pd.kind, why = $('pWhy') ? $('pWhy').value.trim() : '';
+    let data;
+    if (k === 'rule') { if (!v('pText')) return err('اكتب التعديل الذي تقترحه.'); data = { text: $('pText').value.trim() }; }
+    if (k === 'word') { if (!v('pGood') || !v('pBad')) return err('اكتب الصيغتين: ما يُكتب وما لا يُكتب.'); if (v('pGood') === v('pBad')) return err('الصيغتان متطابقتان.'); data = { good: v('pGood'), bad: v('pBad') }; }
+    if (k === 'name') { if (!v('pName')) return err('اكتب الصيغة المعتمدة للعلم.'); data = { name: v('pName'), variants: v('pVar').split(/[،,]/).map(x => x.trim()).filter(x => x && x !== v('pName')) }; }
+    if (k === 'term') { if (!v('pTerm') || !v('pDef')) return err('اكتب المصطلح وتعريفه.'); data = { term: v('pTerm'), field: v('pField'), def: $('pDef').value.trim() }; }
+    if (k === 'except') { if (!v('pWord')) return err('اكتب الكلمة.'); if (/\s/.test(v('pWord'))) return err('الاستثناء كلمة واحدة.'); data = { word: v('pWord') }; }
+    if (!isAdmin() && !why) return err('اكتب سبب الاقتراح، فهو ما يقرّر به مسؤول الدليل.');
+    const now = Date.now(), p = { id: uid(), kind: k, rule: k === 'rule' ? pd.rule : 0, data, why, by: me.id, at: now, status: 'pending', note: '', decided: 0 };
+    if (isAdmin()) { p.status = 'approved'; p.decided = now; if (k !== 'rule') addToDict(p); }
+    AC.setProps([...AC.props(), p]);
+    $('propDlg').close(); applyMe();
+    if (!$('dictView').hidden) renderDict();
+    toast(isAdmin() ? (k === 'rule' ? 'سُجّل التعديل، ويُطبَّق على الدليل في التحديث التالي.' : 'أُضيف إلى القاموس، ويطبّقه المحرك بعد إعادة فتح الأداة.') : 'أُرسل الاقتراح إلى مسؤول الدليل.');
+  });
+
+  // ---- the admin page (guide admin only): users and invitations, and the proposals waiting for a decision
+  const ms = { tab: store.get('adminTab', 'users'), pf: 'pending' };
+  function usersHTML() {
+    const users = AC.users().slice().sort((a, b) => (b.role === 'admin') - (a.role === 'admin') || (a.invited - b.invited));
+    const acts = u => {
+      if (u.id === me.id) return '<span class="u-me">أنت</span>';
+      if (u.status === 'invited') return `<button type="button" class="link no" data-ua="cancel">${u.joined ? 'إلغاء إعادة التعيين' : 'إلغاء الدعوة'}</button>`;
+      if (u.status === 'disabled') return '<button type="button" class="link" data-ua="enable">تفعيل</button>';
+      return '<button type="button" class="link" data-ua="reset">إعادة تعيين كلمة المرور</button><button type="button" class="link" data-ua="admin">نقل مسؤولية الدليل إليه</button><button type="button" class="link no" data-ua="disable">تعطيل</button>';
+    };
+    return `<section class="a-card"><h3>دعوة مدقق</h3>
+      <form class="a-inv" id="invForm" novalidate><input id="invEmail" type="email" dir="ltr" placeholder="البريد الإلكتروني للمدقق" aria-label="البريد الإلكتروني للمدقق" autocomplete="off"><button class="btn primary" type="submit">دعوة</button></form>
+      <p class="a-msg" id="invMsg" role="status"></p>
+      <p class="a-hint">يُدعى الشخص بدور «مدقق»، فمسؤول الدليل واحد. عندما يفتح الأداة ويكتب بريده في شاشة الدخول، يكتب اسمه ويختار كلمة مروره.</p></section>
+      <table class="dtable"><thead><tr><th>الاسم</th><th>البريد الإلكتروني</th><th>الدور</th><th>الحالة</th><th>انضمّ</th><th></th></tr></thead><tbody>
+      ${users.map(u => `<tr data-uid="${u.id}" class="${u.status === 'disabled' ? 'u-off' : ''}" style="cursor:default"><td><b>${esc(u.name || '—')}</b></td><td dir="ltr" style="text-align:right">${esc(u.email)}</td><td>${ROLE[u.role]}</td>
+        <td><span class="u-st ${u.status}"><i></i>${u.status === 'invited' && u.joined ? 'بانتظار كلمة مرور جديدة' : U_ST[u.status]}</span></td><td class="c-date">${u.joined ? fmtDate(u.joined) : '—'}</td><td><div class="u-acts">${acts(u)}</div></td></tr>`).join('')}
+      </tbody></table>`;
+  }
+  function propsHTML() {
+    const all = AC.props(), cnt = k => all.filter(p => p.status === k).length;
+    const list = all.filter(p => p.status === ms.pf).sort((a, b) => ms.pf === 'pending' ? a.at - b.at : b.decided - a.decided);
+    const seg = ['pending', 'approved', 'rejected'].map(k => `<button type="button" data-pf="${k}" aria-pressed="${ms.pf === k}">${P_ST[k]}<b>${n_(cnt(k))}</b></button>`).join('');
+    const empty = { pending: 'لا توجد اقتراحات بانتظار قرارك.', approved: 'لم يُعتمد أي اقتراح بعد.', rejected: 'لم يُرفض أي اقتراح بعد.' }[ms.pf];
+    return `<div class="g-tools"><div class="seg" role="group" aria-label="حالة الاقتراح">${seg}</div></div>
+      ${list.length ? `<div class="a-props">${list.map(p => propCard(p, true)).join('')}</div>` : `<div class="g-empty">${empty}</div>`}
+      <p class="g-intro d-foot">الاقتراح المعتمد في القاموس يُضاف إليه فوراً. والمعتمد في الدليل يُطبَّق على نص الدليل في التحديث التالي للأداة، لأن قواعد الدليل مرتبطة بالمحرك.</p>`;
+  }
+  function renderAdmin() {
+    if (!['users', 'props'].includes(ms.tab)) ms.tab = 'users';
+    const counts = { users: AC.users().length, props: AC.props().filter(p => p.status === 'pending').length };
+    $('mTabs').querySelectorAll('button').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.t === ms.tab)); b.querySelector('b').textContent = n_(counts[b.dataset.t]); });
+    $('mWrap').innerHTML = ms.tab === 'users' ? usersHTML() : propsHTML();
+    applyMe();
+  }
+  $('mTabs').addEventListener('click', ev => { const b = ev.target.closest('button[data-t]'); if (!b) return; ms.tab = b.dataset.t; store.set('adminTab', ms.tab); renderAdmin(); });
+  $('mWrap').addEventListener('submit', ev => {
+    if (ev.target.id !== 'invForm') return;
+    ev.preventDefault();
+    const m = (t, bad) => { $('invMsg').textContent = t; $('invMsg').className = 'a-msg' + (bad ? ' err' : ''); };
+    const email = normEmail($('invEmail').value), users = AC.users();
+    if (!okEmail(email)) return m('اكتب بريداً إلكترونياً صحيحاً.', true);
+    if (users.some(u => u.email === email)) return m('هذا البريد مضاف من قبل.', true);
+    users.push({ id: uid(), email, name: '', role: 'proof', status: 'invited', salt: '', hash: null, invited: Date.now(), joined: 0 });
+    AC.setUsers(users); renderAdmin();
+    $('invMsg').textContent = `دُعي ${email}. يدخل بكتابة بريده في شاشة الدخول.`; $('invMsg').className = 'a-msg';
+  });
+  $('mWrap').addEventListener('click', async ev => {
+    const pf = ev.target.closest('[data-pf]');
+    if (pf) { ms.pf = pf.dataset.pf; renderAdmin(); return; }
+    const dec = ev.target.closest('[data-dec]');
+    if (dec) {
+      const id = dec.closest('[data-pid]').dataset.pid, props = AC.props(), p = props.find(x => x.id === id); if (!p || p.status !== 'pending') return;
+      const note = ($('mWrap').querySelector(`[data-note="${id}"]`) || {}).value || '';
+      Object.assign(p, { status: dec.dataset.dec, note: note.trim(), decided: Date.now() });
+      if (p.status === 'approved' && p.kind !== 'rule') addToDict(p);
+      AC.setProps(props); renderAdmin();
+      toast(p.status === 'rejected' ? 'رُفض الاقتراح.' : p.kind === 'rule' ? 'اعتُمد الاقتراح، ويُطبَّق على نص الدليل في التحديث التالي.' : 'اعتُمد الاقتراح وأُضيف إلى القاموس، ويطبّقه المحرك بعد إعادة فتح الأداة.');
+      return;
+    }
+    const ua = ev.target.closest('[data-ua]'); if (!ua) return;
+    const users = AC.users(), u = users.find(x => x.id === ua.closest('[data-uid]').dataset.uid); if (!u) return;
+    const who = u.name || u.email, a = ua.dataset.ua;
+    if (a === 'cancel') {
+      if (!u.joined) { if (!await ask('إلغاء الدعوة؟', `لن يستطيع ${u.email} الدخول إلى الأداة.`, 'إلغاء الدعوة', true)) return; users.splice(users.indexOf(u), 1); }
+      else { u.status = 'disabled'; }
+    }
+    if (a === 'disable') { if (!await ask('تعطيل الحساب؟', `لن يستطيع ${who} الدخول إلى الأداة، وتبقى مستنداته محفوظة. تستطيع تفعيله متى شئت.`, 'تعطيل', true)) return; u.status = 'disabled'; }
+    if (a === 'enable') u.status = u.hash ? 'active' : 'invited';
+    if (a === 'reset') { if (!await ask('إعادة تعيين كلمة المرور؟', `تُلغى كلمة مرور ${who}، فيختار كلمة جديدة حين يكتب بريده في شاشة الدخول.`, 'إعادة التعيين')) return; Object.assign(u, { status: 'invited', hash: null, salt: '' }); }
+    if (a === 'admin') {
+      if (!await ask('نقل مسؤولية الدليل؟', `سيصبح ${who} مسؤول الدليل، وتصير أنت مدققاً. لا تعود إليك المسؤولية إلا إذا نقلها إليك.`, 'نقل المسؤولية', true)) return;
+      u.role = 'admin'; const self = users.find(x => x.id === me.id); self.role = 'proof';
+      AC.setUsers(users); me = self; applyMe(); setView('acct'); toast(`صار ${who} مسؤول الدليل.`); return;
+    }
+    AC.setUsers(users); renderAdmin();
+  });
+
+  // ---------------- views
+  const VIEWS = { docs: 'docsView', editor: 'editorView', guide: 'guideView', dict: 'dictView', acct: 'acctView', admin: 'adminView' };
+  const V_TITLE = { docs: 'المستندات', guide: 'دليل التدقيق', dict: 'القاموس', acct: 'الحساب', admin: 'الإدارة' };
   function setView(v) {
     if (v === 'editor' && !st.docId) v = 'docs';
+    if (v === 'admin' && !isAdmin()) v = 'docs';
     if (v === 'docs') { commitDirty(); saveNow(); hidePop(true); finishRename(false); renderDocs(); }
     if (v === 'guide') { hidePop(true); commitDirty(); renderGuide(); }
     if (v === 'dict') { hidePop(true); commitDirty(); saveNow(); renderDict(); }
+    if (v === 'acct') { hidePop(true); commitDirty(); saveNow(); renderAcct(); }
+    if (v === 'admin') { hidePop(true); commitDirty(); saveNow(); renderAdmin(); }
     if (v === 'editor' && optsDirty) { optsDirty = false; recheck(); say(st.off.size ? `أُعيد الفحص، و${st.off.size.toLocaleString('ar')} من القواعد مطفأة.` : 'أُعيد الفحص بكل القواعد.'); }
-    $('docsView').hidden = v !== 'docs'; $('editorView').hidden = v !== 'editor'; $('guideView').hidden = v !== 'guide'; $('dictView').hidden = v !== 'dict';
+    for (const k in VIEWS) $(VIEWS[k]).hidden = k !== v;
     document.querySelectorAll('#nav [data-view]').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-    document.title = v === 'docs' ? 'المستندات · مدقق تجديد' : v === 'guide' ? 'دليل التدقيق · مدقق تجديد' : v === 'dict' ? 'القاموس · مدقق تجديد' : 'محرر تجديد';
+    document.title = V_TITLE[v] ? V_TITLE[v] + ' · مدقق تجديد' : 'محرر تجديد';
     store.set('view', v);
   }
   $('nav').addEventListener('click', ev => {
@@ -2972,23 +3752,30 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     setView(a.dataset.view);
   });
 
-  // ---------------- start: the documents list (the sample article is added once, on first use)
-  (async () => {
+  // ---------------- start: sign in, then the documents list (each user gets the sample article once, on first use)
+  let docsLoaded = false;
+  async function boot() {
     try {
-      let list = await DB.all();
-      if (!list.length && !store.get('seeded', false)) {
+      if (!docsLoaded) { (await DB.all()).forEach(r => docs.set(r.id, r)); docsLoaded = true; }
+      if (![...docs.values()].some(mine) && !store.get(uKey('seeded'), false)) {
         const bin = atob(SAMPLE_B64), bytes = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        const now = Date.now(), rec = { id: newId(), name: SAMPLE_NAME, sample: true, size: bytes.length, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
+        const now = Date.now(), rec = { id: newId(), owner: me.id, name: SAMPLE_NAME, sample: true, size: bytes.length, added: now, updated: now, opened: 0, pinned: false, state: null, stats: null };
         await DB.put('files', { id: rec.id, buf: bytes.buffer }); await DB.put('docs', rec);
-        store.set('seeded', true); list = [rec];
+        docs.set(rec.id, rec);
       }
-      list.forEach(r => docs.set(r.id, r));
+      store.set(uKey('seeded'), true);
       if (DB.memory()) $('docsNote').textContent = 'تنبيه: هذا المتصفح لا يسمح بحفظ المستندات، فستضيع القائمة عند إغلاق الصفحة. صدّر عملك إلى وورد قبل الإغلاق.';
-      const last = store.get('lastDoc', null);
-      if (store.get('view', 'docs') === 'editor' && last && docs.has(last)) await openDoc(last);
-      else setView(['guide', 'dict'].includes(store.get('view', 'docs')) ? store.get('view', 'docs') : 'docs');
+      const last = store.get(uKey('lastDoc'), null), v = store.get('view', 'docs');
+      if (v === 'editor' && last && docs.has(last) && canSee(docs.get(last))) await openDoc(last);
+      else setView(['guide', 'dict', 'acct', 'admin'].includes(v) ? v : 'docs');
     } catch (e) { setView('docs'); say('تعذّر تحميل المستندات: ' + (e && e.message || e), true); }
+  }
+  (() => {
+    const users = AC.users();
+    if (!users.length) { showAuth('setup'); return; }
+    const u = users.find(x => x.id === store.get('session', null));
+    if (u && u.status === 'active') signIn(u); else showAuth('login');
   })();
 })();
 </script>
