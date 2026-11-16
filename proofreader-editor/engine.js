@@ -37,7 +37,7 @@
   // «Motsamai Molefe))»: a foreign name typed in Arabic text often ends up with both parentheses after it
   function doubledAfterLatin(text) {
     const bad = new Set(unmatchedParens(text)), out = [];
-    for (const m of text.matchAll(/(?<![A-Za-z0-9(])([A-Za-z][A-Za-z0-9 .,'’&-]*?[A-Za-z0-9.])\)\)/g)) {
+    for (const m of text.matchAll(/(?<![A-Za-z0-9(])([A-Za-z][A-Za-z0-9 .,;'’&-]*?[A-Za-z0-9.])\)\)/g)) {
       const close = m.index + m[1].length;
       if (bad.has(close) && bad.has(close + 1)) out.push({ start: m.index, close });
     }
@@ -55,6 +55,9 @@
       const m = /(^|[\s\u0621-\u064A])([A-Za-z][A-Za-z0-9 .,'’&:-]{0,60}?)$/.exec(text.slice(0, i));
       if (!m || !/[A-Za-z0-9.]$/.test(m[2])) continue;
       const start = i - m[2].length;
+      // only a reference inside Arabic text: not an English line («Surah YUSUF … model)») or a Latin citation
+      //  whose earlier sentence ends before it («(1910). The Monist»)
+      if (!(/[\u0621-\u064A][\s\u00A0]*$/.test(text.slice(Math.max(0, start - 3), start)) || /\([A-Za-z][^()]*\)[\s\u00A0]*$/.test(text.slice(Math.max(0, start - 60), start))) || /[.?!]\s+[A-Z]/.test(m[2])) continue;
       const edits = [{ start, end: start, repl: /[\u0621-\u064A]/.test(m[1]) ? ' (' : '(' }];
       const extra = bad.find(j => j > i && text[j - 1] === ')' && !taken.has(j));
       if (extra !== undefined) edits.push({ start: extra, end: extra + 1, repl: '' });
@@ -77,6 +80,8 @@
   const LEVANT = [['كانون الثاني', 'يناير'], ['شباط', 'فبراير'], ['آذار', 'مارس'], ['نيسان', 'أبريل'], ['أيار', 'مايو'], ['حزيران', 'يونيو'], ['تموز', 'يوليو'], ['آب', 'أغسطس'], ['أيلول', 'سبتمبر'], ['تشرين الأول', 'أكتوبر'], ['تشرين الثاني', 'نوفمبر'], ['كانون الأول', 'ديسمبر']];
   const GREG_ALIASES = { 'إبريل': 'أبريل', 'يونيه': 'يونيو', 'يوليه': 'يوليو' };
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
+  // not a nisba ya at all: the name عليّ and أيّ (also after و، ف، ب: وعليّ، وبأيّ)
+  const NISBA_NOT = new Set(['علي', 'أي']);
   // نسبة إلى كلمة من حرفين (طبّ، فنّ...): لا يكفيها شرط الجذع الثلاثي، فتُذكر هنا بأسمائها
   const NISBA_SHORT = new Set(['طبي', 'فني', 'حسي', 'كمي', 'جوي', 'بري', 'سري', 'ذري', 'خطي', 'كلي', 'ظني']);
   // the centre's dictionary (dictionary.js): preferred words and names are corrected, exceptions are never touched
@@ -91,9 +96,13 @@
   const NAME_ONE = new Set([...NAME_FULL].filter(n => !n.includes(' ')));
   const isName = s => { const t = noH(s); return !!t && (NAME_FULL.has(t) || t.split(' ').every(w => NAME_ONE.has(w))); };
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
+  const SAYING = /(?:^|[\s(«])[وف]?ب?(?:قال|قالت|قالا|قالوا|يقول|تقول|يقولون|نقول|أقول|قول|قوله|قولها|قولهم|يقال|قيل)[\s\u00A0]*:?[\s\u00A0]*$/;
+  const THAT = /(?:^|[\s(«])[وف]?بأن\u0651?[\s\u00A0]*$/;
   const YA_FIXED = new Map([['فى', 'في'], ['التى', 'التي'], ['الذى', 'الذي'], ['هى', 'هي'], ['اللتى', 'اللتي'], ['اللذى', 'اللذي']]);
   // words that legitimately end in ى and also exist with ي: never switch them on document evidence
-  const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا']);
+  const YA_STOP = new Set(['على', 'إلى', 'حتى', 'متى', 'لدى', 'سوى', 'مصطفى', 'موسى', 'عيسى', 'يحيى', 'مستشفى', 'المعنى', 'معنى', 'مبنى', 'المبنى', 'أولى', 'الأولى', 'أخرى', 'الأخرى', 'كبرى', 'الكبرى', 'صغرى', 'الصغرى', 'أدنى', 'الأدنى', 'أعلى', 'الأعلى', 'مستوى', 'المستوى', 'فتوى', 'الفتوى', 'دعوى', 'الدعوى', 'تقوى', 'التقوى', 'هدى', 'الهدى', 'رأى', 'سعى', 'بقى', 'مضى', 'جرى', 'أتى', 'رمى', 'بنى', 'نفى', 'قضى', 'أبى', 'ألقى', 'تلقى', 'يرى', 'نرى', 'ترى', 'أرى', 'يبقى', 'يسعى', 'تسعى', 'نسعى', 'يتبنى', 'يحظى', 'تحظى', 'يلقى', 'يتلقى', 'ملقى', 'الموسيقى', 'موسيقى', 'الفوضى', 'فوضى', 'ذكرى', 'الذكرى', 'بشرى', 'دنيا', 'الدنيا', 'قصوى', 'القصوى', 'شتى', 'أنثى', 'الأنثى', 'منتهى', 'مقتضى', 'بمقتضى', 'مدى', 'المدى', 'صدى', 'الصدى', 'لدى', 'أقصى', 'الأقصى', 'أسمى', 'الأسمى', 'أبقى', 'أحرى', 'أولى', 'أدى', 'أعطى', 'سمى', 'تبنى', 'تجلى', 'يتجلى', 'تخلى', 'يتخلى', 'تعدى', 'يتعدى', 'تبقى', 'نبقى', 'ارتقى', 'يرتقى', 'التقى', 'انتهى', 'اقتضى', 'استثنى', 'تمنى', 'يتمنى', 'تلقى', 'تولى', 'يتولى', 'تسنى', 'يتسنى', 'تحرى', 'أحيا', 'مرمى', 'المرمى', 'منحى', 'المنحى', 'ملتقى', 'الملتقى', 'منتدى', 'المنتدى', 'مسعى', 'المسعى', 'مغزى', 'المغزى', 'مقهى', 'مجرى', 'المجرى', 'مأوى', 'المأوى', 'مرعى', 'جدوى', 'الجدوى', 'شكوى', 'الشكوى', 'نجوى', 'رؤيا',
+    // feminine elatives (فُعلى): السفلى not السفلي
+    'السفلى', 'سفلى', 'الوسطى', 'وسطى', 'العظمى', 'عظمى', 'الحسنى', 'حسنى', 'الفضلى', 'فضلى', 'المثلى', 'مثلى', 'اليسرى', 'يسرى', 'اليمنى', 'يمنى', 'القربى', 'قربى', 'الجلى', 'الرجعى', 'الطولى']);
 
   // الشدة في الأدوات الشائعة: want=true gives only the forms that are right in every case (أنّه، إلّا، إنّما، كلّ، ممّا، ثمّ...),
   //  applied automatically; want=false gives the rest (أنّ/إنّ before a word), which can be the light أنْ/إنْ
@@ -169,7 +178,7 @@
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
         ...simple(re('[،,](?=[ \u00A0]+لأن[\\u0651\\u064E]*(?:ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}]))'), () => '؛')(text)
       ] },
-    { id: 'br-flip', no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
+    { id: 'br-flip', auto: true, no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
       find: text => [
         ...flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })),
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
@@ -180,7 +189,9 @@
         const out = [
           ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
           ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
-        ].filter(e => !flippedParens(text).includes(e.end)); // a reversed «)» opens: the space before it stays
+        ].filter(e => !flippedParens(text).includes(e.end))
+          // a reversed «»» or «”» that opens a quotation («أن »ميزة العقل») keeps the space before it
+          .filter(e => !(/[»”]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
         for (const [a, b] of ctx.straightPairs) {
           if (gluedPair(text, a, b)) continue;
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
@@ -201,7 +212,7 @@
           if (!sl && !sr) continue;                                   // a hyphen inside a word
           if (re('^[ \\u00A0]*([{D}]+|[{L}])[ \\u00A0]*$').test(text.slice(0, i))) continue; // a heading number or letter: 2 – الفرد المسؤول، أ - ...
           if (re('[{D}]').test(text[i - 1] + text[i + 1])) continue;          // a range glued to a number: 1918- نهاية
-          if (re('[{D}]').test(text.slice(0, i).trimEnd().slice(-1)) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970
+          if (re('[{D}](?:[ \u00A0]*(?:هـ|م|ه))?$').test(text.slice(0, i).trimEnd()) && re('[{D}]').test(text.slice(i + 1).trimStart()[0] || '')) continue; // 1950 - 1970، 1384هـ - 1964م
           if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
           if (/[-–—]/.test(text[i - 1] + text[i + 1]) || /[-–—][  ]*$/.test(text.slice(0, i)) && /[-–—]/.test(text.slice(Math.max(0, i - 3), i))) continue;
           cand.push(i);
@@ -241,7 +252,7 @@
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
       find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
-    { id: 'dot-out', no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
+    { id: 'dot-out', auto: true, no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
         const out = [];
         const closers = new Set(ctx.straightPairs.map(p => p[1]));
@@ -257,17 +268,18 @@
         }
         return out.length ? [{ group: out }] : [];
       } },
-    { id: 'aw-quote', no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
+    { id: 'aw-quote', auto: true, no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
-    { id: 'year-paren', no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
+    { id: 'year-paren', auto: true, no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
       find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
     { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
         ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text)
       ] },
-    { id: 'ma-shadda', no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
-      find: simple(re('(?<=\\s)م[\\u064E]?\\u0651[\\u064E]?ا(?![{LH}])'), () => 'ما') },
+    { id: 'ma-shadda', auto: true, no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
+      // a vocalised «مَّا» belongs to a quoted verse or fully vocalised text (وَآبَاؤُكُم مَّا أَنزَلَ): left alone
+      find: simple(re('(?<=\\s)م\\u0651ا(?![{LH}])'), () => 'ما') },
     { id: 'sun-shadda', auto: true, no: 5, name: 'شدة الحرف الشمسي', word: true, why: 'لا توضع الشدة على الحرف الشمسي بعد (أل) التعريف.',
       find: text => {
         const out = [];
@@ -277,8 +289,12 @@
           if (m[1] === 'ل' && /^[\u064B-\u065F]*ه/.test(text.slice(m.index + m[0].length - m[2].length))) continue; // اللّه
           const k = m[2].indexOf('\u0651');
           if (k < 0) continue;
-          const pos = m.index + m[0].length - m[2].length + k;
-          out.push({ start: pos, end: pos + 1, repl: '' });
+          // a fully vocalised word (النَّاسِ، السَّمَاوَاتِ in quoted verses and hadith) keeps its shadda; otherwise the short vowel
+          //  typed with the shadda goes too (التَّوحيد ← التوحيد)
+          const rest = (text.slice(m.index + m[0].length).match(re('^[{LH}]*'))[0].match(/[\u064B-\u0650\u0652]/g) || []).length;
+          if (rest + (m[2].length - 1) >= 2) continue;
+          const st = m.index + m[0].length - m[2].length;
+          out.push({ start: st, end: st + m[2].length, repl: m[2].replace(/[\u064E-\u0652]/g, '') });
         }
         return out;
       } },
@@ -291,19 +307,27 @@
           const w = m[0];
           const mm = w.match(/ي([\u064B-\u0650\u0652]*)\u0651([\u064B-\u0650\u0652]*)(ة[\u064B-\u0652]*|ا\u064B?)?$/);
           if (!mm) continue;
+          // a fully vocalised word (الطَّبَرِيِّ، وَالذُّرِّيَّةُ، القَطْعيَّة) is left alone; in unvocalised text the short vowel
+          //  typed with the shadda goes too (الإسلاميَّة ← الإسلامية) and a tanween stays (أخلاقيًّا ← أخلاقيًا)
+          if ((w.slice(0, w.length - mm[0].length).match(/[\u064B-\u0652]/g) || []).length >= 2) continue;
           const bare = w.replace(/[\u064B-\u065F\u0670]/g, '');
           const core = bare.replace(/[ةا]$/, '').replace(/^[وف]?[بكل]?ال/, '').replace(/^[وف]?لل/, '');
           const stem = core.slice(0, -1);
           const short = NISBA_SHORT.has(core) || NISBA_SHORT.has(core.replace(/^[وف]?[بكل]?/, ''));
-          if ((stem.length < 3 && !short) || NISBA_EXCEPT.has(core)) continue;
-          const pos = m.index + w.length - (mm[0].length) + 1 + mm[1].length;
-          out.push({ start: pos, end: pos + 1, repl: '' });
+          if ((stem.length < 3 && !short) || NISBA_EXCEPT.has(core) || NISBA_NOT.has(core.replace(/^[وف]?[بكل]?/, ''))) continue;
+          const from = m.index + w.length - mm[0].length + 1, to = from + mm[1].length + 1 + mm[2].length;
+          const keep = (mm[1] + mm[2]).replace(/[\u064E-\u0652]/g, '');
+          out.push({ start: from, end: to, repl: keep });
         }
         return out;
       } },
     { id: 'tanween', auto: true, no: 6, name: 'موضع تنوين الفتح', word: true, why: 'تنوين الفتح يُكتب على الألف (كتاباً)، وفي المقصورة على الحرف الذي قبلها (معنًى).',
+      // a fully vocalised word (قُرْآنًا، مُتَكَلِّمًا in an unbracketed verse or a vocalised quotation) is left as written
       find: text => [
-        ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text),
+        ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text).filter(e => {
+          const w = text.slice(0, e.start).match(re('[{LH}]*$'))[0];
+          return (w.match(/[\u064E-\u0650\u0652]/g) || []).length < 2;
+        }),
         ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text)
       ] },
     { id: 'months', auto: true, no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
@@ -325,7 +349,7 @@
         }
         return out;
       } },
-    { id: 'tatweel', no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
+    { id: 'tatweel', auto: true, no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
       find: text => [
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
@@ -333,7 +357,8 @@
     { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
     { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
-      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), m => m[1]) },
+      // «ط: 1427هـ» is a printing year, not an edition number: left alone
+      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])(?!(?<=ط[^{D}]*)[{D}]{3})'), m => m[1]) },
     { id: 'ibid', auto: true, no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
         ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
@@ -342,7 +367,13 @@
       ] },
     { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
-        const out = simple(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'), () => '')(text);
+        // «الخاصة ¹أو»: the space goes from before the mark to after it, so the next word is not glued to it
+        const out = [];
+        for (const m of text.matchAll(new RegExp('[ \\u00A0]+(?=' + FN + ')', 'g'))) {
+          let k = m.index + m[0].length; while (text[k] === FN) k++;
+          const del = { start: m.index, end: m.index + m[0].length, repl: '' };
+          out.push(/[\p{L}\p{N}]/u.test(text[k] || '') ? { group: [del, { start: k, end: k, repl: ' ' }] } : del);
+        }
         const rx = new RegExp('\\.(' + FN + '+)', 'g');
         let m;
         while ((m = rx.exec(text))) out.push({ group: [{ start: m.index, end: m.index + 1, repl: '' }, { start: m.index + m[0].length, end: m.index + m[0].length, repl: '.' }] });
@@ -369,7 +400,7 @@
         m => m[1] + 'إنّ' + (m[2] || '')) },
     { id: 'shadda-sure', auto: true, no: 4, name: 'الشدة المؤكدة في الأدوات', word: true, quotes: true, why: 'توضع الشدة حيث لا تكون الأداة إلا مشددة: أنّه، إنّها، لكنّهم، إلّا، إنّما، كلّ، ممّا، عمّا، إمّا، ثمّ.',
       find: text => shaddaCommon(text, true) },
-    { id: 'shadda-common', no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
+    { id: 'shadda-common', auto: true, no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
       find: text => shaddaCommon(text, false) },
     { id: 'quote-type', auto: true, no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
       find: (text, ctx) => {
@@ -383,6 +414,9 @@
           const inner = text.slice(a + 1, b).trim();
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
           if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner) || isName(inner)) continue;
+          // a quoted saying stays a quotation even when short: «قالا: "نزل القرآن بكل لسان"»، «بأنّ "القرآن يفسر بعضه بعضا"»
+          const pre = text.slice(Math.max(0, a - 30), a).replace(/[\u064B-\u0650\u0652]/g, '');
+          if (kind === '"' && (SAYING.test(pre) || (THAT.test(pre) && inner.split(/\s+/).length >= 3))) continue;
           const words = inner.split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
           if (kind === '"' && op === '"') continue;
@@ -405,17 +439,22 @@
           // a space that would be left at the start or end inside the marks goes with them
           let s0 = a + 1; while (text[s0] === ' ') s0++;
           let e0 = b; while (e0 > s0 && text[e0 - 1] === ' ') e0--;
-          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: '' }, { start: e0, end: b + 1, repl: '' }] });
+          // a mark glued to a whole word keeps the words apart: «الوطن(سورية)» ← «الوطن سورية»، «كانط"مفهوماً» ← «كانط مفهوماً»;
+          //  a one-letter prefix joins the name: «و«هوبز»» ← «وهوبز»
+          const L1 = re('[{LH}]'), prefix = /[وفبلك]/.test(text[a - 1] || '') && !L1.test(text[a - 2] || '');
+          const gapL = !tat && !prefix && L1.test(text[a - 1] || '') ? ' ' : '';
+          const gapR = L1.test(text[b + 1] || '') ? ' ' : '';
+          out.push({ group: [{ start: tat ? a - 1 : a, end: s0, repl: gapL }, { start: e0, end: b + 1, repl: gapR }] });
         }
         return out;
       } },
-    { id: 'names', no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
+    { id: 'names', auto: true, no: 20, dict: true, name: 'الأعلام بصيغتها المعتمدة', word: true, why: 'يُكتب العلم بصيغة واحدة ثابتة، هي المعتمدة في قاموس المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of NAMES) out.push(...simple(re('(?<![{LH}])([وف]?[بلك]?)' + fuzzy(bad) + '(?![{LH}])'), m => m[1] + good)(text));
         return out;
       } },
-    { id: 'words', no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
+    { id: 'words', auto: true, no: 0, dict: true, label: 'القاموس', name: 'الكلمات المعتمدة في المركز', word: true, why: 'قائمة طرق كتابة بعض الكلمات في إصدارات المركز.',
       find: text => {
         const out = [];
         for (const [bad, good] of WORDS) out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)' + bad), m => m[1] + good)(text));
