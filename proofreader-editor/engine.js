@@ -27,8 +27,24 @@
     }
     return bad.concat(st);
   }
+  // قرار بشار (16/11/2026، المقال الثاني): قوسان مقلوبان معاً «ابن منظور) أبو الفضل(، لسان العرب» يُقلبان معاً:
+  //  «ابن منظور (أبو الفضل)»؛ كان المحرك يقلب الثاني وحده فيخرج «ابن منظور) أبو الفضل)»
+  function reversedPairs(text) {
+    const bad = unmatchedParens(text).sort((a, b) => a - b), out = [];
+    const AR = /[\u0621-\u064A]/;
+    for (let k = 0; k + 1 < bad.length; k++) {
+      const i = bad[k], j = bad[k + 1];
+      if (text[i] !== ')' || text[j] !== '(' || j - i > 80) continue;
+      if (!AR.test(text[i - 1] || '') || !/[ \u00A0]/.test(text[i + 1] || '')) continue;   // «منظور) »
+      if (!AR.test(text[j - 1] || '') || AR.test(text[j + 1] || '')) continue;               // «الفضل(،»
+      if (/[()]/.test(text.slice(i + 1, j))) continue;
+      out.push({ i, j }); k++;
+    }
+    return out;
+  }
   function flippedParens(text) {
-    const bad = unmatchedParens(text).filter(i => !doubledAfterLatin(text).some(d => d.close === i || d.close + 1 === i));
+    const rev = reversedPairs(text).flatMap(r => [r.i, r.j]);
+    const bad = unmatchedParens(text).filter(i => !rev.includes(i) && !doubledAfterLatin(text).some(d => d.close === i || d.close + 1 === i));
     const L = /[\u0621-\u064A]/;
     return bad.filter(i => text[i] === ')'
       ? (i === 0 || /\s/.test(text[i - 1])) && L.test(text[i + 1] || '')
@@ -169,6 +185,36 @@
   }
 
   const RULES = [
+    // قرار بشار (16/11/2026): سطر الكلمات المفتاحية تفصل بين كلماته شرطة بمسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)
+    { id: 'dash-list', auto: true, no: 8, name: 'الشرطة في سطر الكلمات المفتاحية', why: 'تُفصل الكلمات المفتاحية بشرطة قصيرة بين مسافتين: وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية.',
+      find: text => {
+        // a short paragraph that is only a list: three or more dashes, every piece one to five words, no sentence punctuation
+        // a final full stop is allowed; the dash can also be typed as an underscore (لغة _ القرآن _ قريش), قرار بشار (16/11/2026، المقال الثاني)
+        const body = text.trim().replace(/^(?:الكلمات المفتاحية|كلمات مفتاحية)[ \u00A0]*:/, '').replace(/\.$/, '');
+        if (text.length > 400 || /[.،؛؟!,;]/.test(body.replace(/\.{2,}/g, ''))) return [];
+        // an Arabic line only: the English abstract keeps its own style (al-Shaykh, Al-Azhar)
+        if ((text.match(/[A-Za-z]/g) || []).length * 2 > (text.match(/[\u0621-\u064A]/g) || []).length) return [];
+        const dashes = [];
+        for (let i = 0; i < text.length; i++) {
+          if (!/[-–—_]/.test(text[i])) continue;
+          if (re('[{D}]').test(text[i - 1] || '') && re('[{D}]').test(text[i + 1] || '')) continue;   // a range: 1914-1918
+          if (/[A-Za-z]/.test(text[i - 1] || '') && /[A-Za-z]/.test(text[i + 1] || '')) continue;    // a Latin hyphenated word
+          dashes.push(i);
+        }
+        if (dashes.length < 3) return [];
+        const cuts = [-1, ...dashes, text.length];
+        for (let k = 0; k + 1 < cuts.length; k++) {
+          const n = text.slice(cuts[k] + 1, cuts[k + 1]).replace(/[()]/g, '').trim().split(/\s+/).filter(Boolean).length;
+          if (n < 1 || n > 5) return [];
+        }
+        const out = [];
+        for (const i of dashes) {
+          let a = i; while (a > 0 && /[ \u00A0]/.test(text[a - 1])) a--;
+          let b = i + 1; while (b < text.length && /[ \u00A0]/.test(text[b])) b++;
+          if (text.slice(a, b) !== ' - ') out.push({ start: a, end: b, repl: ' - ' });
+        }
+        return out.length ? [{ group: out }] : [];
+      } },
     { id: 'title-ad', auto: true, no: 31, name: 'اللقب العلمي', why: 'يُكتب اللقب العلمي بمسافة بعد كل نقطة: أ. د.، أ. م. د.',
       find: text => {
         const out = [];
@@ -184,12 +230,27 @@
         }
         return out;
       } },
+    // قرار بشار (16/11/2026، المقال الثاني): فاصلتان متتاليتان (لبنان، ،2015 أو الوسطية،،) فاصلة واحدة
+    { id: 'comma-double', auto: true, no: 7, name: 'فاصلتان متتاليتان', why: 'لا تتكرر الفاصلة: لبنان، ،2015 ← لبنان، 2015.',
+      // the space after the comma is part of the edit, so the next word is never glued to it (الداخل، ،سواء ← الداخل، سواء)
+      find: simple(/،(?:[ \u00A0]*،)+[ \u00A0]*/g, m => /[ \u00A0]$/.test(m[0]) || /\S/.test(m.input[m.index + m[0].length] || '') ? '، ' : '،') },
+    // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد «د.» قبل الاسم (د.راقية ← د. راقية)؛ ولا تُمسّ «د.ت» و«د.ط» في المراجع
+    { id: 'title-d', auto: true, no: 31, name: 'لقب الدكتور', why: 'يُفصل لقب «د.» بمسافة عن الاسم بعده: د. راقية.',
+      find: simple(re('(?<![{LH}])د\\.(?=[{L}]{3})'), () => 'د. ') },
     { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
     { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
-      find: text => [
+      find: (text, ctx) => [
         ...simple(re('[،؛؟!:](?=[{L}«“(])'), m => m[0] + ' ')(text),
-        ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text)
+        ...simple(re('(?<=[{L}]{2}[{H}]*)\\.(?=[{L}])'), m => '. ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد الفاصلة قبل الرقم (ط2،1980 ← ط2، 1980)، إلا في الكسر العشري (2،5)
+        ...simple(re('(?<![{D}]،?)،(?=[{D}])|(?<=[{D}])،(?=[{D}])(?![{D}](?![{D}]))(?![{D}]{3}(?![{D}]))'), () => '، ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد النقطتين قبل علامة التنصيص الافتتاحية (بقوله:"اللغة ← بقوله: "اللغة)
+        //  وعلامة بعد النقطتين تليها مسافة ثم كلمة افتتاحية دائماً، ولو اختلّ ترتيب العلامات: ويقال:" فلان ← ويقال: "فلان
+        ...simple(re(':[ \\u00A0]*"[ \\u00A0]+(?=[{L}])'), () => ': "')(text),
+        ...ctx.straightPairs.filter(([a]) => text[a - 1] === ':' && !/[ \u00A0]/.test(text[a + 1])).map(([a]) => ({ start: a, end: a, repl: ' ' })),
+        // قرار بشار (16/11/2026، المقال الثاني): مسافة قبل القوس الملتصق بكلمة (سيبويه(عمرو ← سيبويه (عمرو)، لا بعد حرف واحد (بـ(، ف()
+        ...simple(re('(?<=[{L}]{2}[{H}]*)(?<!\u0640)\\((?=[ \\u00A0]*[{L}])'), () => ' (')(text)
       ] },
     { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
@@ -199,6 +260,8 @@
     { id: 'br-flip', auto: true, no: 10, name: 'قوس مقلوب', why: 'القوس المفتوح يُكتب «(» قبل الكلمة، والمغلق «)» بعدها؛ هنا كُتب القوس معكوساً.',
       find: text => [
         ...flippedParens(text).map(i => ({ start: i, end: i + 1, repl: text[i] === ')' ? '(' : ')' })),
+        ...reversedPairs(text).map(({ i, j }) => { let a = i + 1; while (/[ \u00A0]/.test(text[a])) a++;
+          return { group: [{ start: i, end: a, repl: ' (' }, { start: j, end: j + 1, repl: ')' }] }; }),
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
@@ -218,35 +281,6 @@
           if (j < b && j > i) out.push({ start: j, end: b, repl: '' });
         }
         return out;
-      } },
-    // قرار بشار (16/11/2026): سطر الكلمات المفتاحية تفصل بين كلماته شرطة بمسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)
-    { id: 'dash-list', auto: true, no: 8, name: 'الشرطة في سطر الكلمات المفتاحية', why: 'تُفصل الكلمات المفتاحية بشرطة قصيرة بين مسافتين: وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية.',
-      find: text => {
-        // a short paragraph that is only a list: three or more dashes, every piece one to five words, no sentence punctuation
-        const body = text.trim().replace(/^(?:الكلمات المفتاحية|كلمات مفتاحية)[ \u00A0]*:/, '');
-        if (text.length > 400 || /[.،؛؟!,;]/.test(body.replace(/\.{2,}/g, ''))) return [];
-        // an Arabic line only: the English abstract keeps its own style (al-Shaykh, Al-Azhar)
-        if ((text.match(/[A-Za-z]/g) || []).length * 2 > (text.match(/[\u0621-\u064A]/g) || []).length) return [];
-        const dashes = [];
-        for (let i = 0; i < text.length; i++) {
-          if (!/[-–—]/.test(text[i])) continue;
-          if (re('[{D}]').test(text[i - 1] || '') && re('[{D}]').test(text[i + 1] || '')) continue;   // a range: 1914-1918
-          if (/[A-Za-z]/.test(text[i - 1] || '') && /[A-Za-z]/.test(text[i + 1] || '')) continue;    // a Latin hyphenated word
-          dashes.push(i);
-        }
-        if (dashes.length < 3) return [];
-        const cuts = [-1, ...dashes, text.length];
-        for (let k = 0; k + 1 < cuts.length; k++) {
-          const n = text.slice(cuts[k] + 1, cuts[k + 1]).replace(/[()]/g, '').trim().split(/\s+/).filter(Boolean).length;
-          if (n < 1 || n > 5) return [];
-        }
-        const out = [];
-        for (const i of dashes) {
-          let a = i; while (a > 0 && /[ \u00A0]/.test(text[a - 1])) a--;
-          let b = i + 1; while (b < text.length && /[ \u00A0]/.test(text[b])) b++;
-          if (text.slice(a, b) !== ' - ') out.push({ start: a, end: b, repl: ' - ' });
-        }
-        return out.length ? [{ group: out }] : [];
       } },
     { id: 'dash-pair', auto: true, no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
       find: text => {
@@ -312,10 +346,22 @@
     { id: 'slash', auto: true, no: 9, name: 'الشرطة المائلة', why: 'تلتصق الشرطة المائلة بالكلمة الأولى، وتُفصل بمسافة عن الثانية.',
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
-      find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
+      // in a keywords line the dash rule rewrites the whole « - » (لغة _  القرآن): two edits side by side would glue the dash to the next word,
+      // so only there are the spaces next to a dash left to it
+      find: text => {
+        const out = simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ')(text);
+        if (!out.length || !RULES.find(r => r.id === 'dash-list').find(text).length) return out;
+        return out.filter(e => !/[-\u2013\u2014_]/.test((text[e.start - 1] || '') + (text[e.end] || '')));
+      } },
+    // قرار بشار (16/11/2026، المقال الثاني): مدّة زائدة في آخر الكلمة قبل علامة الترقيم (فقطـ، ← فقط،)؛ وتبقى (هـ) و(الـ، بـ، فـ) قبل الأجنبي
+    { id: 'tatweel-end', auto: true, no: 7, name: 'مدّة زائدة قبل علامة الترقيم', why: 'لا تُكتب المدّة (ـ) في آخر الكلمة قبل علامة الترقيم: فقطـ، ← فقط،',
+      // the tatweel before a space is usually a dash typed with the wrong key (الآخرـ إن وجد فضل لأحدهما على الآخرـ): left alone
+      find: simple(/(?<=(?<![\u0621-\u063F\u0641-\u064A])[\u0621-\u063F\u0641-\u064A]{3,}[\u064B-\u0652]*)\u0640+(?=[،؛:.!؟)])/g, () => '') },
     // قرار بشار (16/11/2026): نقاط الحذف ثلاث، تلتصق بالكلمة قبلها وتُفصل بمسافة عمّا بعدها: تقهقر... وجرأة
     { id: 'ellipsis', auto: true, no: 7, name: 'نقاط الحذف', why: 'نقاط الحذف ثلاث، تلتصق بالكلمة التي قبلها وتُفصل بمسافة عن الكلمة التي بعدها: أنا أفكر... إذن أنا موجود.',
-      find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*(?<!\\.)\\.{2,3}(?!\\.)[ \\u00A0]*(?=[{L}])'), () => '... ') },
+      find: text => [...simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*(?<!\\.)\\.{2,3}(?!\\.)[ \\u00A0]*(?=[{L}])'), () => '... ')(text),
+        // قرار بشار (16/11/2026، المقال الثاني): علامة الحذف بين قوسين ثلاث نقاط: (....) ← (...)
+        ...simple(/(?<=\()[ \u00A0]*(?:\.{2}|\.{4,})[ \u00A0]*(?=\))/g, () => '...')(text)] },
     // قرار بشار (16/11/2026): واو العطف تلتصق بما بعدها: «و تراكم» ← «وتراكم»، «و (فينيليوس)» ← «و(فينيليوس)»؛
     //  ولا تُمسّ الواو في أول الفقرة (حرف ترقيم: و- ...) ولا الواو قبل حرف واحد (أ و ب)
     { id: 'waw-space', auto: true, no: 1, label: 'الإملاء', name: 'واو العطف منفصلة', why: 'واو العطف تلتصق بالكلمة التي بعدها: وتراكم، وكبار.',
@@ -339,8 +385,12 @@
           // English citation style keeps ." inside: the nearest letter before the dot is Latin (… 1990–1996.” or (2012).”)
           const lastLetter = (text.slice(Math.max(0, i - 60), i).match(/[A-Za-z\u0621-\u063F\u0641-\u064A](?=[^A-Za-z\u0621-\u063F\u0641-\u064A]*$)/) || [''])[0];
           if (/[A-Za-z]/.test(lastLetter)) continue;
-          if (c === ')' || c === '»' || c === '”' || (c === '"' && closers.has(i + 1))) {
-            out.push({ start: i, end: i + 1, repl: '' }, { start: i + 2, end: i + 2, repl: '.' });
+          // a straight quote that ends the paragraph closes a quotation even when an inner quote upsets the pairing
+          const lastQuote = c === '"' && new RegExp('^"' + FN + '*[ \\u00A0]*$').test(text.slice(i + 1));
+          if (c === ')' || c === '»' || c === '”' || (c === '"' && (closers.has(i + 1) || lastQuote))) {
+            // قرار بشار (16/11/2026، المقال الثاني): رقم الهامش بعد العلامة يسبق النقطة: عليها."¹ ← عليها"¹.
+            let k = i + 2; while (text[k] === FN) k++;
+            out.push({ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: '.' });
           }
         }
         return out.length ? [{ group: out }] : [];
@@ -354,7 +404,9 @@
     { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
-        ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text)
+        ...simple(re('(?<![{LH}])([وف]?)لا(بد|زال|زالت|سيما)(?![{L}])'), m => m[1] + 'لا ' + m[2])(text),
+        // قرار بشار (16/11/2026، المقال الثاني): فماهي ← فما هي، ماقبل ← ما قبل (ولا تُمسّ «ماهية»)
+        ...simple(re('(?<![{LH}])([وف]?)ما(هي|هو|قبل|بعد)(?![{LH}])'), m => m[1] + 'ما ' + m[2])(text)
       ] },
     { id: 'ma-shadda', auto: true, no: 26, name: '(ما) بعد النكرة', word: true, why: 'تُكتب (ما) بعد النكرة دون شدة: شخصاً ما.',
       // a vocalised «مَّا» belongs to a quoted verse or fully vocalised text (وَآبَاؤُكُم مَّا أَنزَلَ): left alone
@@ -485,7 +537,9 @@
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
     { id: 'shadda-sure', auto: true, no: 4, name: 'الشدة المؤكدة في الأدوات', word: true, quotes: true, why: 'توضع الشدة حيث لا تكون الأداة إلا مشددة: أنّه، إنّها، لكنّهم، إلّا، إنّما، كلّ، ممّا، عمّا، إمّا، ثمّ.',
-      find: text => shaddaCommon(text, true) },
+      find: text => [...shaddaCommon(text, true),
+        // قرار بشار (16/11/2026، المقال الثاني): الشدة على الألف تنتقل إلى اللام: إلاّ ← إلّا
+        ...simple(re('(?<![{LH}])([وف]?)إلا\u0651(?![{LH}])'), m => m[1] + 'إل\u0651ا')(text)] },
     { id: 'shadda-common', auto: true, no: 4, name: 'الشدة في أنّ وإنّ قبل الكلمة', word: true, quotes: true, why: 'توضع الشدة في أنّ وإنّ وكأنّ وأمّا حين تكون مشددة: أنّ الإنسان، إنّ هذا. وقد تكون أنْ وإنْ خفيفتين، فيُراجَع كل موضع.',
       find: text => shaddaCommon(text, false) },
     { id: 'quote-type', auto: true, no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
@@ -551,9 +605,9 @@
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis'],
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
-    conv: ['year-paren', 'year-mark', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
+    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
