@@ -104,6 +104,24 @@
     // feminine elatives (فُعلى): السفلى not السفلي
     'السفلى', 'سفلى', 'الوسطى', 'وسطى', 'العظمى', 'عظمى', 'الحسنى', 'حسنى', 'الفضلى', 'فضلى', 'المثلى', 'مثلى', 'اليسرى', 'يسرى', 'اليمنى', 'يمنى', 'القربى', 'قربى', 'الجلى', 'الرجعى', 'الطولى']);
 
+  // كلمات تُكتب بالياء خطأً وصوابها الألف المقصورة، ولا تلتبس بغيرها (قرار بشار 16/11/2026)
+  const YA_REV = new Map([['حتي', 'حتى']]);
+  // همزة الوصل في أول المصادر والأفعال الخماسية والسداسية الشائعة (الإتجاه ← الاتجاه، إدعى ← ادعى). قائمة مغلقة:
+  //  «إنتاج، إتقان، إتلاف، إدراك، إتباع» مصادر رباعية همزتها همزة قطع صحيحة، فلا تُصحَّح بقاعدة عامة (قرار بشار 16/11/2026)
+  const WASL = ('اتجاه اتجه اتجاهات احتواء احتوى انطواء انطوى اعتلاء اعتلى ادعاء ادعى ادعاءات اتفاق اتفق اتفاقية اتفاقيات اتخاذ اتخذ ' +
+    'اعتبار اعتبر اعتماد اعتمد اعتقاد اعتقد اعتراف اعترف اعتراض اعترض اعتداء اعتدال اعتناء اعتزال اكتشاف اكتشف اكتساب اكتسب اكتمال ' +
+    'اجتماع اجتمع اجتهاد اجتهد اجتياح احتجاج احتكار احترام احترم احتمال احتياج احتلال احتل احتفال احتفاظ احتكام اختيار اختار اختلاف اختلف ' +
+    'اختلاط اختصار اختصاص اختراع اختراق اختبار اختفاء ارتباط ارتبط ارتقاء ارتكاب ارتكب ارتفاع ارتفع ازدهار ازدياد ازدواج ازدواجية ' +
+    'انتشار انتشر انتقال انتقل انتقاد انتقد انتماء انتهاء انتهى انتظار انتخاب انتخابات انتصار انتصر انتباه انتهاك انتقام انتحار انتزاع ' +
+    'انفتاح انفصال انفعال انفعالات انقسام انقطاع انقلاب انهيار انحراف انحطاط انحلال انحياز انسجام انسحاب انطلاق انطلق انعكاس انعكس انعدام انعقاد ' +
+    'اندماج اندفاع اندلاع اتصال اتساع اتساق اتهام اتحاد اتكال اصطلاح اصطدام اضطراب اضطهاد اضطرار اطلاع اطمئنان اغتراب اغتيال ' +
+    'افتراض افترض افتراق افتقار افتتاح اقتصاد اقتراح اقترح اقتراب اقتباس اقتناع التزام التزم التباس التفات التقاء امتلاك امتداد امتناع ' +
+    'امتياز امتحان امتثال ابتكار ابتعاد ابتداء ابتلاء ابتسامة ' +
+    'استخدام استخدم استعمال استقلال استمرار استمر استقرار استعمار استبداد استغلال استثمار استنتاج استنباط استدلال استيعاب استجابة ' +
+    'استطاعة استطاع استقامة استعداد استثناء استهلاك استفادة استحقاق استشراق استعادة استقبال استعراض استحالة استيلاء').split(' ');
+  // the stem: a final ء or ة goes, since its seat changes before a suffix («احتوا» also catches «إحتوائه»); longest first
+  const WASL_STEMS = [...new Set(WASL.map(w => /[ءة]$/.test(w) ? w.slice(0, -1) : w))].sort((a, b) => b.length - a.length);
+
   // الشدة في الأدوات الشائعة: want=true gives only the forms that are right in every case (أنّه، إلّا، إنّما، كلّ، ممّا، ثمّ...),
   //  applied automatically; want=false gives the rest (أنّ/إنّ before a word), which can be the light أنْ/إنْ
   function shaddaCommon(text, want) {
@@ -201,6 +219,35 @@
         }
         return out;
       } },
+    // قرار بشار (16/11/2026): سطر الكلمات المفتاحية تفصل بين كلماته شرطة بمسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)
+    { id: 'dash-list', auto: true, no: 8, name: 'الشرطة في سطر الكلمات المفتاحية', why: 'تُفصل الكلمات المفتاحية بشرطة قصيرة بين مسافتين: وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية.',
+      find: text => {
+        // a short paragraph that is only a list: three or more dashes, every piece one to five words, no sentence punctuation
+        const body = text.trim().replace(/^(?:الكلمات المفتاحية|كلمات مفتاحية)[ \u00A0]*:/, '');
+        if (text.length > 400 || /[.،؛؟!,;]/.test(body.replace(/\.{2,}/g, ''))) return [];
+        // an Arabic line only: the English abstract keeps its own style (al-Shaykh, Al-Azhar)
+        if ((text.match(/[A-Za-z]/g) || []).length * 2 > (text.match(/[\u0621-\u064A]/g) || []).length) return [];
+        const dashes = [];
+        for (let i = 0; i < text.length; i++) {
+          if (!/[-–—]/.test(text[i])) continue;
+          if (re('[{D}]').test(text[i - 1] || '') && re('[{D}]').test(text[i + 1] || '')) continue;   // a range: 1914-1918
+          if (/[A-Za-z]/.test(text[i - 1] || '') && /[A-Za-z]/.test(text[i + 1] || '')) continue;    // a Latin hyphenated word
+          dashes.push(i);
+        }
+        if (dashes.length < 3) return [];
+        const cuts = [-1, ...dashes, text.length];
+        for (let k = 0; k + 1 < cuts.length; k++) {
+          const n = text.slice(cuts[k] + 1, cuts[k + 1]).replace(/[()]/g, '').trim().split(/\s+/).filter(Boolean).length;
+          if (n < 1 || n > 5) return [];
+        }
+        const out = [];
+        for (const i of dashes) {
+          let a = i; while (a > 0 && /[ \u00A0]/.test(text[a - 1])) a--;
+          let b = i + 1; while (b < text.length && /[ \u00A0]/.test(text[b])) b++;
+          if (text.slice(a, b) !== ' - ') out.push({ start: a, end: b, repl: ' - ' });
+        }
+        return out.length ? [{ group: out }] : [];
+      } },
     { id: 'dash-pair', auto: true, no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
       find: text => {
         const out = [];
@@ -216,6 +263,20 @@
           if (!text.slice(0, i).trim() || !text.slice(i + 1).trim()) continue;
           if (/[-–—]/.test(text[i - 1] + text[i + 1]) || /[-–—][  ]*$/.test(text.slice(0, i)) && /[-–—]/.test(text.slice(Math.max(0, i - 3), i))) continue;
           cand.push(i);
+        }
+        // قرار بشار (16/11/2026): شرطتان ملتصقتان بالكلمات من الجهتين حول عبارة من ثلاث كلمات أو أكثر هما شرطتا جملة معترضة:
+        //  «القوانين-سواء بأنفسهم أو من خلال ممثلين لهم-وأن» ← «القوانين -سواء ... لهم- وأن»؛ بشرط ألا يكون في الفقرة غيرهما،
+        //  حتى لا تختلط بالشرطة بين كلمتين (الاجتماعية-السياسية)
+        if (!cand.length) {
+          const all = [...text.matchAll(/[-–—]/g)].map(m => m.index);
+          if (all.length === 2 && all.every(i => re('[{LH}]').test(text[i - 1] || '') && re('[{L}]').test(text[i + 1] || ''))) {
+            const [a, b] = all, inner = text.slice(a + 1, b);
+            // two nisba adjectives joined by a dash are a compound (تحليلية–تطبيقية، الأنطولوجي–الرمزي)، not an aside
+            const nisba = i => re('ي[{H}]*(?:ة|ات)?[{H}]*$').test(text.slice(0, i)) && re('^[{L}]+ي[{H}]*(?:ة|ات)?[{H}]*(?![{LH}])').test(text.slice(i + 1));
+            if (!all.some(nisba) && inner.trim().split(/\s+/).length >= 3 && inner.length <= 120 && !/[.؟!:؛\n]/.test(inner) && !/[A-Za-z]/.test(inner))
+              out.push({ group: [{ start: a, end: a, repl: ' ' }, { start: b + 1, end: b + 1, repl: ' ' }] });
+          }
+          return out;
         }
         if (cand.length % 2) return out;                              // an odd count: not clear which dashes pair up
         // a list such as keywords (أ - ب - ج - د): every piece between the dashes is short
@@ -252,6 +313,22 @@
       find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*/[ \\u00A0]*(?=[{L}])'), () => '/ ') },
     { id: 'sp-double', auto: true, no: 7, name: 'مسافات زائدة', why: 'مسافة واحدة بين الكلمات.',
       find: simple(/(?<=\S)[ \u00A0]{2,}(?=\S)/g, () => ' ') },
+    // قرار بشار (16/11/2026): نقاط الحذف ثلاث، تلتصق بالكلمة قبلها وتُفصل بمسافة عمّا بعدها: تقهقر... وجرأة
+    { id: 'ellipsis', auto: true, no: 7, name: 'نقاط الحذف', why: 'نقاط الحذف ثلاث، تلتصق بالكلمة التي قبلها وتُفصل بمسافة عن الكلمة التي بعدها: أنا أفكر... إذن أنا موجود.',
+      find: simple(re('(?<=[{L}][{H}]*)[ \\u00A0]*(?<!\\.)\\.{2,3}(?!\\.)[ \\u00A0]*(?=[{L}])'), () => '... ') },
+    // قرار بشار (16/11/2026): واو العطف تلتصق بما بعدها: «و تراكم» ← «وتراكم»، «و (فينيليوس)» ← «و(فينيليوس)»؛
+    //  ولا تُمسّ الواو في أول الفقرة (حرف ترقيم: و- ...) ولا الواو قبل حرف واحد (أ و ب)
+    { id: 'waw-space', auto: true, no: 1, label: 'الإملاء', name: 'واو العطف منفصلة', why: 'واو العطف تلتصق بالكلمة التي بعدها: وتراكم، وكبار.',
+      find: text => {
+        const out = [];
+        for (const m of text.matchAll(/و[ \u00A0]+/g)) {
+          const i = m.index, j = i + m[0].length;
+          if (!text.slice(0, i).trim() || !/[ \u00A0(«“"،,]/.test(text[i - 1])) continue;
+          if (!re('^[(«“"]?[{L}][{H}]*[{L}]', '').test(text.slice(j))) continue;
+          out.push({ start: i + 1, end: j, repl: '' });
+        }
+        return out;
+      } },
     { id: 'dot-out', auto: true, no: 14, name: 'النقطة خارج القوس', why: 'توضع النقطة بعد القوس أو علامة التنصيص الختامية، لا قبلها.',
       find: (text, ctx) => {
         const out = [];
@@ -272,6 +349,8 @@
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
     { id: 'year-paren', auto: true, no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
       find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
+    { id: 'year-mark', auto: true, no: 19, name: 'حرف (م) و(هـ) بعد السنة', why: 'يلتصق حرف (م) أو (هـ) برقم السنة دون مسافة: 435م، 1427هـ.',
+      find: simple(re('(?<![{D}])([{D}]{3,4})[ \\u00A0]+(?=(?:م|هـ|ه)(?![{LH}]))'), m => m[1]) },
     { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
         ...simple(re('(?<![{LH}])([وف]?)ما(زال|زالت|زلت|زالوا|زلنا|زالا|دام|دامت|داموا)(?![{L}])'), m => m[1] + 'ما ' + m[2])(text),
@@ -324,7 +403,10 @@
     { id: 'tanween', auto: true, no: 6, name: 'موضع تنوين الفتح', word: true, why: 'تنوين الفتح يُكتب على الألف (كتاباً)، وفي المقصورة على الحرف الذي قبلها (معنًى).',
       // a fully vocalised word (قُرْآنًا، مُتَكَلِّمًا in an unbracketed verse or a vocalised quotation) is left as written
       find: text => [
+        // بعد الألف والهمزة لا تُكتب ألف التنوين: بناءً، انتهاءً، سواءً (لا: بناءا، بناءًا، بناءاً)؛ ويُترك المثنى «جاءا، شاءا»
+        ...simple(re('(?<![{LH}])([{L}]+)اء[\u064B]?ا[\u064B]?(?![{LH}])'), m => m[1].replace(/^[وف]/, '').length < 2 ? null : m[1] + 'اء\u064B')(text),
         ...simple(re('\\u064Bا(?![{LH}])'), () => 'ا\u064B')(text).filter(e => {
+          if (/اء$/.test(text.slice(0, e.start))) return false;
           const w = text.slice(0, e.start).match(re('[{LH}]*$'))[0];
           return (w.match(/[\u064E-\u0650\u0652]/g) || []).length < 2;
         }),
@@ -393,8 +475,12 @@
           }
           if (fix) out.push({ start: s, end: s + w.length, repl: fix });
         }
+        out.push(...simple(re('(?<![{LH}])([وف]?)(' + [...YA_REV.keys()].join('|') + ')(?![{LH}])', 'g'), m => m[1] + YA_REV.get(m[2]))(text));
         return out;
       } },
+    { id: 'hamza-wasl', auto: true, no: 4, name: 'همزة الوصل في أول المصدر', word: true, why: 'مصادر الأفعال الخماسية والسداسية وأفعالها الماضية تبدأ بهمزة وصل لا تُكتب: الاتجاه، احتواء، انطواء، ادعى.',
+      find: simple(re('(?<![{LH}])((?:[وف]?[بلك]?ال|[وف]?لل|[وفبلك])?)إ(' + WASL_STEMS.map(w => w.slice(1)).join('|') + ')(?=[{LH}]*(?![{LH}]))', 'g'),
+        m => m[1] + 'ا' + m[2]) },
     { id: 'inna', auto: true, no: 0, label: 'قاعدة نحوية', name: 'كسر همزة (إنّ) بعد القول وحيث وإذ', word: true, why: 'تُكسر همزة (إنّ) بعد القول ومشتقاته، وبعد (حيث) و(إذ): حيث إنّ، إذ إنّ، يمكن القول إنّ.',
       find: simple(re('(?<![{LH}])((?:حيث|إذ|القول|يقال|قيل|قال|قالت|قالوا|يقول|تقول|نقول|أقول|يقولون)[ \u00A0]+)أن(?:\u0651)?(ه|ها|هم|هما|هن|نا|ني|ك|كم)?(?![{LH}])'),
         m => m[1] + 'إنّ' + (m[2] || '')) },
@@ -417,7 +503,8 @@
           // a quoted saying stays a quotation even when short: «قالا: "نزل القرآن بكل لسان"»، «بأنّ "القرآن يفسر بعضه بعضا"»
           const pre = text.slice(Math.max(0, a - 30), a).replace(/[\u064B-\u0650\u0652]/g, '');
           if (kind === '"' && (SAYING.test(pre) || (THAT.test(pre) && inner.split(/\s+/).length >= 3))) continue;
-          const words = inner.split(/\s+/).length;
+          // نقاط الحذف تفصل بين كلمتين: «أنا أفكر...إذن أنا موجود» خمس كلمات
+          const words = inner.replace(/(?<=\S)[.…]+(?=\S)/g, ' ').split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
           if (kind === '"' && op === '"') continue;
           out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
@@ -464,9 +551,9 @@
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space'],
-    spell: ['sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
-    conv: ['year-paren', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
+  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis'],
+    spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
+    conv: ['year-paren', 'year-mark', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
@@ -770,6 +857,19 @@
   // ---------------------------------------------------------------- XML rebuild
   function rebuild(p, segs, text, edits, ctx) {
     const doc = p.ownerDocument;
+    // قرار بشار (16/11/2026): حذف مسافة زائدة بين كلمة أجنبية وكلمة عربية يحذف المسافة التي في المقطع الأجنبي (اليساري)، وتبقى
+    //  التي في المقطع العربي؛ فمسافة باقية في مقطع يساري تظهر في وورد في الجهة الخطأ، فتبدو «USAID» ملتصقة بالكلمة بعدها
+    const segAt = i => segs.find(s => s.kind === 'text' && s.start <= i && i < s.start + s.text.length);
+    const rtl = s => { const r = s && kids(s.node).find(c => isW(c, 'rPr')); const t = r && kids(r).find(c => isW(c, 'rtl'));
+      return !!t && !/^(0|false|off)$/.test(t.getAttributeNS(W, 'val') || ''); };
+    edits = edits.map(e => {
+      if (e.repl || e.end - e.start !== 1 || text[e.start] !== ' ' || !rtl(segAt(e.start))) return e;
+      for (const k of [e.start - 1, e.end]) {
+        const s = segAt(k);
+        if (text[k] === ' ' && s && !rtl(s) && !edits.some(x => x !== e && x.start <= k && k <= x.end)) return Object.assign({}, e, { start: k, end: k + 1 });
+      }
+      return e;
+    });
     const delAt = new Array(text.length).fill(null);
     const insAt = new Map();
     for (const e of edits) {
