@@ -1303,6 +1303,35 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         }
         return out;
       } },
+    // قرار بشار (16/11/2026): سطر الكلمات المفتاحية تفصل بين كلماته شرطة بمسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)
+    { id: 'dash-list', auto: true, no: 8, name: 'الشرطة في سطر الكلمات المفتاحية', why: 'تُفصل الكلمات المفتاحية بشرطة قصيرة بين مسافتين: وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية.',
+      find: text => {
+        // a short paragraph that is only a list: three or more dashes, every piece one to five words, no sentence punctuation
+        const body = text.trim().replace(/^(?:الكلمات المفتاحية|كلمات مفتاحية)[ \u00A0]*:/, '');
+        if (text.length > 400 || /[.،؛؟!,;]/.test(body.replace(/\.{2,}/g, ''))) return [];
+        // an Arabic line only: the English abstract keeps its own style (al-Shaykh, Al-Azhar)
+        if ((text.match(/[A-Za-z]/g) || []).length * 2 > (text.match(/[\u0621-\u064A]/g) || []).length) return [];
+        const dashes = [];
+        for (let i = 0; i < text.length; i++) {
+          if (!/[-–—]/.test(text[i])) continue;
+          if (re('[{D}]').test(text[i - 1] || '') && re('[{D}]').test(text[i + 1] || '')) continue;   // a range: 1914-1918
+          if (/[A-Za-z]/.test(text[i - 1] || '') && /[A-Za-z]/.test(text[i + 1] || '')) continue;    // a Latin hyphenated word
+          dashes.push(i);
+        }
+        if (dashes.length < 3) return [];
+        const cuts = [-1, ...dashes, text.length];
+        for (let k = 0; k + 1 < cuts.length; k++) {
+          const n = text.slice(cuts[k] + 1, cuts[k + 1]).replace(/[()]/g, '').trim().split(/\s+/).filter(Boolean).length;
+          if (n < 1 || n > 5) return [];
+        }
+        const out = [];
+        for (const i of dashes) {
+          let a = i; while (a > 0 && /[ \u00A0]/.test(text[a - 1])) a--;
+          let b = i + 1; while (b < text.length && /[ \u00A0]/.test(text[b])) b++;
+          if (text.slice(a, b) !== ' - ') out.push({ start: a, end: b, repl: ' - ' });
+        }
+        return out.length ? [{ group: out }] : [];
+      } },
     { id: 'dash-pair', auto: true, no: 8, name: 'الشرطتان حول الجملة المعترضة', why: 'الشرطتان تلتصقان بالجملة المعترضة من الطرفين، وتُفصلان بمسافة عمّا قبلها وما بعدها: الإيمان -حسب القرآن- في اتباع النبي.',
       find: text => {
         const out = [];
