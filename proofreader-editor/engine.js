@@ -159,8 +159,8 @@
           out.push({ start: p, end: p, repl: '\u0651' }); } };
         // أنّ/إنّ/لكنّ/كأنّ + attached pronoun
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=(?:ه|ها|هم|هما|هن|ك|كم|كما|ني|نا)(?![{LH}]))', 'g'), m => m.index + m[0].length, true);
-        // أنّ/إنّ/لكنّ/كأنّ before a definite noun
-        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=[ \u00A0]+ال)', 'g'), m => m.index + m[0].length);
+        // أنّ/إنّ/لكنّ/كأنّ before a definite noun, also when a quote mark or a bracket comes first: بأنّ "الفضيلة..." (قرار بشار، 18/11/2026)
+        add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|لكن|كأن))(?=[ \u00A0]+["«“(]?ال)', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/كأنّ before a word that cannot follow the light أنْ/إنْ (فإنّ ما، أنّ هذا، أنّ هناك...);
         //  not لكن, which is often the light لكنْ here, and not before a later «إلا/لما» (negative إنْ: إنْ هذا إلا...)
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
@@ -236,7 +236,8 @@
       find: simple(/،(?:[ \u00A0]*،)+[ \u00A0]*/g, m => /[ \u00A0]$/.test(m[0]) || /\S/.test(m.input[m.index + m[0].length] || '') ? '، ' : '،') },
     // قرار بشار (16/11/2026، المقال الثاني): مسافة بعد «د.» قبل الاسم (د.راقية ← د. راقية)؛ ولا تُمسّ «د.ت» و«د.ط» في المراجع
     { id: 'title-d', auto: true, no: 31, name: 'لقب الدكتور', why: 'يُفصل لقب «د.» بمسافة عن الاسم بعده: د. راقية.',
-      find: simple(re('(?<![{LH}])د\\.(?=[{L}]{3})'), () => 'د. ') },
+      // قرار بشار (18/11/2026): «د.» للرجل والمرأة: دة. أميرة ← د. أميرة
+      find: text => [...simple(re('(?<![{LH}])د\\.(?=[{L}]{3})'), () => 'د. ')(text), ...simple(re('(?<![{LH}])دة\\.[ \\u00A0]*(?=[{L}]{3})'), () => 'د. ')(text)] },
     { id: 'sp-before', auto: true, no: 7, name: 'مسافة قبل علامة الترقيم', why: 'علامة الترقيم تلتصق بالكلمة التي قبلها.',
       find: simple(/(?<![A-Za-z\/—–_=])[ \u00A0]+(?=[،؛:!؟.,;])(?!\.\.)/g, () => '') }, // not after Latin text, URLs or ——— in bibliographies: proofreaders leave those
     { id: 'sp-after', auto: true, no: 7, name: 'مسافة بعد علامة الترقيم', why: 'تُفصل علامة الترقيم بمسافة واحدة عن الكلمة التي تليها.',
@@ -265,20 +266,61 @@
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
+    // runs in findGroups before all the other rules (curlyPairs): listed here for its name, explanation and «تلقائي» switch
+    { id: 'quote-curly', auto: true, no: 10, name: 'علامات التنصيص المبرومة', why: 'تُكتب علامتا التنصيص عاديتين " " لا مبرومتين “ ”، ولو كُتبتا مقلوبتين: ”الأغيار“ ← "الأغيار".',
+      find: () => [] },
     { id: 'br-inner', auto: true, no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
-          ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
-          ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
+          ...simple(/(?<=[(«])[ \u00A0]+/g, () => '')(text),
+          ...simple(/[ \u00A0]+(?=[)»])/g, () => '')(text)
         ].filter(e => !flippedParens(text).includes(e.end))
-          // a reversed «»» or «”» that opens a quotation («أن »ميزة العقل») keeps the space before it
-          .filter(e => !(/[»”]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
+          // a reversed «»» that opens a quotation («أن »ميزة العقل») keeps the space before it
+          .filter(e => !(/[»]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
+        // curly marks left as they are (around Latin text) go by their pairing, not their shape;
+        //  a lone one standing between spaces opens a quotation the author never closed: «بقوله: ” إنّ»
+        const cp = curlyAll(text), inCp = new Set(cp.flat());
+        for (const m of text.matchAll(/(?<=(?:^|[ \u00A0:\-–—(])[“”])[ \u00A0]+(?=[^\s،,.؛;:!؟?)\]»“”"])/g))
+          if (!inCp.has(m.index - 1)) out.push({ start: m.index, end: m.index + m[0].length, repl: '' });
+        for (const [a, b] of cp) {
+          let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
+          if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
+          let j = b; while (j - 1 > a && (text[j - 1] === ' ' || text[j - 1] === '\u00A0')) j--;
+          if (j < b && j > i) out.push({ start: j, end: b, repl: '' });
+        }
         for (const [a, b] of ctx.straightPairs) {
           if (gluedPair(text, a, b)) continue;
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
           if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
           let j = b; while (j - 1 > a && (text[j - 1] === ' ' || text[j - 1] === '\u00A0')) j--;
           if (j < b && j > i) out.push({ start: j, end: b, repl: '' });
+        }
+        return out;
+      } },
+    // قرار بشار (18/11/2026، المقال الخامس): مدّتان منفصلتان (ـ بين مسافتين) حول جملة معترضة هما شرطتاها:
+    //  «النموذج الرأسي ـ على الرغم من ... الكلاسيكية ـ من» ← «النموذج الرأسي -على الرغم من ... الكلاسيكية- من».
+    //  المدّة الواحدة (قد تكون فاصلة أو شرطة) وترقيم العناوين يبقيان للذكاء الاصطناعي
+    { id: 'dash-tatweel', auto: true, no: 8, name: 'المدّتان حول الجملة المعترضة', why: 'تُكتب الجملة المعترضة بين شرطتين ملتصقتين بها، لا بين مدّتين (ـ): الإيمان -حسب القرآن- في اتباع النبي.',
+      find: text => {
+        const out = [];
+        const runs = [...text.matchAll(/(?<=[ \u00A0])\u0640+(?=[ \u00A0])/g)].map(m => [m.index, m.index + m[0].length])
+          .filter(([s, e]) => text.slice(0, s).trim() && text.slice(e).trim() && !re('^[ \u00A0]*([{D}]+|[{L}])[ \u00A0]*$').test(text.slice(0, s)));
+        if (!runs.length || runs.length % 2) return out;              // a single (or odd) tatweel: a comma or a dash, not clear which
+        if (/[ \u00A0][-–—][ \u00A0]/.test(text)) return out;          // mixed with dashes: a list of keywords (الحوار – القيم ـ الإسلام)
+        if (runs.some(([s, e]) => re('[{D}][ \u00A0]*$').test(text.slice(0, s)) && re('^[ \u00A0]*[{D}]').test(text.slice(e)))) return out; // 2004 ـ 2005 is dash-num's
+        for (let k = 0; k < runs.length; k += 2) {
+          const [a, ae] = runs[k], [b, be] = runs[k + 1], inner = text.slice(ae, b).trim();
+          if (inner.length < 2 || inner.length > 120 || /[\n.؟!:؛]/.test(inner) || inner.includes(FN) || inner.includes(OB)) continue;
+          if (!re('[{L}]').test(inner) || /[A-Za-z]/.test(inner) && (inner.match(/[A-Za-z]/g).length * 2 > inner.replace(/\s/g, '').length)) continue;
+          if (/[:.؛!؟][ \u00A0]*$/.test(text.slice(0, a))) continue;
+          let a0 = a; while (a0 > 0 && /[ \u00A0]/.test(text[a0 - 1])) a0--;
+          let a1 = ae; while (/[ \u00A0]/.test(text[a1])) a1++;
+          let b0 = b; while (/[ \u00A0]/.test(text[b0 - 1])) b0--;
+          let b1 = be; while (b1 < text.length && /[ \u00A0]/.test(text[b1])) b1++;
+          const prev = text[a0 - 1] || '', next = text[b1] || '';
+          const ra = (a0 > 0 && !/[(\[«“]/.test(prev) ? ' ' : '') + '-';
+          const rb = '-' + (b1 < text.length && !/[،,.؛;:!؟?)\]»”]/.test(next) ? ' ' : '');
+          out.push({ group: [{ start: a0, end: a1, repl: ra }, { start: b0, end: b1, repl: rb }] });
         }
         return out;
       } },
@@ -336,7 +378,8 @@
         return out;
       } },
     { id: 'dash-num', auto: true, no: 8, name: 'الشرطة بين رقمين', why: 'لا مسافة قبل الشرطة ولا بعدها بين رقمين، وتُكتب الشرطة قصيرة (-): 2015-2017.',
-      find: simple(re('(?<=[{D}])[ \\u00A0]*[-–—][ \\u00A0]*(?=[{D}])'), () => '-') },
+      // قرار بشار (18/11/2026): المدّة بين رقمين مكان الشرطة خطأ: ص95ـ118 ← ص95-118
+      find: simple(re('(?<=[{D}])[ \\u00A0]*(?:[-–—]|\u0640+)[ \\u00A0]*(?=[{D}])'), () => '-') },
     // قرار المركز (10 تشرين الثاني/ نوفمبر 2026): الشرطة موحّدة قصيرة (-)، فتُستبدل بها الطويلة (– أو —) الملتصقة بكلمتين
     { id: 'dash-short', auto: true, no: 8, name: 'الشرطة بين كلمتين', why: 'تُكتب الشرطة بين كلمتين قصيرة (-) دون مسافة: الاجتماعية-السياسية.',
       find: simple(re('(?<=[{L}][{H}]*)[–—](?=[{L}])'), () => '-') },
@@ -462,7 +505,9 @@
           const w = text.slice(0, e.start).match(re('[{LH}]*$'))[0];
           return (w.match(/[\u064E-\u0650\u0652]/g) || []).length < 2;
         }),
-        ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text)
+        ...simple(re('ى\\u064B(?![{LH}])'), () => '\u064Bى')(text),
+        // قرار بشار (18/11/2026): «أيضاً» منوّنة دائماً (1,082 مرة من 1,090 في المقالات المدققة): أيضا ← أيضاً، وأيضا ← وأيضاً
+        ...simple(re('(?<![{LH}])([وف]?أيضا)(?![{LH}])'), m => m[1] + '\u064B')(text)
       ] },
     { id: 'months', auto: true, no: 21, name: 'أسماء الأشهر', word: true, translatedOff: true, why: 'يُذكر الاسم العربي الشائع متبوعاً بالاسم الغربي، مثل: تموز/ يوليو.',
       find: text => {
@@ -490,9 +535,9 @@
       ] },
     { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
-    { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2.',
+    { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2، ج1.',
       // «ط: 1427هـ» is a printing year, not an edition number: left alone
-      find: simple(re('(?<![{LH}(])(ط|ع|مج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])(?!(?<=ط[^{D}]*)[{D}]{3})'), m => m[1]) },
+      find: simple(re('(?<![{LH}(])(ط|ع|مج|ج)(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])(?!(?<=ط[^{D}]*)[{D}]{3})'), m => m[1]) },
     { id: 'ibid', auto: true, no: 29, name: '(المصدر نفسه) و(مصدر سابق)', scope: 'notes', why: 'تُكتب (المصدر نفسه) للمصدر المكرر مباشرة، و(مصدر سابق) لمصدر ورد قبل عدة هوامش، ثم فاصلة ورقم الصفحة.',
       find: text => [
         ...simple(/نفس المصدر|نفس المرجع|المرجع نفسه|(?<![\u0621-\u064A])م(?:[ \u00A0]*\.[ \u00A0]*|[ \u00A0]+)ن(?![\u0621-\u064A])\.?/g, () => 'المصدر نفسه')(text),
@@ -546,7 +591,8 @@
       find: (text, ctx) => {
         const out = [];
         const pairs = ctx.straightPairs.filter(p => !gluedPair(text, p[0], p[1])).map(p => [...p, '"']);
-        for (const [o, c] of [['“', '”'], ['«', '»']]) {
+        curlyAll(text).forEach(([a, b]) => pairs.push([a, b, '“']));
+        for (const [o, c] of [['«', '»']]) {
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i, o]); }
         }
@@ -569,7 +615,8 @@
       find: (text, ctx) => {
         const out = [];
         const pairs = ctx.straightPairs.map(p => [p[0], p[1]]);
-        for (const [o, c] of [['(', ')'], ['“', '”'], ['«', '»']]) {
+        curlyAll(text).forEach(([a, b]) => pairs.push([a, b]));
+        for (const [o, c] of [['(', ')'], ['«', '»']]) {
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i]); }
         }
@@ -605,7 +652,7 @@
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
+  const CAT = { punct: ['quote-curly', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
     conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -642,7 +689,11 @@
     const ranges = straight.map(p => [p[0], p[1]]);
     const unbalanced = [];
     if (open >= 0) unbalanced.push('"');
-    const pairs = [['«', '»'], ['“', '”'], ['(', ')'], ['[', ']']];
+    // curly marks pair by the side they stick to, since authors type them either way round (see curlyAll)
+    const cp = curlyAll(text), inCp = new Set(cp.flat());
+    cp.forEach(p => ranges.push(p));
+    for (let i = 0; i < text.length; i++) if ((text[i] === '“' || text[i] === '”') && !inCp.has(i)) unbalanced.push(text[i]);
+    const pairs = [['«', '»'], ['(', ')'], ['[', ']']];
     const quran = [];
     const brackets = [];
     for (const [o, c] of pairs) {
@@ -732,8 +783,39 @@
     return { segs, text };
   }
 
+  // قرار بشار (18/11/2026، المقال الخامس): المركز لا يستعمل علامات التنصيص المبرومة “ ”، بل العادية " ".
+  //  يكتبها بعض المؤلفين مقلوبة (”الأغيار“ بيننا)، فيُقرأ اتجاه كل علامة من موضعها لا من شكلها: تفتح إذا التصقت بما بعدها،
+  //  وتغلق إذا التصقت بما قبلها. الزوج حول نص عربي يصير " "، ويبقى ما حول نص لاتيني (عناوين المراجع الأجنبية) كما هو.
+  function curlyAll(text) {
+    const pairs = [];
+    const ws = c => !c || /\s/.test(c);
+    let open = -1;
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] !== '“' && text[i] !== '”') continue;
+      const prev = text[i - 1], next = text[i + 1];
+      // a stray space inside the marks (: ” الحرية، الهرم ”) still lets the side away from it decide
+      const after = text.slice(i + 1).trimStart()[0];
+      const canOpen = !!after && !/[،,.؛;:!؟?)\]»“”]/.test(after) && (!ws(next) || ws(prev) || /[:(\[«\-–—]/.test(prev));
+      const canClose = i > 0 && !/[(\[«“”]/.test(prev) && (!ws(prev) || ws(next) || /[،,.؛;:!؟?)\]»]/.test(next));
+      if (open >= 0 && canClose) { pairs.push([open, i]); open = -1; }
+      else if (canOpen) open = i;
+    }
+    return pairs;
+  }
+  function curlyPairs(text) {
+    return curlyAll(text).filter(([a, b]) => {
+      const inner = text.slice(a + 1, b);
+      const ar = (inner.match(/[\u0621-\u064A]/g) || []).length, lat = (inner.match(/[A-Za-z]/g) || []).length;
+      return ar > 0 && lat * 2 <= ar + lat && !inner.includes('"');
+    });
+  }
+  const CURLY_RULE = RULES.find(r => r.id === 'quote-curly');
+
   // Find rule groups in one paragraph's text. Each group: { rule, edits:[{start,end,repl,rule}], lo, hi, before, after }
-  function findGroups(text, ctx) {
+  function findGroups(text0, ctx) {
+    const curly = curlyPairs(text0);
+    let text = text0;
+    if (curly.length) { const t = text0.split(''); curly.forEach(([a, b]) => { t[a] = '"'; t[b] = '"'; }); text = t.join(''); }
     const pr = pairRanges(text);
     const warnings = [];
     if (pr.unbalanced.length) warnings.push({ where: ctx.where, kind: 'unbalanced', marks: [...new Set(pr.unbalanced)].join(' '), snippet: snippet(text, 0, 0) });
@@ -776,13 +858,23 @@
         if (!ok) continue;
         const ruleTag = { id: rule.id, no: rule.no, label: rule.label, name: rule.name, why: rule.why, cat: rule.cat };
         group.forEach(e => accepted.push(Object.assign(e, { rule: ruleTag })));
-        const lo = Math.min(...group.map(e => e.start)), hi = Math.max(...group.map(e => e.end));
-        const after = applyEdits(text, group);
-        groups.push({ rule: ruleTag, edits: group, lo, hi,
-          before: snippet(text, lo, hi), after: snippet(after, lo, hi + group.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0)) });
+        push(ruleTag, group);
       }
     }
+    // the curly marks that no other edit already rewrote become straight quotes
+    const cTag = { id: CURLY_RULE.id, no: CURLY_RULE.no, name: CURLY_RULE.name, why: CURLY_RULE.why, cat: CURLY_RULE.cat };
+    for (const pair of curly) {
+      const group = pair.filter(p => !accepted.some(a => a.start <= p && a.end > p) && !overlaps(p, p + 1, pr.quran))
+        .map(p => ({ start: p, end: p + 1, repl: '"', rule: cTag }));
+      if (group.length) push(cTag, group);
+    }
     return { groups, warnings, quran: pr.quran };
+    function push(ruleTag, group) {
+      const lo = Math.min(...group.map(e => e.start)), hi = Math.max(...group.map(e => e.end));
+      const after = applyEdits(text0, group);
+      groups.push({ rule: ruleTag, edits: group, lo, hi,
+        before: snippet(text0, lo, hi), after: snippet(after, lo, hi + group.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0)) });
+    }
   }
 
   function processParagraph(p, ctx) {
