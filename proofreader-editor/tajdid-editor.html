@@ -1287,20 +1287,61 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         ...doubledAfterLatin(text).map(d => ({ group: [{ start: d.start, end: d.start, repl: '(' }, { start: d.close, end: d.close + 1, repl: '' }] })),
         ...openerMissing(text).map(group => ({ group }))
       ] },
+    // runs in findGroups before all the other rules (curlyPairs): listed here for its name, explanation and «تلقائي» switch
+    { id: 'quote-curly', auto: true, no: 10, name: 'علامات التنصيص المبرومة', why: 'تُكتب علامتا التنصيص عاديتين " " لا مبرومتين “ ”، ولو كُتبتا مقلوبتين: ”الأغيار“ ← "الأغيار".',
+      find: () => [] },
     { id: 'br-inner', auto: true, no: 10, name: 'مسافة داخل الأقواس أو علامات التنصيص', why: 'تُلصق الأقواس وعلامات التنصيص بالنص من الطرفين دون مسافة.',
       find: (text, ctx) => {
         const out = [
-          ...simple(/(?<=[(«“])[ \u00A0]+/g, () => '')(text),
-          ...simple(/[ \u00A0]+(?=[)»”])/g, () => '')(text)
+          ...simple(/(?<=[(«])[ \u00A0]+/g, () => '')(text),
+          ...simple(/[ \u00A0]+(?=[)»])/g, () => '')(text)
         ].filter(e => !flippedParens(text).includes(e.end))
-          // a reversed «»» or «”» that opens a quotation («أن »ميزة العقل») keeps the space before it
-          .filter(e => !(/[»”]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
+          // a reversed «»» that opens a quotation («أن »ميزة العقل») keeps the space before it
+          .filter(e => !(/[»]/.test(text[e.end] || '') && /[\u0621-\u064A]/.test(text[e.end + 1] || ''))); // a reversed «)» opens: the space before it stays
+        // curly marks left as they are (around Latin text) go by their pairing, not their shape;
+        //  a lone one standing between spaces opens a quotation the author never closed: «بقوله: ” إنّ»
+        const cp = curlyAll(text), inCp = new Set(cp.flat());
+        for (const m of text.matchAll(/(?<=(?:^|[ \u00A0:\-–—(])[“”])[ \u00A0]+(?=[^\s،,.؛;:!؟?)\]»“”"])/g))
+          if (!inCp.has(m.index - 1)) out.push({ start: m.index, end: m.index + m[0].length, repl: '' });
+        for (const [a, b] of cp) {
+          let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
+          if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
+          let j = b; while (j - 1 > a && (text[j - 1] === ' ' || text[j - 1] === '\u00A0')) j--;
+          if (j < b && j > i) out.push({ start: j, end: b, repl: '' });
+        }
         for (const [a, b] of ctx.straightPairs) {
           if (gluedPair(text, a, b)) continue;
           let i = a + 1; while (text[i] === ' ' || text[i] === '\u00A0') i++;
           if (i > a + 1 && i < b) out.push({ start: a + 1, end: i, repl: '' });
           let j = b; while (j - 1 > a && (text[j - 1] === ' ' || text[j - 1] === '\u00A0')) j--;
           if (j < b && j > i) out.push({ start: j, end: b, repl: '' });
+        }
+        return out;
+      } },
+    // قرار بشار (18/11/2026، المقال الخامس): مدّتان منفصلتان (ـ بين مسافتين) حول جملة معترضة هما شرطتاها:
+    //  «النموذج الرأسي ـ على الرغم من ... الكلاسيكية ـ من» ← «النموذج الرأسي -على الرغم من ... الكلاسيكية- من».
+    //  المدّة الواحدة (قد تكون فاصلة أو شرطة) وترقيم العناوين يبقيان للذكاء الاصطناعي
+    { id: 'dash-tatweel', auto: true, no: 8, name: 'المدّتان حول الجملة المعترضة', why: 'تُكتب الجملة المعترضة بين شرطتين ملتصقتين بها، لا بين مدّتين (ـ): الإيمان -حسب القرآن- في اتباع النبي.',
+      find: text => {
+        const out = [];
+        const runs = [...text.matchAll(/(?<=[ \u00A0])\u0640+(?=[ \u00A0])/g)].map(m => [m.index, m.index + m[0].length])
+          .filter(([s, e]) => text.slice(0, s).trim() && text.slice(e).trim() && !re('^[ \u00A0]*([{D}]+|[{L}])[ \u00A0]*$').test(text.slice(0, s)));
+        if (!runs.length || runs.length % 2) return out;              // a single (or odd) tatweel: a comma or a dash, not clear which
+        if (/[ \u00A0][-–—][ \u00A0]/.test(text)) return out;          // mixed with dashes: a list of keywords (الحوار – القيم ـ الإسلام)
+        if (runs.some(([s, e]) => re('[{D}][ \u00A0]*$').test(text.slice(0, s)) && re('^[ \u00A0]*[{D}]').test(text.slice(e)))) return out; // 2004 ـ 2005 is dash-num's
+        for (let k = 0; k < runs.length; k += 2) {
+          const [a, ae] = runs[k], [b, be] = runs[k + 1], inner = text.slice(ae, b).trim();
+          if (inner.length < 2 || inner.length > 120 || /[\n.؟!:؛]/.test(inner) || inner.includes(FN) || inner.includes(OB)) continue;
+          if (!re('[{L}]').test(inner) || /[A-Za-z]/.test(inner) && (inner.match(/[A-Za-z]/g).length * 2 > inner.replace(/\s/g, '').length)) continue;
+          if (/[:.؛!؟][ \u00A0]*$/.test(text.slice(0, a))) continue;
+          let a0 = a; while (a0 > 0 && /[ \u00A0]/.test(text[a0 - 1])) a0--;
+          let a1 = ae; while (/[ \u00A0]/.test(text[a1])) a1++;
+          let b0 = b; while (/[ \u00A0]/.test(text[b0 - 1])) b0--;
+          let b1 = be; while (b1 < text.length && /[ \u00A0]/.test(text[b1])) b1++;
+          const prev = text[a0 - 1] || '', next = text[b1] || '';
+          const ra = (a0 > 0 && !/[(\[«“]/.test(prev) ? ' ' : '') + '-';
+          const rb = '-' + (b1 < text.length && !/[،,.؛;:!؟?)\]»”]/.test(next) ? ' ' : '');
+          out.push({ group: [{ start: a0, end: a1, repl: ra }, { start: b0, end: b1, repl: rb }] });
         }
         return out;
       } },
@@ -1571,7 +1612,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       find: (text, ctx) => {
         const out = [];
         const pairs = ctx.straightPairs.filter(p => !gluedPair(text, p[0], p[1])).map(p => [...p, '"']);
-        for (const [o, c] of [['“', '”'], ['«', '»']]) {
+        curlyAll(text).forEach(([a, b]) => pairs.push([a, b, '“']));
+        for (const [o, c] of [['«', '»']]) {
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i, o]); }
         }
@@ -1594,7 +1636,8 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       find: (text, ctx) => {
         const out = [];
         const pairs = ctx.straightPairs.map(p => [p[0], p[1]]);
-        for (const [o, c] of [['(', ')'], ['“', '”'], ['«', '»']]) {
+        curlyAll(text).forEach(([a, b]) => pairs.push([a, b]));
+        for (const [o, c] of [['(', ')'], ['«', '»']]) {
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i]); }
         }
@@ -1630,7 +1673,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       } }
   ];
 
-  const CAT = { punct: ['sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
+  const CAT = { punct: ['quote-curly', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
     conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -1667,7 +1710,11 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     const ranges = straight.map(p => [p[0], p[1]]);
     const unbalanced = [];
     if (open >= 0) unbalanced.push('"');
-    const pairs = [['«', '»'], ['“', '”'], ['(', ')'], ['[', ']']];
+    // curly marks pair by the side they stick to, since authors type them either way round (see curlyAll)
+    const cp = curlyAll(text), inCp = new Set(cp.flat());
+    cp.forEach(p => ranges.push(p));
+    for (let i = 0; i < text.length; i++) if ((text[i] === '“' || text[i] === '”') && !inCp.has(i)) unbalanced.push(text[i]);
+    const pairs = [['«', '»'], ['(', ')'], ['[', ']']];
     const quran = [];
     const brackets = [];
     for (const [o, c] of pairs) {
@@ -1757,8 +1804,39 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     return { segs, text };
   }
 
+  // قرار بشار (18/11/2026، المقال الخامس): المركز لا يستعمل علامات التنصيص المبرومة “ ”، بل العادية " ".
+  //  يكتبها بعض المؤلفين مقلوبة (”الأغيار“ بيننا)، فيُقرأ اتجاه كل علامة من موضعها لا من شكلها: تفتح إذا التصقت بما بعدها،
+  //  وتغلق إذا التصقت بما قبلها. الزوج حول نص عربي يصير " "، ويبقى ما حول نص لاتيني (عناوين المراجع الأجنبية) كما هو.
+  function curlyAll(text) {
+    const pairs = [];
+    const ws = c => !c || /\s/.test(c);
+    let open = -1;
+    for (let i = 0; i < text.length; i++) {
+      if (text[i] !== '“' && text[i] !== '”') continue;
+      const prev = text[i - 1], next = text[i + 1];
+      // a stray space inside the marks (: ” الحرية، الهرم ”) still lets the side away from it decide
+      const after = text.slice(i + 1).trimStart()[0];
+      const canOpen = !!after && !/[،,.؛;:!؟?)\]»“”]/.test(after) && (!ws(next) || ws(prev) || /[:(\[«\-–—]/.test(prev));
+      const canClose = i > 0 && !/[(\[«“”]/.test(prev) && (!ws(prev) || ws(next) || /[،,.؛;:!؟?)\]»]/.test(next));
+      if (open >= 0 && canClose) { pairs.push([open, i]); open = -1; }
+      else if (canOpen) open = i;
+    }
+    return pairs;
+  }
+  function curlyPairs(text) {
+    return curlyAll(text).filter(([a, b]) => {
+      const inner = text.slice(a + 1, b);
+      const ar = (inner.match(/[\u0621-\u064A]/g) || []).length, lat = (inner.match(/[A-Za-z]/g) || []).length;
+      return ar > 0 && lat * 2 <= ar + lat && !inner.includes('"');
+    });
+  }
+  const CURLY_RULE = RULES.find(r => r.id === 'quote-curly');
+
   // Find rule groups in one paragraph's text. Each group: { rule, edits:[{start,end,repl,rule}], lo, hi, before, after }
-  function findGroups(text, ctx) {
+  function findGroups(text0, ctx) {
+    const curly = curlyPairs(text0);
+    let text = text0;
+    if (curly.length) { const t = text0.split(''); curly.forEach(([a, b]) => { t[a] = '"'; t[b] = '"'; }); text = t.join(''); }
     const pr = pairRanges(text);
     const warnings = [];
     if (pr.unbalanced.length) warnings.push({ where: ctx.where, kind: 'unbalanced', marks: [...new Set(pr.unbalanced)].join(' '), snippet: snippet(text, 0, 0) });
@@ -1801,13 +1879,23 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         if (!ok) continue;
         const ruleTag = { id: rule.id, no: rule.no, label: rule.label, name: rule.name, why: rule.why, cat: rule.cat };
         group.forEach(e => accepted.push(Object.assign(e, { rule: ruleTag })));
-        const lo = Math.min(...group.map(e => e.start)), hi = Math.max(...group.map(e => e.end));
-        const after = applyEdits(text, group);
-        groups.push({ rule: ruleTag, edits: group, lo, hi,
-          before: snippet(text, lo, hi), after: snippet(after, lo, hi + group.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0)) });
+        push(ruleTag, group);
       }
     }
+    // the curly marks that no other edit already rewrote become straight quotes
+    const cTag = { id: CURLY_RULE.id, no: CURLY_RULE.no, name: CURLY_RULE.name, why: CURLY_RULE.why, cat: CURLY_RULE.cat };
+    for (const pair of curly) {
+      const group = pair.filter(p => !accepted.some(a => a.start <= p && a.end > p) && !overlaps(p, p + 1, pr.quran))
+        .map(p => ({ start: p, end: p + 1, repl: '"', rule: cTag }));
+      if (group.length) push(cTag, group);
+    }
     return { groups, warnings, quran: pr.quran };
+    function push(ruleTag, group) {
+      const lo = Math.min(...group.map(e => e.start)), hi = Math.max(...group.map(e => e.end));
+      const after = applyEdits(text0, group);
+      groups.push({ rule: ruleTag, edits: group, lo, hi,
+        before: snippet(text0, lo, hi), after: snippet(after, lo, hi + group.reduce((n, e) => n + e.repl.length - (e.end - e.start), 0)) });
+    }
   }
 
   function processParagraph(p, ctx) {
@@ -2185,7 +2273,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { no: 8, title: 'الشرطتان والشرطة بين كلمتين أو رقمين', status: 'auto',
       text: ['بالنسبة للجمل المعترضة، والتي عادةً توضع بين شرطتين (– –)، تكون هاتان الشرطتان ملتصقتين بالجملة من اليمين واليسار، وليستا مفصولتين بمسافة، وعلامة الشرطة (–) في لوحة المفاتيح (الكيبورد) تكون في الزر الذي يسبق الرقم (0)، وتستخدم من دون زر (شفت).',
         'ملاحظة: إذا أتت الشرطة (–) بين كلمتين أو رقمين، فلا نأخذ مسافة لا قبلها ولا بعدها: (الظروف الاجتماعية–السياسية في 2015–2017).'],
-      tool: 'والمدّة (ـ) المكتوبة بين رقمين مكان الشرطة تُصحَّح أيضاً: ص95ـ118 ← ص95-118 (قرار بشار، 18/11/2026). قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). والشرطتان حول الجملة المعترضة تُصحَّحان تلقائياً أيضاً. والشرطة بعد رقم العنوان أو حرفه في أول الفقرة تُكتب قصيرة ملتصقة به وبعدها مسافة (2- الفرد المسؤول، ب- أما...)، وتُصحَّح تلقائياً، ولا تُعدّ طرفاً في جملة معترضة، ولا تُقترح الشرطتان حول كلمة واحدة في سطر المرجع (بيروت - لبنان، ط1). والشرطتان الملتصقتان بالكلمات من الجهتين حول عبارة من ثلاث كلمات أو أكثر تُعدّان شرطتي جملة معترضة إذا لم يكن في الفقرة غيرهما (القوانين-سواء بأنفسهم أو من خلال ممثلين لهم-وأن ← القوانين -سواء بأنفسهم أو من خلال ممثلين لهم- وأن)، إلا إذا جاءت الشرطة بين صفتين منسوبتين (تحليلية-تطبيقية). وفي سطر الكلمات المفتاحية تُفصل الكلمات بشرطة قصيرة بين مسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)، ولو كُتبت الشرطة سفلية (لغة _ القرآن _ قريش)، ولا يُمسّ سطر الكلمات المفتاحية الأجنبي. أما الشرطة الواحدة بين كلمتين بمسافة من جهة واحدة (تاريخ الأدب العربي- العصر الجاهلي ← العربي - العصر) فتبقى للذكاء الاصطناعي، لأنها في المقالات تأتي أيضاً بين صفتين (العربية- الإسلامية) وفي الأسماء المركبة وبعد (أولاً-) وفي جملة معترضة نقصت إحدى شرطتيها.' },
+      tool: 'والمدّة (ـ) المكتوبة بين رقمين مكان الشرطة تُصحَّح أيضاً: ص95ـ118 ← ص95-118 (قرار بشار، 18/11/2026). والمدّتان المنفصلتان بين مسافتين حول جملة معترضة تصيران شرطتين ملتصقتين بها: الرأسي ـ على الرغم من ... ـ من ← الرأسي -على الرغم من ...- من (قرار بشار، 18/11/2026)، أما المدّة الواحدة وترقيم العناوين بالمدّة فللذكاء الاصطناعي. قرار المركز: الشرطة موحّدة قصيرة (-)، الزر الذي يسبق الصفر. الشرطة بين رقمين أو بين كلمتين تُصحَّح تلقائياً عند فتح المستند (تُزال المسافات بين الرقمين، وتُستبدل القصيرة بالطويلة). والشرطتان حول الجملة المعترضة تُصحَّحان تلقائياً أيضاً. والشرطة بعد رقم العنوان أو حرفه في أول الفقرة تُكتب قصيرة ملتصقة به وبعدها مسافة (2- الفرد المسؤول، ب- أما...)، وتُصحَّح تلقائياً، ولا تُعدّ طرفاً في جملة معترضة، ولا تُقترح الشرطتان حول كلمة واحدة في سطر المرجع (بيروت - لبنان، ط1). والشرطتان الملتصقتان بالكلمات من الجهتين حول عبارة من ثلاث كلمات أو أكثر تُعدّان شرطتي جملة معترضة إذا لم يكن في الفقرة غيرهما (القوانين-سواء بأنفسهم أو من خلال ممثلين لهم-وأن ← القوانين -سواء بأنفسهم أو من خلال ممثلين لهم- وأن)، إلا إذا جاءت الشرطة بين صفتين منسوبتين (تحليلية-تطبيقية). وفي سطر الكلمات المفتاحية تُفصل الكلمات بشرطة قصيرة بين مسافتين: (وثيقة حقوق الإنسان 1789 - نظام الرق - النظم الإقطاعية)، ولو كُتبت الشرطة سفلية (لغة _ القرآن _ قريش)، ولا يُمسّ سطر الكلمات المفتاحية الأجنبي. أما الشرطة الواحدة بين كلمتين بمسافة من جهة واحدة (تاريخ الأدب العربي- العصر الجاهلي ← العربي - العصر) فتبقى للذكاء الاصطناعي، لأنها في المقالات تأتي أيضاً بين صفتين (العربية- الإسلامية) وفي الأسماء المركبة وبعد (أولاً-) وفي جملة معترضة نقصت إحدى شرطتيها.' },
     { no: 9, title: 'الشرطة المائلة', status: 'auto',
       text: ['تُستخدم علامة (/) عند الجمع بين كلمتين أو مصطلحين، بحيث تكون ملاصقة للكلمة الأولى، ومفصولة بمسافة واحدة عن الكلمة الثانية، مثل: أخلاقي/ سياسي، أو ديني/ دنيوي.'],
       tool: 'تُصحَّح تلقائياً عند فتح المستند، ويستطيع المدقق رفض أي تصحيح منها.' },
@@ -2193,7 +2281,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
       text: ['توحيد استخدام الأقواس وعلامات الاقتباس، بحيث تُستخدم علامة الاقتباس العربية " " للنصوص المقتبسة التي تتطلب توثيقاً أو إحالة مرجعية، سواء أُذكر المصدر في المتن أم في الهامش. أما الأقواس الاعتيادية ( ) فتُخصص للإيضاحات أو الشروحات داخل النص.',
         'ويُراعى –خصوصاً في النصوص المترجمة– الالتزام بما وضعه المترجم من علامات اقتباس أو أقواس، دون تعديل أو حذف، حرصاً على أمانة النقل، وكما في توضيحات النقاط اللاحقة.',
         'ملاحظة: تُلصق علامات الاقتباس والأقواس الاعتيادية بالكلمة أو الجملة من الطرفين، دون ترك مسافة فاصلة بينها وبين النص.'],
-      tool: 'المسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند، والتحويل بين الأقواس وعلامات التنصيص كذلك (القاعدة 13). ولا يلمس المحرك علامة تنصيص ملتصقة بالكلمة من خارجها، لأن ذلك يدل على اقتباس متداخل. والقوس المقلوب يُصحَّح تلقائياً أيضاً، ومنه المرجع الأجنبي الذي جاء قوساه بعده (Street 2006)) ← (Street 2006)، ولا يُمسّ سطر أجنبي كامل. وإذا كان القوسان مقلوبين معاً قُلبا معاً: ابن منظور) أبو الفضل( ← ابن منظور (أبو الفضل).' },
+      tool: 'علامات التنصيص المبرومة (“ ” ولو كُتبت مقلوبة ”…“) تصير عادية " " تلقائياً حول النص العربي، ويُقرأ اتجاهها من موضعها لا من شكلها، وتبقى حول العنوان الأجنبي في المراجع (قرار بشار، 18/11/2026). والمسافة داخل الأقواس وعلامات التنصيص تُحذف تلقائياً عند فتح المستند، والتحويل بين الأقواس وعلامات التنصيص كذلك (القاعدة 13). ولا يلمس المحرك علامة تنصيص ملتصقة بالكلمة من خارجها، لأن ذلك يدل على اقتباس متداخل. والقوس المقلوب يُصحَّح تلقائياً أيضاً، ومنه المرجع الأجنبي الذي جاء قوساه بعده (Street 2006)) ← (Street 2006)، ولا يُمسّ سطر أجنبي كامل. وإذا كان القوسان مقلوبين معاً قُلبا معاً: ابن منظور) أبو الفضل( ← ابن منظور (أبو الفضل).' },
     { no: 11, title: 'إغلاق الأقواس وعلامات الاقتباس', status: 'auto',
       text: ['الانتباه إلى إغلاق الأقواس الاعتيادية ( ) وعلامات الاقتباس " " عند استخدامها، والتأكد من عدم نسيان أحد طرفيها؛ إذ يُعدّ هذا من أكثر الأخطاء الشكلية شيوعاً التي تؤثر في وضوح النص وسلامة تركيبه.'],
       tool: 'تنبّه الأداة في الشريط السفلي إلى الفقرة التي فيها قوس أو علامة غير مغلقة، ويحدّد المدقق موضع الإغلاق.' },
@@ -2203,7 +2291,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
         '• التوضيحات الطويلة نسبياً، التي تُدرج داخل المتن لتوضيح فكرة أو تفصيل، تُوضع أيضاً بين أقواس تنصيص، ولو لم تكن منقولة عن مصدر.',
         '• في المجلات: التمييز بين نوعَي النصوص داخل أقواس التنصيص يكون كالتالي: إذا كان النص المنقول يحتوي على مصدر أو رقم هامش، فيُكتب بشكل مائل (Italic) وبحجم خط 14. أما إذا كان النص المنقول لا يحتوي على مصدر أو هامش، أو كان مجرد توضيح طويل من الكاتب أو المحرر، فيُكتب بشكل عادي غير مائل، وبحجم الخط المعتاد 15. أما في الكتب فإن الاقتباسات التي لها مصادر تكون مائلة ويكون الخط بحجم (14).',
         '• إذا ورد داخل النص المحصور بين أقواس التنصيص كلمات أو عبارات تحتاج إلى أقواس داخلية (ضمن النص)، فيُستخدم لذلك الأقواس الاعتيادية ( ) وليس أقواس التنصيص، لتفادي التداخل.'],
-      tool: 'يحوّل المحرك الآن « » و“ ” إلى " " في الاقتباس الطويل (انظر القاعدة 13). والتمييز بين المنقول والتوضيح يأتي مع طبقة الذكاء الاصطناعي، والخط وحجمه مؤجّلان (القاعدة 31).' },
+      tool: 'يحوّل المحرك الآن « » و“ ” إلى " " في الاقتباس الطويل (انظر القاعدة 13)، والمبرومة تصير " " حول كل نص عربي ولو كانت مقلوبة (القاعدة 10). والتمييز بين المنقول والتوضيح يأتي مع طبقة الذكاء الاصطناعي، والخط وحجمه مؤجّلان (القاعدة 31).' },
     { no: 13, title: 'الكلمة والعبارة القصيرة بين أقواس', status: 'auto',
       text: ['تُوضع الكلمات المفردة، والعبارات القصيرة، والجمل المختصرة، والأمثلة الفردية داخل المتن بين أقواس اعتيادية ( )، وليس بين أقواس تنصيص. أمثلة:',
         '• المعنى اللغوي للكلمة (التحوّل) يدل على الانتقال من حال إلى حال.',
@@ -2318,6 +2406,7 @@ button.rno:hover { color: var(--accent); border-color: var(--accent); }
     { rules: [4, 7, 8, 19], title: 'التدقيق اليدوي بعد المحرك: المقال الثالث', text: 'في مقال «قراءة في كتاب يوم كان الرب أنثى» عدّل المحرك داخل الاقتباسات الشدةَ والشرطتين فقط، وهذا مقبول: الشدات وعلامات الترقيم تُصحَّح داخل الاقتباس، ولا يُغيَّر فيه غير ذلك. وقواعد الكلمات لا تعمل داخل الاقتباس الطويل أصلاً. واستُثنيت كتابة السنة داخل الاقتباس الطويل حالياً (541 هـ، عام (1996) تبقى كما نُقلت). وبقيت الشرطة الواحدة بين كلمتين (الغرافيتانية – الأورليغانية، إله ذكر – الملكية) لطبقة الذكاء الاصطناعي. قرار بشار في 18 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك.' },
     { rules: [4], title: 'التدقيق اليدوي بعد المحرك: المقال الرابع', text: 'في مقال «أخلاق الفضيلة بين السحر المسرحي السقراطي والدوكسا الأفلاطونية» كانت كل المواضع التي أشار إليها بشار شدةً ناقصة في (أنّ، إنّ، لكنّ). يضع المحرك الشدة قبل المعرّف بـ(ال) ولو سبقته علامة تنصيص أو قوس: بأن "الفضيلة ← بأنّ "الفضيلة. وتُركت لطبقة الذكاء الاصطناعي: (أنّ) قبل اسم العلم (أن سقراط)، و(لكنّ) قبل الاسم غير المعرّف (لكن سقراط، لكن هذا البحث) وهي سؤال للإدارة، و(أنّ) قبل كلمة تحتمل أن تكون فعلاً (أن طلب، أن قطع، بأن جبن، فإن قيادته). قرار بشار في 18 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك.' },
     { rules: [8, 29, 31], title: 'التدقيق اليدوي بعد المحرك: هوامش المقال الرابع', text: 'في هوامش مقال «أخلاق الفضيلة بين السحر المسرحي السقراطي والدوكسا الأفلاطونية» أُضيف إلى المحرك: المدّة بين رقمين تصبح شرطة (ص95ـ118 ← ص95-118)، و(ج) ملاصقة للرقم (ج 1 ← ج1)، و(دة.) تصبح (د.). وتُركت لطبقة الذكاء الاصطناعي: الشرطة بين الناشر والمدينة (دار قباء – القاهرة)، والهامش الأجنبي كله (المسافات والأحرف الكبيرة)، و(أنّ) قبل اسم العلم. قرار بشار في 18 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك تلقائياً.' },
+    { rules: [4, 8, 10, 13, 26], title: 'التدقيق اليدوي بعد المحرك: المقال الخامس', text: 'في مقال «تأملات في التفسير النسوي الإسلامي» كتبت المؤلفة علامات التنصيص المبرومة “ ” مقلوبة (”الأغيار“ بيننا)، فكان المحرك يُلصق الكلمة التالية بالعلامة (شاملاً“سلط) ويجمع علامتين من اقتباسين مختلفين («”مؤمنة( أو )ملتزمة“»). والمركز لا يستعمل المبرومة، فصار المحرك يقرأ اتجاه العلامة من موضعها ويحوّل الزوج حول نص عربي إلى " "، ثم تعمل عليه القواعد المعتادة: ”مؤمنة“ أو ”ملتزمة“ ← (مؤمنة) أو (ملتزمة). وتبقى المبرومة حول عنوان أجنبي في المراجع كما هي. وأُضيف أيضاً: المدّتان المنفصلتان (ـ) حول الجملة المعترضة تصيران شرطتين ملتصقتين بها: النموذج الرأسي ـ على الرغم من ... الكلاسيكية ـ من ← النموذج الرأسي -على الرغم من ... الكلاسيكية- من. وتُركت لطبقة الذكاء الاصطناعي: المدّة الواحدة (قد تكون فاصلة أو شرطة)، وترقيم العناوين، و(أنّ) قبل الاسم غير المعرّف، والآيات، و(كتابى ← كتابي)، و(لأنّ)، والشرطة الواحدة بين كلمتين، وكتابة المرجع داخل النص (Ayubi (2019)). قرار بشار في 18 تشرين الثاني/ نوفمبر 2026.', effect: 'يطبّقه المحرك تلقائياً.' },
     { rules: [19], title: 'حرف (م) بعد السنة الميلادية', text: 'إذا كان النص يتحدث عن السنة الميلادية تُوضع (م) بعد رقم السنة، و(هـ) و(م) معاً إذا ذُكرت السنتان.', effect: 'بانتظار جواب الإدارة عن الحالات التي يشملها، ولا يطبّقه المحرك بعد.', pending: true }
   ];
 
