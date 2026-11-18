@@ -95,6 +95,13 @@
 
   const LEVANT = [['كانون الثاني', 'يناير'], ['شباط', 'فبراير'], ['آذار', 'مارس'], ['نيسان', 'أبريل'], ['أيار', 'مايو'], ['حزيران', 'يونيو'], ['تموز', 'يوليو'], ['آب', 'أغسطس'], ['أيلول', 'سبتمبر'], ['تشرين الأول', 'أكتوبر'], ['تشرين الثاني', 'نوفمبر'], ['كانون الأول', 'ديسمبر']];
   const GREG_ALIASES = { 'إبريل': 'أبريل', 'يونيه': 'يونيو', 'يوليه': 'يوليو' };
+  // a paragraph written almost all in Latin letters (an English abstract)
+  const latinPara = t => { const a = (t.match(/[\u0621-\u064A]/g) || []).length, l = (t.match(/[A-Za-z]/g) || []).length; return l > 9 * a; };
+  // French text inside « »: accented letters, l’/d’/qu’, or a common French word
+  const FRENCH = /[\u00C0-\u024F]|\b[lLdDqQjJnNsScC]u?['’]|\b(?:le|la|les|des|du|de|et|une|un|est|dans|pour|qui|que|sur|par|au|aux|en|ou|ce|cette|coll)\b/i;
+  // a bibliographic reference typed in the body: op. cit, p. 12, a year
+  const REFERENCE = /\b(?:op\.? ?cit|ibid|pp?\.? ?:? ?\d|[12]\d{3})\b/i;
+  const FRENCH_G = new RegExp(FRENCH.source, 'gi');
   const NISBA_EXCEPT = new Set(['كرسي', 'بديهي']);
   // not a nisba ya at all: the name عليّ and أيّ (also after و، ف، ب: وعليّ، وبأيّ)
   const NISBA_NOT = new Set(['علي', 'أي']);
@@ -470,6 +477,12 @@
           const st = m.index + m[0].length - m[2].length;
           out.push({ start: st, end: st + m[2].length, repl: m[2].replace(/[\u064E-\u0652]/g, '') });
         }
+        // \u0627\u0644\u0651\u0630\u064A\u060C \u0627\u0644\u0651\u062A\u064A\u060C \u0627\u0644\u0651\u0630\u064A\u0646: the lam of (\u0623\u0644) itself is the doubled sun letter, so the shadda sits right after (\u0627\u0644)
+        const rel = re('(?<![{LH}])(?:[\u0648\u0641]?[\u0628\u0643]?\u0627\u0644|[\u0648\u0641]?\u0644)\u0644?([\u064E-\u0650\u0652]?\u0651[\u064E-\u0650\u0652]?)(?=(?:\u0630\u064A|\u062A\u064A|\u0630\u064A\u0646|\u0630\u0627\u0646|\u0630\u064A\u0646|\u062A\u0627\u0646|\u062A\u064A\u0646|\u0644\u0630\u064A\u0646|\u0644\u062A\u064A\u0646|\u0644\u0627\u062A\u064A|\u0644\u0627\u0626\u064A|\u0644\u0648\u0627\u062A\u064A)(?![{LH}]))', 'g');
+        while ((m = rel.exec(text))) {
+          const st = m.index + m[0].length - m[1].length;
+          if (!out.some(e => e.start === st)) out.push({ start: st, end: st + m[1].length, repl: '' });
+        }
         return out;
       } },
     { id: 'nisba-shadda', auto: true, no: 5, name: 'شدة ياء النسبة', word: true, why: 'لا توضع الشدة على ياء النسبة: عراقي، مصري، إسلامي.',
@@ -544,6 +557,8 @@
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
+    { id: 'unzur', auto: true, no: 29, name: '(انظر) في الهوامش', scope: 'notes', why: 'تُكتب الإحالة في الهوامش بـ(انظر) لا (ينظر)، كما يفعل المدققون (قرار بشار، 18/11/2026).',
+      find: simple(re('(?<![{LH}])([وف]?)يُ?نظر(?![{LH}])'), m => m[1] + 'انظر') },
     { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
         // «الخاصة ¹أو»: the space goes from before the mark to after it, so the next word is not glued to it
@@ -598,6 +613,10 @@
         }
         for (const [a, b, kind] of pairs) {
           const inner = text.slice(a + 1, b).trim();
+          // «People of the Cave» in an English paragraph (the abstract), or an English quotation of five words or more: the centre
+          //  writes " " there (decision of 18/11/2026). French keeps its « » (« Les religions arabes », coll. « Folio »), and so do
+          //  titles in the footnotes («Vertu», op. cit) and a short foreign term inside Arabic text («World culture»), as the proofreaders kept them
+          if (kind === '«' && !re('[{L}]').test(inner) && /[A-Za-z]/.test(inner) && !FRENCH.test(inner) && !ctx.inNotes && !REFERENCE.test(text) && (latinPara(text) || inner.split(/\s+/).length >= 5) && (text.match(FRENCH_G) || []).length < 2) { out.push({ group: [{ start: a, end: a + 1, repl: '"' }, { start: b, end: b + 1, repl: '"' }] }); continue; }
           if (!re('[{L}]').test(inner) || /[A-Za-z]{3,}/.test(inner.replace(re('[{LH}\\s]', 'g'), '').slice(0, 1) + inner.slice(0, 3))) continue;
           if (inner.includes(FN) || inner.includes(OB) || /^[(«]/.test(inner) || isName(inner)) continue;
           // a quoted saying stays a quotation even when short: «قالا: "نزل القرآن بكل لسان"»، «بأنّ "القرآن يفسر بعضه بعضا"»
@@ -654,7 +673,7 @@
 
   const CAT = { punct: ['quote-curly', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
-    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
+    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'unzur', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
