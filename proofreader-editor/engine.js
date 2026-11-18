@@ -397,9 +397,9 @@
       } },
     { id: 'aw-quote', auto: true, no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
-    { id: 'year-paren', auto: true, no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
+    { id: 'year-paren', auto: true, noQuote: true, no: 19, name: 'العام بين قوسين', why: 'لا توضع أرقام الأعوام بين قوسين إلا مع التاريخين الميلادي والهجري أو المدة.',
       find: simple(re('(?<=(?:عام|سنة)\\s)\\(([{D}]{3,4}\\s?[مه]?)\\)'), m => m[1]) },
-    { id: 'year-mark', auto: true, no: 19, name: 'حرف (م) و(هـ) بعد السنة', why: 'يلتصق حرف (م) أو (هـ) برقم السنة دون مسافة: 435م، 1427هـ.',
+    { id: 'year-mark', auto: true, noQuote: true, no: 19, name: 'حرف (م) و(هـ) بعد السنة', why: 'يلتصق حرف (م) أو (هـ) برقم السنة دون مسافة: 435م، 1427هـ.',
       find: simple(re('(?<![{D}])([{D}]{3,4})[ \\u00A0]+(?=(?:م|هـ|ه)(?![{LH}]))'), m => m[1]) },
     { id: 'ma-la', auto: true, no: 22, name: 'فصل (ما) و(لا)', word: true, why: 'تُكتب (ما زال، ما دام، لا بد، لا زال، لا سيما) مفصولة.',
       find: text => [
@@ -769,6 +769,8 @@
           if (overlaps(e.start, e.end, pr.quran) || gluesVerse(text, e, pr.quran)) ok = false;
           if (exRanges.length && overlaps(e.start, e.end, exRanges)) ok = false;
           if (rule.word && !rule.quotes && overlaps(e.start, e.end, pr.longQuotes)) ok = false;   // shadda-common also works in quotes: proofreaders add it there too
+          // قرار بشار (18/11/2026): كتابة السنة لا تُغيَّر داخل الاقتباس الطويل (541 هـ، عام (1996) تبقى كما نُقلت)
+          if (rule.noQuote && overlaps(e.start, e.end, pr.longQuotes)) ok = false;
           if (busy(e.start, e.end, e.repl)) ok = false;
         }
         if (!ok) continue;
