@@ -546,6 +546,18 @@
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
         ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
       ] },
+    // runs after br-flip and tatweel, which already handle a bracket or (الـ/بـ) glued to the foreign word
+    // قرار بشار (24/11/2026، المقال السادس): الكلمة العربية لا تلتصق بالكلمة الأجنبية: ماكجيلMcGill ← ماكجيل McGill،
+    //  Reidبأن ← Reid بأن. ويُستثنى الحرف الواحد المتصل (وVice) وأداة التعريف وحروف الجر (الـ، بـ، فـ) التي تتبع القاعدة 24
+    { id: 'sp-latin', auto: true, no: 7, name: 'مسافة بين العربية والأجنبية', why: 'تُفصل الكلمة العربية بمسافة عن الكلمة الأجنبية الملتصقة بها: جامعة ماكجيل McGill.',
+      find: text => {
+        const out = [];
+        const PREFIX = /^(?:[وف]?[بكل]?(?:ال)?|[وف]?لل)$/;
+        for (const m of text.matchAll(re('(?<![{LH}\u0640])[{L}][{LH}\\u0640]*(?=[A-Za-z])')))
+          if (!m[0].endsWith('\u0640') && !PREFIX.test(m[0].replace(re('[{H}]'), ''))) out.push({ start: m.index + m[0].length, end: m.index + m[0].length, repl: ' ' });
+        for (const m of text.matchAll(re('[A-Za-z](?=[{L}])(?!\u0640)'))) out.push({ start: m.index + 1, end: m.index + 1, repl: ' ' });
+        return out;
+      } },
     { id: 'page', auto: true, no: 29, name: 'كتابة رقم الصفحة', why: 'يُكتب حرف (ص) ملاصقاً للرقم: ص22.',
       find: simple(re('(?<![{LH}(])صص?(?:[ \\u00A0]*[.:][ \\u00A0]*|[ \\u00A0]+)(?=[{D}])'), () => 'ص') },
     { id: 'abbr', auto: true, no: 29, name: 'الاختصارات في الهوامش', scope: 'notes', why: 'تُكتب الاختصارات ملاصقة للرقم: ط1، ع102، مج2، ج1.',
@@ -666,12 +678,14 @@
         const out = [];
         for (const [bad, good] of WORDS) out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)' + bad), m => m[1] + good)(text));
         out.push(...simple(re('(?<![{LH}])([وفبكل]?(?:ال)?)رئيسي(ة?)(?![{LH}])'), m => m[1] + 'رئيس' + m[2])(text));
+        // قرار بشار (24/11/2026): مائة ← مئة، ومعها المثنى والمركّب: مائتان ← مئتان، خمسمائة ← خمسمئة، بالمائة ← بالمئة
+        out.push(...simple(re('(?<![{LH}])((?:[وف]?(?:[بك]?ال|لل|[بكل])?)(?:ثلاث|أربع|خمس|ست|سبع|ثمان|ثماني|تسع)?)مائ(ة|تا|تان|تين|تي)(?![{LH}])'), m => m[1] + 'مئ' + m[2])(text));
         out.push(...simple(re('ق\\.م\\.(?=\\s+[{L}])'), () => 'ق.م')(text));
         return out;
       } }
   ];
 
-  const CAT = { punct: ['quote-curly', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
+  const CAT = { punct: ['quote-curly', 'sp-latin', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
     conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'unzur', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -1049,6 +1063,11 @@
     for (const pos of insAt.keys()) {
       let o = textSegs.find(s => s.start <= pos && pos < s.start + s.text.length);
       if (!o) o = [...textSegs].reverse().find(s => s.start + s.text.length === pos);
+      // a space inserted where an Arabic run meets a foreign one belongs to the Arabic run, or Word shows it on the wrong side
+      if (o && o.start === pos && !rtl(o) && insAt.get(pos).every(e => !e.repl.trim())) {
+        const prev = [...textSegs].reverse().find(s => s.start + s.text.length === pos);
+        if (prev && rtl(prev)) o = prev;
+      }
       owner.set(pos, o || null);
     }
     const el = name => doc.createElementNS(W, 'w:' + name);
