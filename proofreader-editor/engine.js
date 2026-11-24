@@ -19,6 +19,15 @@
   // a straight-quote pair whose opening mark is glued to the word before it, or whose closing mark is glued to the word
   // after it, is mispaired (nested "…"…"…" or a stray mark shifts the pairing): rules that move marks leave it alone
   const gluedPair = (text, a, b) => /[\u0621-\u063F\u0641-\u064A\u064B-\u065F\u0670A-Za-z]/.test(text[a - 1] || '') || /[\u0621-\u063F\u0641-\u064A\u064B-\u065F\u0670A-Za-z]/.test(text[b + 1] || '');
+  // قرار بشار (24/11/2026، المقال السابع): حرف العطف أو الجر الواحد الملتصق بالعلامة لا يجعلها متداخلة: و"الجندر" ← و(الجندر)؛
+  //  والعلامة الختامية الملتصقة بما بعدها («"قواعد الفوضى"وروايته») تُفصل عنه بمسافة (sp-after) إذا كان طرفها الأول سليماً
+  const QL = /[\u0621-\u063F\u0641-\u064A\u064B-\u065F\u0670A-Za-z]/;
+  const quoteLeftOk = (text, a) => !QL.test(text[a - 1] || '') || (/[وفبلك]/.test(text[a - 1]) && !QL.test(text[a - 2] || ''));
+  // a "closing" quote with a space before it and a letter after it opens the next quotation: the pairing went wrong
+  // the next straight quote shortly after b has the shape of a closing mark so b opens a quotation
+  //  (a word before it): ب"إعادة تأهيل العقل"، التونسية"سورة التوحيد"لأنها
+  const nextCloses = (text, b) => { const n = text.indexOf('"', b + 1); return n > 0 && n - b < 80 && QL.test(text[n - 1] || ''); };
+  const gluedQuote = (text, a, b) => !quoteLeftOk(text, a) || (QL.test(text[b + 1] || '') && (QL.test(text[a - 1] || '') || /[ \u00A0]/.test(text[b - 1] || '')));
   function unmatchedParens(text) {
     const st = [], bad = [];
     for (let i = 0; i < text.length; i++) {
@@ -171,6 +180,9 @@
         // أنّ/إنّ/كأنّ before a word that cannot follow the light أنْ/إنْ (فإنّ ما، أنّ هذا، أنّ هناك...);
         //  not لكن, which is often the light لكنْ here, and not before a later «إلا/لما» (negative إنْ: إنْ هذا إلا...)
         add(re('(?<![{LH}])((?:[وف]?[لب]?)(?:أن|إن|كأن))(?=[ \u00A0]+(?:ما|من|في|على|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم)|هذا|هذه|هذين|هاتين|ذلك|تلك|هؤلاء|أولئك|هناك|هنالك|كل|كلا|بعض|مثل|لكل|أكثر|أغلب|معظم|جميع)(?![{LH}])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}])))', 'g'), m => m.index + m[0].length);
+        // قرار بشار (24/11/2026، المقال السابع): أنّ/إنّ قبل حرف جر أو ظرف ولو سبقته علامة تنصيص أو قوس (فإنّ لديها، أنّ "في داخل العلم)،
+        //  وقبل النقطتين (ترى أنّ: "بيئتنا)؛ فأنْ وإنْ الخفيفتان لا يليهما إلا فعل. ولا تُمسّ (وإنْ) بمعنى «حتى لو»: -وإن عن غير قصد-
+        add(re('(?<![{LH}])((?:[ف]?[لب]?(?:أن|إن|كأن))|(?:و[لب]?(?:أن|كأن)))(?=(?:[ \u00A0]*:|[ \u00A0]+(?:["«“(][ \u00A0]*)?(?:ما|من|في|على|عن|إلى|مع|بين|عند|لدى|لدي|هنا|هناك|هنالك|ثمة|علي(?:ه|ها|هم|هما|هن|نا|ك|كم)|في(?:ه|ها|هم|هما|هن|نا|ك|كم)|من(?:ه|ها|هم|هما|هن|نا|ك|كم)|عن(?:ه|ها|هم|هما|هن|نا|ك|كم)|عند(?:ه|ها|هم|هما|هن|نا|ك|كم)|لدي(?:ه|ها|هم|هما|هن|نا|ك|كم)|ب(?:ه|ها|هم|هما|هن|نا|ك|كم)|ل(?:ه|ها|هم|هما|هن|نا|ك|كم))(?![{LH}])(?!["»”])(?![^.؟!؛\n]{0,60}(?<![{LH}])(?:إلا|إلّا|لما)(?![{LH}]))))', 'g'), m => m.index + m[0].length);
         // أنّ/إنّ/كأنّ before a word that cannot be a verb (the light أنْ/إنْ is followed by a verb): one with
         //  a tanween (إنّ عدداً) or a final ة (أنّ دراسةً)، one that starts with م and has no verb ending (فإنّ موقف; not «وإنْ مرضن») or has the shape
         //  تفعيل (فإنّ تنظيم، فإنّ تصنيفه), one ending in اء (أنّ ثراء), the shapes فُعول (أنّ شيوع) and فواعل
@@ -258,8 +270,28 @@
         ...simple(re(':[ \\u00A0]*"[ \\u00A0]+(?=[{L}])'), () => ': "')(text),
         ...ctx.straightPairs.filter(([a]) => text[a - 1] === ':' && !/[ \u00A0]/.test(text[a + 1])).map(([a]) => ({ start: a, end: a, repl: ' ' })),
         // قرار بشار (16/11/2026، المقال الثاني): مسافة قبل القوس الملتصق بكلمة (سيبويه(عمرو ← سيبويه (عمرو)، لا بعد حرف واحد (بـ(، ف()
-        ...simple(re('(?<=[{L}]{2}[{H}]*)(?<!\u0640)\\((?=[ \\u00A0]*[{L}])'), () => ' (')(text)
+        ...simple(re('(?<=[{L}]{2}[{H}]*)(?<!\u0640)\\((?=[ \\u00A0]*[{L}])'), () => ' (')(text),
+        // قرار بشار (24/11/2026، المقال السابع): مسافة بين قوسين متلاصقين (Fellowship)(1984) ← (Fellowship) (1984)،
+        //  وبعد علامة التنصيص الختامية الملتصقة بالكلمة («"قواعد الفوضى"وروايته» ← «"قواعد الفوضى" وروايته»)
+        ...simple(new RegExp('\\)(?=\\((?![ \\u00A0' + FN + OB + ']*\\))(?!(?:[0-9]{1,3}|\\*)\\)))', 'g'), () => ') ')(text),
+        ...ctx.straightPairs.filter(([a, b]) => re('[{L}]').test(text[b + 1] || '') && re('[{L}][{H}]*$').test(text.slice(Math.max(0, b - 4), b)) && re('[{L}]').test(text[a + 1] || '') && !nextCloses(text, b) && quoteLeftOk(text, a) && re('[{L}]').test(text.slice(a + 1, b)))
+          .map(([, b]) => ({ start: b + 1, end: b + 1, repl: ' ' }))
       ] },
+    // قرار بشار (24/11/2026، المقال السابع): لا نقطة بعد علامة الاستفهام أو التعجب (نظرية؟. ← نظرية؟)، وتبقى نقاط الحذف (؟...)؛
+    //  ونقطة واحدة ثم مسافة قبل القوس الملتصق (للتغيير.(إدارة التحرير) ← للتغيير. (إدارة التحرير))؛ وفي الهوامش فقط: النقطتان
+    //  في آخر الهامش أو قبل القوس نقطة واحدة (فلسفة العلم..(إدارة التحرير) ← فلسفة العلم. (إدارة التحرير))، أما في المتن فقد تكونان
+    //  حذفاً نقصت نقطته، فتبقيان للذكاء الاصطناعي
+    { id: 'dot-extra', auto: true, no: 7, name: 'النقطة الزائدة', why: 'لا تُكتب نقطة بعد علامة الاستفهام أو التعجب، ولا نقطتان في آخر الجملة: نظرية؟، (إدارة التحرير).',
+      find: (text, ctx) => [
+        ...simple(re('(?<=[؟!])\\.(?!\\.)([{L}])?'), m => m[1] ? ' ' + m[1] : '')(text),
+        ...simple(re('(?<=[{L}]{2}[{H}]*|[)/A-Za-z0-9])\\.(?=\\([{L}])'), () => '. ')(text),
+        ...(ctx.inNotes ? [
+          ...simple(re('(?<=[{L}{D})][{H}]*)\\.\\.[ \\u00A0]*(?=\\([{L}])'), () => '. ')(text),
+          ...simple(re('(?<=[{L}{D})][{H}]*)\\.\\.(?=[ \\u00A0]*$)'), () => '.')(text)] : [])
+      ] },
+    // قرار بشار (24/11/2026، المقال السابع): الشرطة في أول الفقرة تُفصل بمسافة عن الكلمة التي تليها: -سلكها، إبراهيم ← - سلكها، إبراهيم
+    { id: 'dash-start', auto: true, no: 8, name: 'الشرطة في أول الفقرة', why: 'الشرطة في أول السطر تُفصل بمسافة عن الكلمة التي بعدها: - سلكها، إبراهيم طلبة.',
+      find: simple(re('(?<=^[ \\t\\u00A0]*)[-–—](?=[{L}])'), () => '- ') },
     { id: 'semicolon', auto: true, no: 7, name: 'الفاصلة المنقوطة', why: 'تُكتب الفاصلة المنقوطة العربية (؛) في النص العربي، وتسبق التعليل بـ(لأنّ).',
       find: text => [
         ...simple(re('(?<=[{LH}\\)"»\u00A0 ]);'), () => '؛')(text),
@@ -440,7 +472,7 @@
           if (c === ')' || c === '»' || c === '”' || (c === '"' && (closers.has(i + 1) || lastQuote))) {
             // قرار بشار (16/11/2026، المقال الثاني): رقم الهامش بعد العلامة يسبق النقطة: عليها."¹ ← عليها"¹.
             let k = i + 2; while (text[k] === FN) k++;
-            out.push({ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: '.' });
+            out.push({ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: re('[{L}]').test(text[k] || '') ? '. ' : '.' });
           }
         }
         return out.length ? [{ group: out }] : [];
@@ -544,7 +576,9 @@
     { id: 'tatweel', auto: true, no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
       find: text => [
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
-        ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text)
+        ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text),
+        // قرار بشار (24/11/2026، المقال السابع): المدّة للكلمة الأجنبية والقوس فقط؛ قبل الكلمة العربية يلتصق الحرف بها: لـ توماس ← لتوماس
+        ...simple(re('(?<![{LH}\u0640])([وف]?[بلفك])\u0640+[ \\u00A0]+(?=[{L}])'), m => m[1])(text)
       ] },
     // runs after br-flip and tatweel, which already handle a bracket or (الـ/بـ) glued to the foreign word
     // قرار بشار (24/11/2026، المقال السادس): الكلمة العربية لا تلتصق بالكلمة الأجنبية: ماكجيلMcGill ← ماكجيل McGill،
@@ -617,7 +651,7 @@
     { id: 'quote-type', auto: true, no: 13, name: 'الأقواس أو علامات التنصيص', why: 'الكلمة المفردة والعبارة القصيرة (حتى أربع كلمات) توضعان بين قوسين ( )، والاقتباس والعبارة الطويلة بين علامتي التنصيص " " (القاعدتان 10 و13).',
       find: (text, ctx) => {
         const out = [];
-        const pairs = ctx.straightPairs.filter(p => !gluedPair(text, p[0], p[1])).map(p => [...p, '"']);
+        const pairs = ctx.straightPairs.filter(p => !gluedQuote(text, p[0], p[1]) && !(QL.test(text[p[1] + 1] || '') && nextCloses(text, p[1]))).map(p => [...p, '"']);
         curlyAll(text).forEach(([a, b]) => pairs.push([a, b, '“']));
         for (const [o, c] of [['«', '»']]) {
           const st = [];
@@ -685,7 +719,7 @@
       } }
   ];
 
-  const CAT = { punct: ['quote-curly', 'sp-latin', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
+  const CAT = { punct: ['quote-curly', 'sp-latin', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-start', 'dot-extra', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
     conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'unzur', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
@@ -855,7 +889,7 @@
     // spelling rules leave quotations alone, but a short quoted term (up to four words, which rule 13 puts in
     // parentheses) is the author's own wording and gets them
     pr.longQuotes = pr.quotes.filter(([a, b]) => text.slice(a + 1, b).trim().split(/\s+/).length > 4);
-    const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon };
+    const rctx = { straightPairs: pr.straight, lexicon: ctx.lexicon, inNotes: !!ctx.inNotes };
     // dictionary exceptions: whole words the engine must leave as written
     const exRanges = [];
     for (const w of EXCEPT) for (const m of text.matchAll(re('(?<![{LH}])[وف]?[بلك]?(?:ال)?' + fuzzy(w) + '(?![{LH}])'))) exRanges.push([m.index, m.index + m[0].length - 1]);
