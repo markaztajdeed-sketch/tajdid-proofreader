@@ -614,8 +614,7 @@
         ...simple(/(?<![\u0621-\u064A])(?:مرجع سابق|المرجع السابق|المصدر السابق)(?![\u0621-\u064A])/g, () => 'مصدر سابق')(text),
         ...simple(/(?<=المصدر نفسه|نفس المصدر|المرجع نفسه|مصدر سابق|مرجع سابق)[ \u00A0]*[,،]?[ \u00A0]*(?=ص\s*[0-9\u0660-\u0669\u06F0-\u06F9])/g, () => '، ')(text)
       ] },
-    { id: 'unzur', auto: true, no: 29, name: '(انظر) في الهوامش', scope: 'notes', why: 'تُكتب الإحالة في الهوامش بـ(انظر) لا (ينظر)، كما يفعل المدققون (قرار بشار، 18/11/2026).',
-      find: simple(re('(?<![{LH}])([وف]?)يُ?نظر(?![{LH}])'), m => m[1] + 'انظر') },
+    // (ينظر) ← (انظر) في الهوامش نُقلت إلى الذكاء الاصطناعي (قرار بشار، 25/11/2026): المحرك لا يميّز الإحالة من الجملة العادية (التي يُنظر إليها).
     { id: 'fn-space', auto: true, no: 29, name: 'موضع رقم الهامش', why: 'يلتصق رقم الهامش بالكلمة التي قبله دون مسافة، ويأتي قبل النقطة.',
       find: text => {
         // «الخاصة ¹أو»: the space goes from before the mark to after it, so the next word is not glued to it
@@ -741,7 +740,7 @@
 
   const CAT = { punct: ['quote-curly', 'sp-latin', 'sp-before', 'sp-after', 'br-flip', 'br-inner', 'dash-list', 'dash-start', 'dot-extra', 'dash-tatweel', 'dash-pair', 'dash-num', 'dash-short', 'dash-head', 'slash', 'sp-double', 'semicolon', 'dot-out', 'aw-quote', 'fn-space', 'ellipsis', 'comma-double', 'tatweel-end'],
     spell: ['hamza-wasl', 'waw-space', 'sun-shadda', 'nisba-shadda', 'tanween', 'ma-la', 'ma-shadda', 'tatweel', 'words', 'ya-dots', 'inna', 'shadda-sure', 'shadda-common'],
-    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'unzur', 'quote-type', 'title-ad', 'name-marks', 'names'] };
+    conv: ['year-paren', 'year-mark', 'title-d', 'months', 'page', 'abbr', 'ibid', 'quote-type', 'title-ad', 'name-marks', 'names'] };
   for (const [c, ids] of Object.entries(CAT)) ids.forEach(id => { const r = RULES.find(x => x.id === id); if (r) r.cat = c; });
 
   // ---------------------------------------------------------------- helpers
