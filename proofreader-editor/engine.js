@@ -126,6 +126,11 @@
   const noH = s => s.replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/\s+/g, ' ').trim();
   const NAME_FULL = new Set(DICT.names.flatMap(n => [n.name, ...n.variants]).map(noH));
   const NAME_ONE = new Set([...NAME_FULL].filter(n => !n.includes(' ')));
+  // the text between the mark at i and its closing mark is a dictionary name (name-marks will drop the marks)
+  const CLOSE_OF = { '(': ')', '«': '»', '“': '”"', '"': '"' };
+  const markedName = (text, i) => { const c = CLOSE_OF[text[i]]; if (!c) return false;
+    let j = i + 1; while (j < text.length && j - i < 60 && !c.includes(text[j])) j++;
+    return j < text.length && c.includes(text[j]) && isName(text.slice(i + 1, j)); };
   const isName = s => { const t = noH(s); return !!t && (NAME_FULL.has(t) || t.split(' ').every(w => NAME_ONE.has(w))); };
   // words always written with dotted ي (Egyptian-style dotless forms seen in submitted texts)
   const SAYING = /(?:^|[\s(«])[وف]?ب?(?:قال|قالت|قالا|قالوا|يقول|تقول|يقولون|نقول|أقول|قول|قوله|قولها|قولهم|يقال|قيل)[\s\u00A0]*:?[\s\u00A0]*$/;
@@ -472,10 +477,11 @@
           if (c === ')' || c === '»' || c === '”' || (c === '"' && (closers.has(i + 1) || lastQuote))) {
             // قرار بشار (16/11/2026، المقال الثاني): رقم الهامش بعد العلامة يسبق النقطة: عليها."¹ ← عليها"¹.
             let k = i + 2; while (text[k] === FN) k++;
-            out.push({ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: re('[{L}]').test(text[k] || '') ? '. ' : '.' });
+            // each move is its own group, so one move that touches a verse does not cancel the others in the paragraph
+            out.push({ group: [{ start: i, end: i + 1, repl: '' }, { start: k, end: k, repl: re('[{L}]').test(text[k] || '') ? '. ' : '.' }] });
           }
         }
-        return out.length ? [{ group: out }] : [];
+        return out;
       } },
     { id: 'aw-quote', auto: true, no: 18, name: 'عبارة "أو (...)"', why: 'لا تُوضع علامات التنصيص حول عبارة مثل أو (متحدة).',
       find: simple(/"(أو \([^)"]{1,60}\))"/g, m => m[1]) },
@@ -576,7 +582,12 @@
     { id: 'tatweel', auto: true, no: 24, name: 'الـ والباء والفاء مع الأجنبي والأقواس', why: 'تُكتب (الـ) و(بـ) و(فـ) بالمدّة للدلالة على الاتصال.',
       find: text => [
         ...simple(re('(?<![{LH}])(ال|وال|فال|بال|ب|ف|ك|ل)(?:ـ?[ \\u00A0]+|ـ(?![ \\u00A0])|(?=[A-Za-z]))(?=[A-Za-z])'), m => m[1] + 'ـ ')(text),
-        ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => m[1] + 'ـ')(text),
+        ...simple(re('(?<![{LH}])([فبلك])(?=[(«“])'), m => markedName(m.input, m.index + 1) ? null : m[1] + 'ـ')(text),
+        // قرار بشار (25/11/2026، المقال الثامن): الحرف المنفصل بمسافة عن القوس أو علامة التنصيص يلتصق بها بالمدّة،
+        //  وكذلك الملتصق بعلامة التنصيص المستقيمة: بـ (الإيمان) ← بـ(الإيمان)، ل "علم الدلالة" ← لـ"علم الدلالة"
+        //  أما إذا كان ما بين العلامتين اسم علم في القاموس فتُحذف العلامتان (القاعدة 17) ويلتصق الحرف به: لـ «روسو» ← لروسو
+        ...simple(re('(?<![{LH}\u0640])([فبلك])\u0640?[ \u00A0]+(?=[(«“"][{L}])'), m => m[1] + (markedName(m.input, m.index + m[0].length) ? '' : 'ـ'))(text),
+        ...simple(re('(?<![{LH}\u0640])([فبلك])(?="[{L}])'), m => markedName(m.input, m.index + m[0].length) ? m[1] : m[1] + 'ـ')(text),
         // قرار بشار (24/11/2026، المقال السابع): المدّة للكلمة الأجنبية والقوس فقط؛ قبل الكلمة العربية يلتصق الحرف بها: لـ توماس ← لتوماس
         ...simple(re('(?<![{LH}\u0640])([وف]?[بلفك])\u0640+[ \\u00A0]+(?=[{L}])'), m => m[1])(text)
       ] },
@@ -657,6 +668,15 @@
           const st = [];
           for (let i = 0; i < text.length; i++) { if (text[i] === o) st.push(i); else if (text[i] === c && st.length) pairs.push([st.pop(), i, o]); }
         }
+        // قرار بشار (25/11/2026، المقال الثامن): علامة مبرومة في أولها ومستقيمة في آخرها زوج واحد: “السياق التداولي" ← (السياق التداولي)،
+        //  وعلامتا التنصيص المفردتان حول كلمة أو عبارة قصيرة: 'التقوى' ← (التقوى)
+        const usedS = new Set(ctx.straightPairs.flat()), usedC = new Set(curlyAll(text).flat());
+        for (const m of text.matchAll(re('[“”](?=[{L}])[^"“”«»\\n]{1,80}?[{LH}]"(?![{L}])', 'g'))) {
+          const a = m.index, b = a + m[0].length - 1;
+          if (!usedC.has(a) && !usedS.has(b)) pairs.push([a, b, '“']);
+        }
+        for (const m of text.matchAll(re("(?<![{LH}A-Za-z'])'(?=[{L}])[^'\"\\n]{1,60}?[{LH}]'(?![{LH}A-Za-z'])", 'g')))
+          if (m[0].slice(1, -1).trim().split(/\s+/).length <= 4) pairs.push([m.index, m.index + m[0].length - 1, "'"]);
         for (const [a, b, kind] of pairs) {
           const inner = text.slice(a + 1, b).trim();
           // «People of the Cave» in an English paragraph (the abstract), or an English quotation of five words or more: the centre
@@ -671,7 +691,7 @@
           // نقاط الحذف تفصل بين كلمتين: «أنا أفكر...إذن أنا موجود» خمس كلمات
           const words = inner.replace(/(?<=\S)[.…]+(?=\S)/g, ' ').split(/\s+/).length;
           const [op, cl] = words <= 4 ? ['(', ')'] : ['"', '"'];
-          if (kind === '"' && op === '"') continue;
+          if ((kind === '"' || kind === "'") && op === '"') continue;
           out.push({ group: [{ start: a, end: a + 1, repl: op }, { start: b, end: b + 1, repl: cl }] });
         }
         return out;
@@ -752,9 +772,16 @@
   function pairRanges(text) {
     const straight = [];
     let open = -1;
-    for (let i = 0; i < text.length; i++) if (text[i] === '"') { if (open < 0) open = i; else { straight.push([open, i]); open = -1; } }
-    const ranges = straight.map(p => [p[0], p[1]]);
     const unbalanced = [];
+    // with an odd number of marks, a mark shaped like a closing one (a word before it, a colon or comma after it) that would open a
+    //  pair as the paragraph's first mark is the stray one: ـ توشيهيكو إيزوتسو": ولد … بجامعة "كيو" (otherwise every later pair is read inside out)
+    const odd = (text.match(/"/g) || []).length % 2 === 1;
+    let stray = -1;
+    for (let i = 0; i < text.length; i++) if (text[i] === '"') {
+      if (open < 0 && odd && stray < 0 && !straight.length && !/[“”«]/.test(text.slice(0, i)) && QL.test(text[i - 1] || '') && /[:،,.؛)]/.test(text[i + 1] || '')) { stray = i; unbalanced.push('"'); continue; }
+      if (open < 0) open = i; else { straight.push([open, i]); open = -1; }
+    }
+    const ranges = straight.map(p => [p[0], p[1]]);
     if (open >= 0) unbalanced.push('"');
     // curly marks pair by the side they stick to, since authors type them either way round (see curlyAll)
     const cp = curlyAll(text), inCp = new Set(cp.flat());
@@ -778,17 +805,27 @@
     // Verses written before the ornate brackets were used: {…} and ((…)) hold Quran text, and so does a quotation
     // that follows «تعالى» (or «عزّ وجلّ»...) or is followed by a sura citation such as (البقرة: 5) or [النساء: 95].
     const AR = /[ء-ي]/;
-    const brace = [];
+    const brace = [], braced = [];
     for (let i = 0; i < text.length; i++) {
       if (text[i] === '{') brace.push(i);
-      else if (text[i] === '}' && brace.length) { const a = brace.pop(); if (AR.test(text.slice(a, i))) quran.push([a, i]); }
+      else if (text[i] === '}' && brace.length) { const a = brace.pop(); if (AR.test(text.slice(a, i))) braced.push([a, i]); }
     }
     // in right-to-left Word text the braces are often typed the other way round: }قُلْ مَا كُنتُ بِدْعًا{
-    const rbrace = [];
+    const rbrace = [], rbraced = [];
     for (let i = 0; i < text.length; i++) {
       if (text[i] === '}') rbrace.push(i);
-      else if (text[i] === '{' && rbrace.length) { const a = rbrace.pop(); if (AR.test(text.slice(a, i))) quran.push([a, i]); }
+      else if (text[i] === '{' && rbrace.length) { const a = rbrace.pop(); if (AR.test(text.slice(a, i))) rbraced.push([a, i]); }
     }
+    // a paragraph can hold both ways round, and then the prose between two verses also looks like a pair:
+    //  {…فَانْتَهُوا} (الحشر/7) التي … {مَا أَفَاءَ…}. Of two pairs that share a brace, the verse is the one glued to its braces, then the more vocalised
+    const marks = ([a, b]) => { const t = text.slice(a + 1, b), l = (t.match(/[\u0621-\u064A]/g) || []).length; return l ? (t.match(/[\u064B-\u0652]/g) || []).length / l : 0; };
+    const shares = (x, y) => x[0] === y[0] || x[0] === y[1] || x[1] === y[0] || x[1] === y[1];
+    //  A verse sticks to its braces (}وقومك…للمتقين{), so the pair glued on more sides wins first
+    const L1 = /[\u0621-\u064A\u064B-\u0652\u0670\u0671]/;
+    const glue = ([a, b]) => (L1.test(text[a + 1] || '') ? 1 : 0) + (L1.test(text[b - 1] || '') ? 1 : 0);
+    const better = (x, y) => glue(x) !== glue(y) ? glue(x) > glue(y) : marks(x) > marks(y);
+    for (const p of braced) if (!rbraced.some(r => shares(p, r) && better(r, p))) quran.push(p);
+    for (const r of rbraced) if (!braced.some(p => shares(p, r) && !better(r, p))) quran.push(r);
     const INTRO_RE = /(تعالى|تعالي|عز ?و ?جل|جل ?و ?علا|سبحانه)\s*[:：]?\s*$/;
     const INTRO = { test: t => INTRO_RE.test(t.replace(/[ً-ْٰ]/g, '')) };
     const CITE = /^\s*[،,]?\s*[\(\[]\s*(سورة\s*)?[ء-يً-ْٰٱ ]{2,30}\s*[0-9٠-٩]*\s*[:،,/-]\s*(الآية|الآيات|آية|الآيتان)?\s*[0-9٠-٩]/;
@@ -951,7 +988,7 @@
     ctx.warnings.push(...warnings);
     groups.forEach(g => ctx.changes.push({ where: ctx.where, rule: g.rule, before: g.before, after: g.after }));
     const edits = groups.flatMap(g => g.edits);
-    if (edits.length) rebuild(p, rp.segs, rp.text, edits, ctx);
+    if (edits.length) rebuild(p, rp.segs, rp.text, edits, ctx); else markNeutralRuns(p, rp.segs, rp.text);
   }
 
   // Character diff (trimmed common prefix/suffix, then LCS on the middle) -> edits on `a`
@@ -1030,7 +1067,7 @@
       const rp = readParagraph(p);
       if (!rp) return;
       const edits = decide(key, rp.text);
-      if (!edits || !edits.length) return;
+      if (!edits || !edits.length) { markNeutralRuns(p, rp.segs, rp.text); return; }
       let n = p.parentNode;
       while (n && n.nodeType === 1 && !isW(n, 'footnote') && !isW(n, 'endnote')) n = n.parentNode;
       ctx.inNote = n && n.nodeType === 1 ? n.localName + ':' + n.getAttributeNS(W, 'id') : null;
@@ -1067,6 +1104,41 @@
   function snippet(text, lo, hi) {
     const a = Math.max(0, lo - 28), b = Math.min(text.length, hi + 28);
     return { pre: (a > 0 ? '…' : '') + text.slice(a, lo), mid: text.slice(lo, hi), post: text.slice(hi, b) + (b < text.length ? '…' : '') };
+  }
+
+  // ملاحظة بشار (25/11/2026، المقال الثامن): علامة الترقيم أو القوس أو المسافة بين كلام عربي تُكتب في مقطع يميني (w:rtl)، وإلا
+  //  عرضها وورد في الجهة الخطأ أو قلب القوس: «(أسرار اللسان العربي.²⁸(» و«النزول :يعتمد». علامة التنصيص (") في مقطع يساري
+  //  لا يظهر فيها الخلل لأنها متناظرة، فإذا صارت قوساً أو نُقلت النقطة بعدها ظهر. وكثير من المؤلفين يكتبون (: ") بلوحة إنجليزية
+  const STRONG_CH = /[A-Za-z\u00C0-\u024F\u0621-\u064A\u0671-\u06D3]/, LATIN_CH = /[A-Za-z\u00C0-\u024F]/;
+  const NEUTRAL_RUN = /^[\s"'“”«»()\[\]{}.,،؛;:!?؟\-–—…\/*]+$/;
+  const strongNear = (text, from, step) => { for (let k = from; k >= 0 && k < text.length; k += step) if (STRONG_CH.test(text[k])) return text[k]; return ''; };
+  // Arabic before the piece, and Arabic or nothing after it (an inserted piece only needs Arabic before it)
+  const arabicSides = (text, i, j, both) => { const b = strongNear(text, i - 1, -1), f = strongNear(text, j, 1);
+    if (!b && !both) return !!f && !LATIN_CH.test(f);
+    return !!b && !LATIN_CH.test(b) && (!both || !LATIN_CH.test(f)); };
+  const RPR_AFTER_RTL = ['cs', 'em', 'lang', 'eastAsianLayout', 'specVanish', 'oMath'];
+  const isRtl = rPr => { const t = rPr && kids(rPr).find(c => isW(c, 'rtl')); return !!t && !/^(0|false|off)$/.test(t.getAttributeNS(W, 'val') || ''); };
+  function putRtl(doc, r) {
+    const old = kids(r).find(c => isW(c, 'rtl'));
+    if (old) { old.removeAttributeNS(W, 'val'); return r; }
+    const before = kids(r).find(c => c.namespaceURI !== W || RPR_AFTER_RTL.some(n => isW(c, n)));
+    r.insertBefore(doc.createElementNS(W, 'w:rtl'), before || null);
+    return r;
+  }
+  // rPr for a piece of text: a copy marked right-to-left when the piece is punctuation (or, if inserted, anything not Latin) in Arabic
+  function withRtl(doc, rPr, str, text, i, j, neutralOnly) {
+    if (isRtl(rPr) || LATIN_CH.test(str) || (neutralOnly && !NEUTRAL_RUN.test(str)) || !arabicSides(text, i, j, neutralOnly)) return rPr;
+    return putRtl(doc, rPr ? rPr.cloneNode(true) : doc.createElementNS(W, 'w:rPr'));
+  }
+  // the same for a paragraph the engine does not rewrite: mark its punctuation-only runs in place
+  function markNeutralRuns(p, segs, text) {
+    const doc = p.ownerDocument;
+    for (const s of segs) {
+      if (s.kind !== 'text' || !s.text.length || !NEUTRAL_RUN.test(s.text)) continue;
+      const rPr = kids(s.node).find(c => isW(c, 'rPr'));
+      if (isRtl(rPr) || !arabicSides(text, s.start, s.start + s.text.length, true)) continue;
+      if (rPr) putRtl(doc, rPr); else s.node.insertBefore(putRtl(doc, doc.createElementNS(W, 'w:rPr')), s.node.firstChild);
+    }
   }
 
   // ---------------------------------------------------------------- XML rebuild
@@ -1121,9 +1193,11 @@
       r.appendChild(t);
       return r;
     };
+    const rtlPr = (rPr, e) => withRtl(doc, rPr, e.repl, text, e.start, e.start + e.repl.length, false);
     const insNodes = (rPr, list) => list.map(e => {
-      if (ctx.opts.clean) return run(rPr, e.repl, 't');
-      const m = mark('ins', e.rule); m.appendChild(run(rPr, e.repl, 't')); note(e, m); return m;
+      const pr = rtlPr(rPr, e);
+      if (ctx.opts.clean) return run(pr, e.repl, 't');
+      const m = mark('ins', e.rule); m.appendChild(run(pr, e.repl, 't')); note(e, m); return m;
     });
     // nodes of each commented correction, so the comment can span them once the paragraph is rebuilt
     const noted = new Map();
@@ -1154,7 +1228,7 @@
         let j = i + 1;
         while (j < end && delAt[j] === de && !mine(j)) j++;
         const str = text.slice(i, j);
-        if (de === null) nodes.push(run(rPr, str, 't'));
+        if (de === null) nodes.push(run(withRtl(doc, rPr, str, text, i, j, true), str, 't'));
         else if (!ctx.opts.clean) { const m = mark('del', de.rule); m.appendChild(run(rPr, str, 'delText')); note(de, m); nodes.push(m); }
         if (after.length) nodes.push(...insNodes(rPr, after));
         i = j;
